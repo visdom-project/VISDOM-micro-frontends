@@ -1,22 +1,29 @@
 {
-  "name": "progressview",
+  "name": "edu-pilot-visualizations",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@babel/preset-react": "^7.10.4",
+    "@babel/runtime": "^7.11.2",
     "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.3.2",
-    "@testing-library/user-event": "^7.1.2",
-    "axios": "^0.20.0",
+    "@testing-library/react": "^9.5.0",
+    "@testing-library/user-event": "^7.2.1",
+    "axios": "^0.19.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.3",
-    "recharts": "^1.8.5"
+    "recharts": "^1.8.5",
+    "single-spa-react": "^3.0.1"
   },
   "scripts": {
-    "start": "PORT=9005 react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "webpack-dev-server",
+    "build": "webpack --mode=production",
+    "test": "cross-env BABEL_ENV=test jest --passWithNoTests",
+    "eject": "react-scripts eject",
+    "analyze": "webpack --mode=production --env.analyze=true",
+    "lint": "eslint src --ext js",
+    "format": "prettier --write './**'",
+    "watch-tests": "cross-env BABEL_ENV=test jest --watch",
+    "coverage": "cross-env BABEL_ENV=test jest --coverage"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -32,5 +39,36 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged && concurrently yarn:test yarn:lint"
+    }
+  },
+  "devDependencies": {
+    "@babel/core": "^7.7.5",
+    "@babel/plugin-transform-runtime": "^7.8.3",
+    "@babel/preset-env": "^7.7.6",
+    "@types/jest": "^25.2.1",
+    "@types/systemjs": "^6.1.0",
+    "babel-eslint": "^11.0.0-beta.2",
+    "babel-jest": "^24.9.0",
+    "concurrently": "^5.0.1",
+    "cross-env": "^7.0.2",
+    "eslint": "^6.7.2",
+    "eslint-config-important-stuff": "^1.1.0",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^25.2.7",
+    "jest-cli": "^25.2.7",
+    "prettier": "^2.0.4",
+    "pretty-quick": "^2.0.1",
+    "systemjs-webpack-interop": "^2.1.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.12",
+    "webpack-config-single-spa": "^1.0.7",
+    "webpack-dev-server": "^3.9.0",
+    "webpack-merge": "^4.2.2"
   }
 }
