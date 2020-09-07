@@ -67,11 +67,12 @@ const ModuleDisplay = (data) => {
                   borderRadius: "0.5em",
                   border: "solid 1px darkgrey",
                   marginBottom: "0.5em",
-                  marginLeft: "4vh"}}>
+                  marginLeft: "4vh" }}>
 
       <button style={{ color: "darkgrey",
                        border: "lightgrey 1px solid",
-                       borderRadius: "3px"}}
+                       borderRadius: "3px",
+                       width: "2em" }}
               onClick={handleClick}>
       </button>
 

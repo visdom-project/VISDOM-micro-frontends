@@ -7,7 +7,8 @@ const StudentSelector = ({students, handleClick}) => {
                   width: "fit-content",
                   listStyleType: "none",
                   marginTop: "0em",
-                  borderLeft: "1px lightgrey solid"}}>
+                  borderLeft: "1px lightgrey solid",
+                  paddingLeft: "2em"}}>
         {students.map(student =>
           <li key={student}
               onClick={() => handleClick(student)}

@@ -1,7 +1,7 @@
 import React from 'react'
 
 const CheckBoxMenu = ({options, handleClick, showAvg, showExpected}) => {
-  const labelStyle = {paddingRight: "10px"}
+  const labelStyle = {paddingRight: "10px", marginBottom: "0em"}
   return (
     <div className="fit-row"
          style={{border: "1px #c7c7c7b5 solid",

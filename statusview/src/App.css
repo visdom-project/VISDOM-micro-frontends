@@ -2,48 +2,6 @@
   text-align: left;
 }
 
-.App-header {
-  background-color: #282c34;
-  display: flex;
-  flex-direction: row;
-  font-size: 2em;
-  color: white;
-  margin-bottom: 5vh;
-  padding: 0.25em;
-  padding-left: 5vh;
-}
-
-.App-header>p {
-  padding-right: 5vh;
-  margin: 0.3em;
-}
-
-.App-subheader {
-  font-size: 2em;
-  min-height: 8vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-top: 5vh;
-  margin-bottom: 1vh;
-  padding-left: 5vh;
-}
-
-.App-footer {
-  background-color: #282c34;
-  display: flex;
-  flex-direction: row-reverse;
-  font-size: 1em;
-  color: #636c80;
-  margin-top: 5vh;
-  padding: 2vh;
-  padding-right: 6.5vh;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
 .basic-line {
   stroke: #8884d8;
 }
@@ -60,33 +18,21 @@ div .intended {
   padding-left: 4vh;
 }
 
-h1, h2, h3 {
-  font-weight: normal;
+h1 {
+  font-size: 2em;
+  margin: 0.5em auto;
 }
 
 h2 {
+  font-size: 1.5em;
   padding-left: 2vh;
+  margin: 0.5em;
 }
 
 h3 {
+  font-size: 1em;
   padding-left: 4vh;
-}
-
-.Header-button {
-  background-color: #282c34;
-  color: white;
-  padding-right: 1em;
-  padding-left: 1em;
-  border: #757575 1px solid;
-  border-radius: 0.25em;
-  margin-left: 0.25em;
-  font-size: medium;
-  font-weight: lighter;
-}
-
-.Header-button:hover {
-  color: #282c34;
-  background-color: white;
+  margin: 0.5em;
 }
 
 .hoverable path:hover {
@@ -112,10 +58,15 @@ h3 {
 #showGradesButton {
   min-width: 10em;
   display: block;
-  border: none;
+  border: 1px solid lightgrey;
+  border-radius: 0.25em;
   font-family: inherit;
   font-size: unset;
   padding: 10px;
+  height: 3em;
+  margin: auto;
+  margin-left: 1em;
+  margin-right: 4em;
 }
 
 svg {

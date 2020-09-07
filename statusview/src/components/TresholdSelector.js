@@ -7,11 +7,15 @@ const TresholdSelector = ({handleTresholdChange, chartWidth, treshold, title, tr
     const refLine = document.querySelector("#treshold-line")
     const studentBars = document.querySelectorAll("path.recharts-rectangle")
     if (refLine !== null && studentBars !== undefined) {
-      const studentBar = studentBars[tresholdCount-1]
-      const leftOffset = 98
 
+      const leftEdge = document.querySelector(".recharts-layer.recharts-cartesian-axis.recharts-yAxis.yAxis")
+      const leftOffset = leftEdge !== undefined ? leftEdge.getBoundingClientRect().width : 0
+
+      const studentBar = (tresholdCount === 0) ? studentBars[0] : studentBars[tresholdCount-1]
       if (studentBar !== undefined) {
-        refLine.style.marginLeft = `${studentBar.getBoundingClientRect().x - leftOffset - 3}px`
+        refLine.style.marginLeft = tresholdCount === 0 ?
+          `${studentBar.getBoundingClientRect().x - leftOffset - 15}px` : 
+          `${studentBar.getBoundingClientRect().x - leftOffset - 3}px`
       }
     }
   }
