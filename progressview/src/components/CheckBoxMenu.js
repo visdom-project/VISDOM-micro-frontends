@@ -13,6 +13,7 @@ const CheckBoxMenu = ({options, handleClick, showAvg, showExpected}) => {
             <div key={option} className="fit-row">
               <input onClick={() => handleClick(option)}
                      type="checkbox"
+                     style={{margin: "auto 0"}}
                      id={option}
                      defaultChecked={(option === 'Average') ? showAvg : showExpected}>
               </input>

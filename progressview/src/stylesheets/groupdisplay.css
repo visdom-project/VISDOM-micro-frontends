@@ -3,7 +3,8 @@
   position: relative;
   display: inline-block;
   width: 2em;
-  height: 1.3em;
+  height: 1.2em;
+  margin: auto 0;
 }
 
 /* Hide default HTML checkbox */
