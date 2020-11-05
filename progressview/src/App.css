@@ -15,7 +15,7 @@ div .intended {
 }
 
 .intendedChart {
-  padding-left: 4vh;
+  /*padding-left: 4vh;*/
 }
 
 h1 {
@@ -31,8 +31,7 @@ h2 {
 
 h3 {
   font-size: 1em;
-  padding-left: 4vh;
-  margin: 0.5em;
+  margin: 0.5em 0em;
 }
 
 .hoverable path:hover {
@@ -61,8 +60,8 @@ h3 {
 }
 
 svg {
-  width: 97.6%;
-  height: 98%;
+  width: 100%;
+  height: 100%;
 }
 
 .view {

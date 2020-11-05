@@ -1,25 +1,22 @@
 import React from 'react'
 
 const CheckBoxMenu = ({options, handleClick, showAvg, showExpected}) => {
-  const labelStyle = {paddingRight: "10px", marginBottom: "0em"}
+  const labelStyle = {paddingRight: "0.5em", marginBottom: "0em", paddingLeft: "0.5em"}
   return (
     <div className="fit-row"
          style={{border: "1px #c7c7c7b5 solid",
                  borderRadius: "0.25em",
                  padding: "0.25em 0.5em"}}>
-      
-      <label style={labelStyle} >Show: </label>
-      
       <div>
         {options.map(option => {
           return (
-            <div key={option}>
+            <div key={option} className="fit-row">
               <input onClick={() => handleClick(option)}
                      type="checkbox"
                      id={option}
                      defaultChecked={(option === 'Average') ? showAvg : showExpected}>
               </input>
-              <label htmlFor={option} style={labelStyle} >{option} progress</label>
+              <label htmlFor={option} style={labelStyle} > {option}</label>
               <br></br>
             </div>
           )

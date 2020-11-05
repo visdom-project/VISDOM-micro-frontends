@@ -16,11 +16,11 @@ const Controls = (props) => {
         <DropdownMenu handleClick={handleModeClick}
                       options={modes}
                       selectedOption={selectedMode}
-                      title={'Visualization mode:'}/>
+                      title={'Mode:'}/>
         <DropdownMenu handleClick={handleWeekClick}
                       options={weeks}
                       selectedOption={selectedWeek}
-                      title={'Visualize week:'}/>
+                      title={'Week:'}/>
         <button id={"showGradesButton"} onClick={() => console.log("TODO: Show grades")}>Show grades</button>
       </div>
     )
@@ -35,11 +35,11 @@ const Controls = (props) => {
       <DropdownMenu handleClick={handleModeClick}
                     options={modes}
                     selectedOption={selectedMode}
-                    title={'Visualization mode:'}/>
+                    title={'Mode:'}/>
       <DropdownMenu handleClick={handleWeekClick}
                     options={weeks}
                     selectedOption={selectedWeek}
-                    title={'Visualize week:'}/>
+                    title={'Week:'}/>
       <button id={"showGradesButton"} onClick={() => console.log("TODO: Show grades")}>Show grades</button>
     </div>
   )
@@ -106,8 +106,9 @@ const StatusTab = () => {
 
   const [ selectedStudent, setSelectedStudent ] = useState("")
   
-  const chartWidth = 1636
-  const chartHeight = document.documentElement.clientHeight*0.7
+  const boundingDiv = document.querySelector(".App")
+  const chartWidth = boundingDiv === null ? 1000 : boundingDiv.getBoundingClientRect().width * 0.955
+  const chartHeight = document.documentElement.clientHeight*0.5
 
   useEffect(
     () => {

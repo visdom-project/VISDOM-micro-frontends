@@ -2,8 +2,8 @@ import React from 'react'
 
 const StudentSelector = ({students, handleClick}) => {
   return (
-    <div style={{marginLeft: "3em", marginTop: "0em", fontSize: "13px"}}>
-      <ul style={{columns: Math.round(students.length / 20) +1,
+    <div style={{marginLeft: "1em", marginTop: "0em", fontSize: "13px"}}>
+      <ul style={{columns: 5,
                   width: "fit-content",
                   listStyleType: "none",
                   marginTop: "0em",

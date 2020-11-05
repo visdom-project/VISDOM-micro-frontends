@@ -62,8 +62,11 @@ const ProgressTab = () => {
   const syncKey = 'syncKey'
   const avgDataKey = 'weeklyAvgs'
   const dataKey = 'name'
-  const chartWidth = document.documentElement.clientWidth * 0.9
-  const chartHeight = document.documentElement.clientHeight * 0.5
+
+  const boundingDiv = document.querySelector(".App")
+  const chartWidth = boundingDiv === null ? 1000 : boundingDiv.getBoundingClientRect().width * 0.955
+  const chartHeight = document.documentElement.clientHeight * 0.4
+  
   const selectorHeight = 40
   const avgStrokeWidth = 3
   const studentStrokeWidth = 2
@@ -72,6 +75,7 @@ const ProgressTab = () => {
   const avgStrokeColor = '#b1b1b1'
 
   const grades = ["0", "1", "2", "3", "4", "5"]
+  const margins = { top: 10, right: 10, left: 20, bottom: 25 }
 
   useEffect(
     () => {
@@ -253,7 +257,7 @@ const ProgressTab = () => {
       <LineChart className="intendedChart"
                  width={chartWidth} height={chartHeight}
                  data={displayedData} syncId={syncKey}
-                 margin={{ top: 10, right: 15, left: 25, bottom: 25 }}>
+                 margin={margins}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey={dataKey} label={{ value: axisNames[0], position: 'bottom' }} />
         <YAxis label={{ value: `${selectedMode}`, angle: -90, position: 'left', offset: -10 }}/>
@@ -294,7 +298,7 @@ const ProgressTab = () => {
       <LineChart className="intendedChart"
                  width={chartWidth} height={chartHeight+selectorHeight}
                  data={displayedCumulativeData} syncId={syncKey}
-                 margin={{ top: 10, right: 15, left: 25, bottom: selectorHeight }}>
+                 margin={{ top: 10, right: 10, left: 20, bottom: selectorHeight }}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey={dataKey} label={{ value: axisNames[0], position: 'bottom' }} />
         <YAxis label={{ value: `cumulative ${selectedMode}`, angle: -90, position: 'left', offset: -10 }}/>

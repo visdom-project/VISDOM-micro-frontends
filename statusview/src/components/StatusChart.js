@@ -6,7 +6,7 @@ import TresholdSelector from './TresholdSelector'
 const CustomLabel = (props) => {
   return (
     <text style={{textAnchor: "end"}}
-          x={props.viewBox.x + props.chartWidth - 105}
+          x={props.viewBox.x + props.chartWidth - 80}
           y={props.viewBox.y}
           fill={props.color}
           dy={"0.4em"}
@@ -73,7 +73,8 @@ const MultiChart = (props) => {
   const mediumExpectedColor = "#000073"
   const minimumExpectedColor = "#000073"
 
-  const barWidth = 10
+  const barWidth = 6
+  const margins = { top: 10, right: 20, left: 20, bottom: 25 }
 
   if (data === undefined || commonData === undefined) {
     console.log("Either student data or common student data is undefined. Data:", data, "common data:", commonData)
@@ -96,15 +97,15 @@ const MultiChart = (props) => {
     }
 
     return (
-      <div className="intended" style={{display: "flex", flexDirection:"column"}}>
+      <div style={{display: "flex", flexDirection:"column"}}>
         <ComposedChart width={chartWidth} height={chartHeight} data={countData}
-                       margin={{ top: 10, right: 20, left: 45, bottom: 25 }}
+                       margin={margins}
                        barGap={-barWidth}>
           
           <XAxis dataKey="id"
                  padding={{ left: 0, right: 0 }}
                  label={{ value: axisNames[0], position: 'bottom' }}/>
-          <YAxis label={{ value: axisNames[1], position: 'left', offset: -21 }}
+          <YAxis label={{ value: axisNames[1], angle: -90, position: 'left', offset: -21 }}
                  type="number"
                  domain={['dataMin', 'dataMax']}
                  ticks={submissionTicks}/>
@@ -207,15 +208,15 @@ const MultiChart = (props) => {
   }]
 
   return (
-    <div className="intended">
+    <div className="intendedChart">
       <ComposedChart width={chartWidth} height={chartHeight} data={data}
-                     margin={{ top: 10, right: 20, left: 45, bottom: 25 }}
+                     margin={margins}
                      barGap={-barWidth}>
         
         <XAxis dataKey="id"
                padding={{ left: 0, right: 0 }}
                label={{ value: axisNames[0], position: 'bottom' }}/>
-        <YAxis label={{ value: axisNames[1], position: 'left', offset: -21 }}
+        <YAxis label={{ value: axisNames[1], angle: -90, position: 'left', offset: -21 }}
                type="number"
                domain={['dataMin', 'dataMax']}
                ticks={ticks}/>

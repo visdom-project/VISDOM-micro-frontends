@@ -21,7 +21,7 @@ const ProjectDisplay = (project) => {
   const isGitProject = !projectGitName.includes("(K)")
 
   return (
-    <div className="partial-border" style={{width: "25vw"}}>
+    <div className="partial-border" style={{width: "18vw"}}>
       <h3>{exerciseNumber} {projectName}</h3>
       <div style={{paddingLeft: "8vh"}}>
         Gathered points: {receivedPts}/{maxPoints}
@@ -72,13 +72,13 @@ const ModuleDisplay = (data) => {
       <button style={{ color: "darkgrey",
                        border: "lightgrey 1px solid",
                        borderRadius: "3px",
-                       width: "2em" }}
+                       width: "12px" }}
               onClick={handleClick}>
       </button>
 
       <div>
         <h3>Module {moduleNumber}: {moduleName}</h3>
-        <div id={`module-${repoFolder}`} style={{ paddingLeft: "4vh", marginTop: "1em", marginBottom: "1.2em", width: "25vw"}}>
+        <div id={`module-${repoFolder}`} style={{ paddingLeft: "4vh", marginTop: "1em", marginBottom: "1.2em", width: "20vw"}}>
           Gathered points: {gatheredPts}/{maxPoints}
           <br></br>
           Module passed: {passed ? "true" : "false"}
@@ -88,7 +88,7 @@ const ModuleDisplay = (data) => {
       </div>
 
       <div id={`module-${repoFolder}`}>
-        <div className="fit-row" style={{flexWrap: "wrap", paddingBottom: "1em"}}>
+        <div className="fit-row" style={{flexWrap: "wrap", paddingBottom: "1em", width: "37vw"}}>
           {exerciseList.map(exercise => <ProjectDisplay key={exercise.name} project={exercise} />)}
         </div>
       </div>
