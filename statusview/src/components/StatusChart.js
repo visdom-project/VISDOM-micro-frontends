@@ -50,14 +50,25 @@ const selectColor = (data, index, key) => {
 }
 
 const MyRefLine = () => {
+
+  const bars = document.getElementsByClassName("recharts-cartesian-grid");
+  const newHeight = bars.length > 0 ? bars[0].getBoundingClientRect().height + 10 : 0;
+  const newBottom = bars.length > 0 ? - (newHeight + 50) : "109px";
+
+  if (newHeight < 1) {
+    return (
+      <></>
+    );
+  }
+
   return (
-    <div style={{ width: "2px", height: "64vh",
+    <div style={{ width: "3px", height: newHeight,
                   position: "absolute", marginLeft: "0px",
-                  backgroundColor: "#4a76ff", marginTop: "-70vh",
+                  backgroundColor: "#4a76ff", marginTop: newBottom,
                   display: "None"}}
          id="treshold-line"></div>
-  )
-}
+  );
+};
 
 const MultiChart = (props) => {
 

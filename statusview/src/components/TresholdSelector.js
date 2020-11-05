@@ -2,24 +2,34 @@ import React from 'react'
 
 const TresholdSelector = ({handleTresholdChange, chartWidth, treshold, title, tresholdCount}) => {
 
+  // Update the treshold line place in the x-axel:
   if ( tresholdCount >= 0) {
-    // Update line place:
+
     const refLine = document.querySelector("#treshold-line")
     const studentBars = document.querySelectorAll("path.recharts-rectangle")
     if (refLine !== null && studentBars !== undefined) {
+      
+      let studentBar = undefined;
+      let additionalWidth = 6.0;  // Moves line to the right side of a bar with width 6 px.
+      
+      if (treshold < 0.01) {  // At the beginning
+        studentBar = studentBars[0];
+        additionalWidth = -3.0;   // Moves line to the right side of the first bar.
+      }
+      else if (treshold < 1) {  // Somewhere in the middle
+        studentBar = studentBars[tresholdCount - 1];
+      }
+      else {  // In the end
+        studentBar = studentBars[studentBars.length - 1];
+      }
 
-      const leftEdge = document.querySelector(".recharts-layer.recharts-cartesian-axis.recharts-yAxis.yAxis")
-      const leftOffset = leftEdge !== undefined ? leftEdge.getBoundingClientRect().width : 0
-
-      const studentBar = (tresholdCount === 0) ? studentBars[0] : studentBars[tresholdCount-1]
       if (studentBar !== undefined) {
-        refLine.style.marginLeft = tresholdCount === 0 ?
-          `${studentBar.getBoundingClientRect().x - leftOffset - 15}px` : 
-          `${studentBar.getBoundingClientRect().x - leftOffset - 3}px`
+        refLine.style.marginLeft = `${parseFloat(studentBar.getAttribute('x')) + additionalWidth}px`
       }
     }
   }
 
+  // Handler for a check button that toggles the visibility of the treshold selector:
   const handleChecker = (event) => {
 
     const refLine = document.querySelector("#treshold-line")
