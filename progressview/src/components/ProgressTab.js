@@ -22,60 +22,60 @@ const Controls = (props) => {
                     title={'Visualization mode:'}/>
       <button id={"showGradesButton"} onClick={() => console.log("TODO: Show grades")}>Show grades</button>
     </div>
-  )
+  );
 }
 
 const ExpectedLabel = ({index, x, y, strokeColor, grade, display}) => {
   if (display && index % 2 === 1) {
     return (
       <text x={x+4} y={y} dy={4} fill={strokeColor} fontSize={12} textAnchor="start">{grade}</text>
-    )
+    );
   }
-  return (<></>)
+  return (<></>);
 }
 
 const ProgressTab = () => {
 
-  const [ studentIds, setStudentIds ] = useState([])
-  const [ weeklyPoints, setWeeklyPoints ] = useState([])
-  const [ cumulativePoints, setCumulativePoints ] = useState([{name: "init"}])
-  const [ weeklyExercises, setWeeklyExercises ] = useState([])
-  const [ cumulativeExercises, setCumulativeExercises ] = useState([{name: "init"}])
-  const [ weeklyCommits, setWeeklyCommits ] = useState([])
-  const [ cumulativeCommits, setCumulativeCommits ] = useState([{name: "init"}])
-  const [ weeklySubmissions, setWeeklySubmissions ] = useState([])
-  const [ cumulativeSubmissions, setCumulativeSubmissions ] = useState([{name: "init"}])
+  const [ studentIds, setStudentIds ] = useState([]);
+  const [ weeklyPoints, setWeeklyPoints ] = useState([]);
+  const [ cumulativePoints, setCumulativePoints ] = useState([{name: "init"}]);
+  const [ weeklyExercises, setWeeklyExercises ] = useState([]);
+  const [ cumulativeExercises, setCumulativeExercises ] = useState([{name: "init"}]);
+  const [ weeklyCommits, setWeeklyCommits ] = useState([]);
+  const [ cumulativeCommits, setCumulativeCommits ] = useState([{name: "init"}]);
+  const [ weeklySubmissions, setWeeklySubmissions ] = useState([]);
+  const [ cumulativeSubmissions, setCumulativeSubmissions ] = useState([{name: "init"}]);
 
-  const modes = ["points", "exercises", "commits", "submissions"]
-  const [ selectedMode, setSelectedMode ] = useState(modes[0])
-  const [ displayedModes, setdisplayedModes ] = useState(modes.filter(mode => mode !== selectedMode))
+  const modes = ["points", "exercises", "commits", "submissions"];
+  const [ selectedMode, setSelectedMode ] = useState(modes[0]);
+  const [ displayedModes, setdisplayedModes ] = useState(modes.filter(mode => mode !== selectedMode));
 
-  const showableLines = ["Average", "Expected"]
-  const [ showAvg, setShowAvg ] = useState(true)
-  const [ showExpected, setShowExpected ] = useState(true)
+  const showableLines = ["Average", "Expected"];
+  const [ showAvg, setShowAvg ] = useState(true);
+  const [ showExpected, setShowExpected ] = useState(true);
 
-  const [ displayedStudents, setDisplayedStudents ] = useState([])
-  const [ displayedData, setDisplayedData ] = useState([])
-  const [ displayedCumulativeData, setDisplayedCumulativeData ] = useState([{name: "init"}])
+  const [ displayedStudents, setDisplayedStudents ] = useState([]);
+  const [ displayedData, setDisplayedData ] = useState([]);
+  const [ displayedCumulativeData, setDisplayedCumulativeData ] = useState([{name: "init"}]);
 
-  const axisNames = ['Week', 'Points']
-  const syncKey = 'syncKey'
-  const avgDataKey = 'weeklyAvgs'
-  const dataKey = 'name'
+  const axisNames = ['Week', 'Points'];
+  const syncKey = 'syncKey';
+  const avgDataKey = 'weeklyAvgs';
+  const dataKey = 'name';
 
-  const boundingDiv = document.querySelector(".App")
-  const chartWidth = boundingDiv === null ? 1000 : boundingDiv.getBoundingClientRect().width * 0.955
-  const chartHeight = document.documentElement.clientHeight * 0.4
+  const boundingDiv = document.getElementsByClassName('card')[0];
+  const chartWidth = boundingDiv === undefined ? 1000 : boundingDiv.getBoundingClientRect().width * 0.955;
+  const chartHeight = document.documentElement.clientHeight * 0.4;
   
-  const selectorHeight = 40
-  const avgStrokeWidth = 3
-  const studentStrokeWidth = 2
-  const studentStrokeColor = '#8884d861'
-  const expectedStrokeColor = '#46ddae82'
-  const avgStrokeColor = '#b1b1b1'
+  const selectorHeight = 40;
+  const avgStrokeWidth = 3;
+  const studentStrokeWidth = 2;
+  const studentStrokeColor = '#8884d861';
+  const expectedStrokeColor = '#46ddae82';
+  const avgStrokeColor = '#b1b1b1';
 
-  const grades = ["0", "1", "2", "3", "4", "5"]
-  const margins = { top: 10, right: 10, left: 20, bottom: 25 }
+  const grades = ["0", "1", "2", "3", "4", "5"];
+  const margins = { top: 10, right: 10, left: 20, bottom: 25 };
 
   useEffect(
     () => {
@@ -84,78 +84,78 @@ const ProgressTab = () => {
       .then(response => {
         const [ weeklyPts, cumulativePts, weeklyExers, cumulativeExers,
                 weeklyComms, cumulativeComms, weeklySubs, cumulativeSubs ]
-          = response
+          = response;
 
-        setWeeklyPoints(weeklyPts)
-        setCumulativePoints(cumulativePts)
-        setWeeklyExercises(weeklyExers)
-        setCumulativeExercises(cumulativeExers)
+        setWeeklyPoints(weeklyPts);
+        setCumulativePoints(cumulativePts);
+        setWeeklyExercises(weeklyExers);
+        setCumulativeExercises(cumulativeExers);
 
-        const ids = dataService.getStudentIds(weeklyPts)
-        setStudentIds(ids)
-        setDisplayedStudents(ids)
+        const ids = dataService.getStudentIds(weeklyPts);
+        setStudentIds(ids);
+        setDisplayedStudents(ids);
 
-        setDisplayedData(weeklyPts)
-        setDisplayedCumulativeData(cumulativePts)
+        setDisplayedData(weeklyPts);
+        setDisplayedCumulativeData(cumulativePts);
 
-        setWeeklyCommits(weeklyComms)
-        setCumulativeCommits(cumulativeComms)
-        setWeeklySubmissions(weeklySubs)
-        setCumulativeSubmissions(cumulativeSubs)
-      })
+        setWeeklyCommits(weeklyComms);
+        setCumulativeCommits(cumulativeComms);
+        setWeeklySubmissions(weeklySubs);
+        setCumulativeSubmissions(cumulativeSubs);
+      });
     }, []
-  )
+  );
 
   // Toggle selection of a student that is clicked in the student list:
   const handleListClick = (id) => {
-    const targetNode = document.querySelector(`#li-${id}`)
+    const targetNode = document.querySelector(`#li-${id}`);
 
     if (targetNode === null) {
       console.log(`Node with id: ${id} was null!`);
-      return
+      return;
     }
 
     if (targetNode.style.color === "grey") {
-      setDisplayedStudents(displayedStudents.concat(targetNode.textContent))
-      targetNode.style.color = "black"
+      setDisplayedStudents(displayedStudents.concat(targetNode.textContent));
+      targetNode.style.color = "black";
     }
     else {
-      handleStudentLineClick(id)
+      handleStudentLineClick(id);
     }
-  }
+  };
 
   // Hide student that was clicked from the chart:
   const handleStudentLineClick = (id) => {
-    setDisplayedStudents(displayedStudents.filter(student => !student.includes(id)))
-    document.querySelector(`#li-${id}`).style.color = "grey"
-  }
+    setDisplayedStudents(displayedStudents.filter(student => !student.includes(id)));
+    document.querySelector(`#li-${id}`).style.color = "grey";
+  };
 
   const handleModeClick = (newMode) => {
-    if (selectedMode === newMode) { return }
+    if (selectedMode === newMode) { return; }
     
-    setSelectedMode(newMode)
-    setdisplayedModes(modes.filter(name => name !== newMode))
+    setSelectedMode(newMode);
+    setdisplayedModes(modes.filter(name => name !== newMode));
     
     if (newMode === "points") {
-      setDisplayedData(weeklyPoints)
-      setDisplayedCumulativeData(cumulativePoints)
+      setDisplayedData(weeklyPoints);
+      setDisplayedCumulativeData(cumulativePoints);
     }
     else if (newMode === "exercises") {
-      setDisplayedData(weeklyExercises)
-      setDisplayedCumulativeData(cumulativeExercises)
+      setDisplayedData(weeklyExercises);
+      setDisplayedCumulativeData(cumulativeExercises);
     }
     else if (newMode === "commits") {
-      setDisplayedData(weeklyCommits)
-      setDisplayedCumulativeData(cumulativeCommits)
+      setDisplayedData(weeklyCommits);
+      setDisplayedCumulativeData(cumulativeCommits);
     }
     else if (newMode === "submissions") {
-      setDisplayedData(weeklySubmissions)
-      setDisplayedCumulativeData(cumulativeSubmissions)
+      setDisplayedData(weeklySubmissions);
+      setDisplayedCumulativeData(cumulativeSubmissions);
     }
     else {
       console.log("Selected unimplemented mode:", newMode);
     }
-  }
+  };
 
   const handleToggleRefLineVisibilityClick = (targetLine) => {
     
@@ -165,77 +165,77 @@ const ProgressTab = () => {
     if (targetLine === "Expected") {
       lines.forEach(node => {
         if (node.outerHTML.includes(`stroke="${expectedStrokeColor}"`)) {
-          node.style.display = showExpected ? "none" : ""
+          node.style.display = showExpected ? "none" : "";
         }
       })
       document.querySelectorAll(".recharts-layer .recharts-label-list")
-        .forEach(node => node.style.display = showExpected ? "none" : "")
-      setShowExpected(!showExpected)
+        .forEach(node => node.style.display = showExpected ? "none" : "");
+      setShowExpected(!showExpected);
     }
     else {
       lines.forEach(node => {
         if (node.outerHTML.includes(`stroke="${avgStrokeColor}"`)) {
-          node.style.display = showAvg ? "none" : ""
+          node.style.display = showAvg ? "none" : "";
         }
       })
-      setShowAvg(!showAvg)
+      setShowAvg(!showAvg);
     }
-  }
+  };
 
   const handleToggleStudentGroupClick = (groupIdentifier) => {
-    const showGroup = document.getElementById(`input-${groupIdentifier}`).checked
-    const gradeSwitches = document.querySelectorAll(".gradeswitch")
-    const color = showGroup ? "black" : "grey"
+    const showGroup = document.getElementById(`input-${groupIdentifier}`).checked;
+    const gradeSwitches = document.querySelectorAll(".gradeswitch");
+    const color = showGroup ? "black" : "grey";
     
     if (groupIdentifier === "all") {
-      setDisplayedStudents(showGroup ? studentIds : [])
-      gradeSwitches.forEach(node => node.checked = showGroup)
-      studentIds.forEach(studentId => document.querySelector(`#li-${studentId}`).style.color = color)
+      setDisplayedStudents(showGroup ? studentIds : []);
+      gradeSwitches.forEach(node => node.checked = showGroup);
+      studentIds.forEach(studentId => document.querySelector(`#li-${studentId}`).style.color = color);
     }
     else {
-      const targetData = displayedCumulativeData[displayedCumulativeData.length-1]
-      const targetGrade = parseInt(groupIdentifier)
+      const targetData = displayedCumulativeData[displayedCumulativeData.length-1];
+      const targetGrade = parseInt(groupIdentifier);
       
       // Calculate point range of target students:
-      const pointMinimum = targetGrade < 1 ? 0 : targetData[`avg_cum_${selectedMode}_grade_${targetGrade-1}`]
-      const pointMaximum = targetGrade < 6 ? targetData[`avg_cum_${selectedMode}_grade_${targetGrade}`] : 2000
+      const pointMinimum = targetGrade < 1 ? 0 : targetData[`avg_cum_${selectedMode}_grade_${targetGrade-1}`];
+      const pointMaximum = targetGrade < 6 ? targetData[`avg_cum_${selectedMode}_grade_${targetGrade}`] : 2000;
 
       // Select students that belong to given point range:
       const targetStudents = Object.keys(targetData).filter(studentId => 
-          pointMinimum <= targetData[studentId] && pointMaximum >= targetData[studentId])
+          pointMinimum <= targetData[studentId] && pointMaximum >= targetData[studentId]);
       
       // Toggle the "visibility" of the selected students in the student listing:
       targetStudents
         .filter(student => !['week', 'weeklyAvgs'].includes(student) && !student.startsWith("avg_"))
-        .forEach(studentId => document.querySelector(`#li-${studentId}`).style.color = color)
+        .forEach(studentId => document.querySelector(`#li-${studentId}`).style.color = color);
 
       // Toggle the visibility of students by selecting correct group of students to be displayed:
       const disp = showGroup ?
         displayedStudents.concat(targetStudents.filter(student => !student.startsWith("avg_"))) :
-        displayedStudents.filter(student => !targetStudents.includes(student) && !student.startsWith("avg_"))
+        displayedStudents.filter(student => !targetStudents.includes(student) && !student.startsWith("avg_"));
       
-      setDisplayedStudents(disp)
+      setDisplayedStudents(disp);
 
       if (showGroup) {
         // Figure out if all grade groups are selected:
-        let allChecked = true
+        let allChecked = true;
         gradeSwitches.forEach(node => {
-          if (!node.checked) { allChecked = false }
+          if (!node.checked) { allChecked = false; }
         })
 
         if (allChecked) {
           // Activate "all students selected" switch:
-          const allSwitch = document.getElementById('input-all')
-          if (!allSwitch.checked) { allSwitch.checked = true }
+          const allSwitch = document.getElementById('input-all');
+          if (!allSwitch.checked) { allSwitch.checked = true; }
         }
       }
       else {  // Hiding student groups
         // Make sure "all students selected" button is inactive:
-        const allSwitch = document.getElementById('input-all')
-        if (allSwitch.checked) { allSwitch.checked = false }
+        const allSwitch = document.getElementById('input-all');
+        if (allSwitch.checked) { allSwitch.checked = false; }
       }
     }
-  }
+  };
 
   return (
     <>
@@ -336,7 +336,7 @@ const ProgressTab = () => {
         <Brush y={chartHeight-5} tickFormatter={(tick) => tick + 1}></Brush>
       </LineChart>
     </>
-  )
+  );
 }
 
 export default ProgressTab
