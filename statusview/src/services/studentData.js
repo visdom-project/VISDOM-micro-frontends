@@ -1,9 +1,11 @@
 import axios from 'axios'
+import ElasticSearchConfiguration from './serviceConfiguration';
 
 const getStudentData = () => {
 
+  const baseUrl = ElasticSearchConfiguration.createUrl('gitlab-course-40-commit-data-anonymized/_search');
   const request = axios
-    .get( 'http://localhost:9200/gitlab-course-40-commit-data-anonymized/_search',
+    .get( baseUrl,
           {Accept: 'application/json', 'Content-Type': 'application/json' })
     .then((response) => {
 

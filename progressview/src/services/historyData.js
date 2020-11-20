@@ -1,6 +1,7 @@
 import axios from 'axios'
+import ElasticSearchConfiguration from './serviceConfiguration';
 
-const baseUrl = 'http://localhost:9200/gitlab-course-30-aggregate-data/_search'
+const baseUrl = ElasticSearchConfiguration.createUrl('gitlab-course-30-aggregate-data/_search');
 
 const getHistoryData = () => {
 
