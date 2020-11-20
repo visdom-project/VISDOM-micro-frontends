@@ -1,0 +1,61 @@
+version: "3.7"
+
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    build: ./dataservice
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - discovery.type=single-node
+    volumes:
+      - ./dataservice/backup/:/home/backup/
+    networks:
+      - elasticsearch-init-network
+      - elasticsearch-network
+  initelasticsearch:
+    container_name: init-elasticsearch
+    build: ./initservice
+    environment:
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+    depends_on:
+      - elasticsearch
+    command:
+      [
+        "sh",
+        "-c",
+        "/bootstrap/wait-for-it.sh elasticsearch:9200 -- sh -c /bootstrap/bootstrap.sh",
+      ]
+    networks:
+      - elasticsearch-init-network
+  progressview:
+    container_name: progressview
+    build: ./progressview
+    ports:
+      - 9082:80
+    depends_on:
+      - elasticsearch
+      - initelasticsearch
+    networks:
+      - elasticsearch-network
+    environment:
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+  statusview:
+    container_name: statusview
+    build: ./statusview
+    ports:
+      - 9083:80
+    depends_on:
+      - elasticsearch
+      - initelasticsearch
+    networks:
+      - elasticsearch-network
+    environment:
+      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+networks:
+  elasticsearch-network:
+  elasticsearch-init-network:

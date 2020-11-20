@@ -1,0 +1,1 @@
+curl -X PUT "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/_snapshot/my_backup?pretty" -H 'Content-Type: application/json' -d '{"type": "fs", "settings": {"location": "/home/backup"}}' && curl -X POST "$ELASTICSEARCH_HOST:$ELASTICSEARCH_PORT/_snapshot/my_backup/snapshot_1/_restore?pretty"
