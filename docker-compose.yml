@@ -40,9 +40,6 @@ services:
       - initelasticsearch
     networks:
       - elasticsearch-network
-    environment:
-      - ELASTICSEARCH_HOST=elasticsearch
-      - ELASTICSEARCH_PORT=9200
   statusview:
     container_name: statusview
     build: ./statusview
@@ -53,9 +50,6 @@ services:
       - initelasticsearch
     networks:
       - elasticsearch-network
-    environment:
-      - ELASTICSEARCH_HOST=elasticsearch
-      - ELASTICSEARCH_PORT=9200
 networks:
   elasticsearch-network:
   elasticsearch-init-network:
