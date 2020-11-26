@@ -14,19 +14,19 @@ services:
     networks:
       - elasticsearch-init-network
       - elasticsearch-network
+    restart: always
   initelasticsearch:
     container_name: init-elasticsearch
     build: ./initservice
     environment:
-      - ELASTICSEARCH_HOST=elasticsearch
-      - ELASTICSEARCH_PORT=9200
+      - ELASTICSEARCH_HOST=elasticsearch:9200
     depends_on:
       - elasticsearch
     command:
       [
         "sh",
         "-c",
-        "/bootstrap/wait-for-it.sh -t 0 elasticsearch:9200 -- sh -c /bootstrap/bootstrap.sh",
+        "/bootstrap/wait-for-it.sh elasticsearch:9200 -t 0 --strict -- /bootstrap/bootstrap.sh",
       ]
     networks:
       - elasticsearch-init-network
@@ -40,6 +40,7 @@ services:
       - initelasticsearch
     networks:
       - elasticsearch-network
+    restart: always
   statusview:
     container_name: statusview
     build: ./statusview
@@ -50,6 +51,7 @@ services:
       - initelasticsearch
     networks:
       - elasticsearch-network
+    restart: always
 networks:
-  elasticsearch-network:
   elasticsearch-init-network:
+  elasticsearch-network:
