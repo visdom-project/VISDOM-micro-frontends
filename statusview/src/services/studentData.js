@@ -9,30 +9,43 @@ const getStudentData = () => {
           {Accept: 'application/json', 'Content-Type': 'application/json' })
     .then((response) => {
 
-      // TODO: remove hard-coding from this mapping of modules and corresponding project names:
-      const PROJECT_MAPPING = {
-        "01": ["first_submission", "gitignore"],
-        "02": ["(K) Hello, World! (Tehtävä Aloitus)", "(K) Staattinen tyypitys (Tehtävä Tyypitys)", "temperature", "number_series_game", "mean", "cube"],
-        "03": ["lotto", "swap", "encryption", "errors", "molkky"],
-        "04": ["container", "split", "random_numbers", "game15", "(K) Peli 15 -projektin palaute (Tehtävä Palaute1)"],
-        "05": ["line_numbers", "mixing_alphabets", "points", "wordcount"],
-        "06": ["palindrome", "sum", "vertical", "network"],
-        "07": ["library", "(K) Kirjastoprojektin palaute (Tehtävä Palaute2)"],
-        "08": ["(K) Osoittimien_tulostukset (Tehtävä Osoittimet)", "student_register", "arrays", "reverse_polish"],
-        "09": ["cards", "traffic", "task_list"],
-        "10": ["valgrind", "calculator", "reverse"],
-        "11": ["family", "(K) Sukuprojektin palaute (Tehtävä Palaute3)"], 
-        "12": ["zoo", "colorpicker_designer", "find_dialog", "timer", "bmi"], 
-        "13": ["moving_circle2/hanoi", "tetris", "(K) Hanoin torni -projektin palaute (Tehtävä Palaute4)"], 
-        "01-14": ["command_line"],
-        "15": [],
-        "16": ["(K) Tutkimussuostumus (Tehtävä gdpr)"]}
+      const resResult = response.data.hits.hits[0]._source.results
+      const projects = resResult.reduce((project, e) => e.points.modules.length > project.length ? e.points.modules : project, []);
+      const PROJECT_MAPPING = {}
+      const pattern = /^[0-9]+/
+      const exercisePattern = /en\:[^\n]*/
+      projects.forEach(project => {
+        const match = pattern.exec(project.name)[0];
+        const exercises = project.exercises.map(exercise => {
+          const exerciseName = exercisePattern.exec(exercise.name)[0];
+          return exerciseName.slice(3, exerciseName.length - 1);        
+        });
+        PROJECT_MAPPING[match] = exercises;
+      })
+      const results = Object.keys(PROJECT_MAPPING).map(moduleName => {
+        return {"week": moduleName, data: []}
+      })
 
       const studentData = []
 
       // Parse fetched commit data into proper format and fill in missing data:
       response.data.hits.hits.forEach(hit => {
         hit._source.results.forEach(result => {
+
+          // Which exercises the student has passed:
+          const passedExercises = result.points.modules
+            .filter(module => module.max_points > 0 || module.id === 570)
+            .map(module => module.exercises.map(exercise => exercise.passed))
+
+          const modulePoints = result.points.modules
+            .filter(module => module.max_points > 0 || module.id === 570)
+            .map(module => module.points)
+          
+          const cumulativePoints = Object.keys(modulePoints).map(key => {
+            return modulePoints.slice(0, parseInt(key)+1).reduce((sum, val) => {
+              return sum + val
+            }, 0)
+          })
 
           // Start with a data stucture with proper default values:
           const newCommits = Object.keys(PROJECT_MAPPING).map(moduleName => {
@@ -57,7 +70,7 @@ const getStudentData = () => {
                   newProjects[projectIndex] = studentProject
                 }
                 else {
-                  //console.log("Excluding a project from commit data; it was not recognized as submittable exercise:", studentProject);
+                  //console.error("Excluding a project from commit data; it was not recognized as submittable exercise:", studentProject);
                 }
               })
               newModule.projects = newProjects
