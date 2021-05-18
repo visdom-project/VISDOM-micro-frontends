@@ -1,6 +1,6 @@
 import axios from 'axios'
 import historyDataService from '../services/historyData'
-import ElasticSearchConfiguration from './serviceConfiguration';
+import { ElasticSearchConfiguration } from './serviceConfiguration'
 
 const baseUrl = ElasticSearchConfiguration.createUrl('gitlab-course-40-commit-data-anonymized/_search');
 

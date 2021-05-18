@@ -5,6 +5,11 @@ import CheckBoxMenu from './CheckBoxMenu'
 import StudentSelector from './StudentSelector'
 import dataService from '../services/progressData'
 import GroupDisplay from './GroupDisplay.js';
+import { MQTTConnect } from '../services/MQTTAdapter';
+import {
+  useMessageState,
+  useMessageDispatch,
+} from "../contexts/MessageContext";
 
 const Controls = (props) => {
   const {handleClick, modes, selectedMode, showableLines,
@@ -35,6 +40,8 @@ const ExpectedLabel = ({index, x, y, strokeColor, grade, display}) => {
 }
 
 const ProgressTab = () => {
+  const state = useMessageState();
+  const dispatch = useMessageDispatch();
 
   const [ studentIds, setStudentIds ] = useState([]);
   const [ weeklyPoints, setWeeklyPoints ] = useState([]);
@@ -77,6 +84,13 @@ const ProgressTab = () => {
   const grades = ["0", "1", "2", "3", "4", "5"];
   const margins = { top: 10, right: 10, left: 20, bottom: 25 };
 
+  const determineMode = (s) => {
+    if (s && s.mode) {
+      return s.mode;
+    }
+    return modes[0];
+  };
+
   useEffect(
     () => {
       dataService
@@ -105,6 +119,17 @@ const ProgressTab = () => {
       });
     }, []
   );
+
+  useEffect(() => {
+    MQTTConnect(dispatch);
+  }, []);
+
+  useEffect(() => {
+    let _mode = determineMode(state);
+    if (selectedMode !== _mode) {
+      handleModeClick(_mode);
+    }
+  }, [state.mode]);
 
   // Toggle selection of a student that is clicked in the student list:
   const handleListClick = (id) => {

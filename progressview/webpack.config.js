@@ -17,6 +17,9 @@ module.exports = (webpackConfigEnv) => {
       new webpack.DefinePlugin({
         __ELASTICSEARCH_HOST__: JSON.stringify(process.env.ELASTICSEARCH_HOST),
       }),
+      new webpack.DefinePlugin({
+        __MQTT_HOST__: JSON.stringify(process.env.MQTT_HOST),
+      }),
     ],
     module: {
       rules: [
