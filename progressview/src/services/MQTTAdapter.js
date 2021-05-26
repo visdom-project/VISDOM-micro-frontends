@@ -36,10 +36,11 @@ const setupMQTTClient = (client, dispatch) => {
 };
 
 export const MQTTConnect = (dispatch) => {
-  MQTT.connectAsync(MQTT_ADDR)
+  return MQTT.connectAsync(MQTT_ADDR)
     .then((client) => {
       updateConnectionStatus(dispatch, true);
       setupMQTTClient(client, dispatch);
+      return client;
     })
     .catch((error) => {
       console.log("MQTT connection error:", error);

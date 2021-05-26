@@ -4,7 +4,8 @@ import MultiChart from './StatusChart'
 import DropdownMenu from './DropdownMenu'
 import CheckBoxMenu from './CheckBoxMenu'
 import StudentDetailView from './StudentDetailView'
-
+import { useMessageState, useMessageDispatch, } from "../contexts/MessageContext";
+import { MQTTConnect } from "../services/MQTTAdapter";
 const Controls = (props) => {
   const {handleModeClick, modes, selectedMode, showableLines,
           handleToggleRefLineVisibilityClick, showAvg, showExpected,
@@ -46,6 +47,9 @@ const Controls = (props) => {
 };
 
 const StatusTab = () => {
+  const state = useMessageState();
+  const dispatch = useMessageDispatch();
+  const [ client, setClient ] = useState(null);
 
   const [ progressData, setProgressData ] = useState([]);
   const [ commonData, setCommonData ]  = useState([]);
@@ -110,40 +114,12 @@ const StatusTab = () => {
   const chartWidth = boundingDiv === undefined ? 1000 : boundingDiv.getBoundingClientRect().width * 0.955;
   const chartHeight = document.documentElement.clientHeight * 0.5;
 
-  useEffect(
-    () => {
-      dataService
-        .getData()
-        .then(response => {
-          const [pData, commons, submissions] = response;
-
-          // Fetch needed data:
-          setProgressData(pData);
-          setCommonData(commons);
-          setSubmissionData(submissions);
-          setWeeks(pData.map(week => week.week));
-
-          // Set initial UI state:
-          handleWeekSwitch(1, pData, commons, undefined, submissions);
-        })
-
-      dataService
-        .getCommitData()
-        .then(response => {
-          const commits = response;
-
-          setCommitData(commits);
-
-          // Select count data from correct week:
-          const selected = (commits !== undefined && commits.length > 0) ?
-            commits[commits.findIndex(module => parseInt(module.week) === parseInt(selectedWeek))]["data"]
-            : [];
-          setSelectedCountData(selected);
-
-         updateTreshold(treshold, undefined, commits);
-        });
-    }, []
-  )
+  const determineMode = (s) => {
+    if (s && s.mode) {
+      return s.mode;
+    }
+    return modes[0];
+  };
 
   const handleStudentClick = (data, barIndex) => {
     if (data !== undefined) {
@@ -153,6 +129,9 @@ const StatusTab = () => {
   };
 
   const handleModeSwitchClick = (newMode) => {
+    
+    client.publish("VISDOM", JSON.stringify({mode: newMode}));
+
     setSelectedMode(newMode);
     setdisplayedModes(modes.filter(name => name !== newMode));
     
@@ -162,6 +141,7 @@ const StatusTab = () => {
     handleWeekSwitch(undefined, undefined, undefined, newKeys, undefined, newMode);
   };
 
+  
   const handleWeekSwitch = (newWeek, data, commons, keys, submissions, mode) => {
     
     if (newWeek === undefined) { newWeek = selectedWeek }
@@ -248,6 +228,50 @@ const StatusTab = () => {
     }
   }
 
+  useEffect(
+    () => {
+      dataService
+        .getData()
+        .then(response => {
+          const [pData, commons, submissions] = response;
+
+          // Fetch needed data:
+          setProgressData(pData);
+          setCommonData(commons);
+          setSubmissionData(submissions);
+          setWeeks(pData.map(week => week.week));
+
+          // Set initial UI state:
+          handleWeekSwitch(1, pData, commons, undefined, submissions);
+        })
+
+      dataService
+        .getCommitData()
+        .then(response => {
+          const commits = response;
+
+          setCommitData(commits);
+
+          // Select count data from correct week:
+          const selected = (commits !== undefined && commits.length > 0) ?
+            commits[commits.findIndex(module => parseInt(module.week) === parseInt(selectedWeek))]["data"]
+            : [];
+          setSelectedCountData(selected);
+
+         updateTreshold(treshold, undefined, commits);
+        });
+    }, []
+  )
+  useEffect(() => {
+    MQTTConnect(dispatch).then(client => setClient(client));
+    return () => client.end();
+  }, []);
+  useEffect(() => {
+    let _mode = determineMode(state);
+    if (selectedMode !== _mode) {
+      handleModeSwitchClick(_mode);
+    }
+  }, [state.mode]);
   return (
     <>
       <div className="fit-row">

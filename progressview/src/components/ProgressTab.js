@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Brush } from 'recharts';
 import DropdownMenu from './DropdownMenu'
 import CheckBoxMenu from './CheckBoxMenu'
@@ -43,6 +43,9 @@ const ProgressTab = () => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
 
+  const timescaleBar = useRef(null);
+  const [ client, setClient ] = useState(null);
+
   const [ studentIds, setStudentIds ] = useState([]);
   const [ weeklyPoints, setWeeklyPoints ] = useState([]);
   const [ cumulativePoints, setCumulativePoints ] = useState([{name: "init"}]);
@@ -64,6 +67,12 @@ const ProgressTab = () => {
   const [ displayedStudents, setDisplayedStudents ] = useState([]);
   const [ displayedData, setDisplayedData ] = useState([]);
   const [ displayedCumulativeData, setDisplayedCumulativeData ] = useState([{name: "init"}]);
+
+  // base on data index, not time scaling day
+  const [ timescale, setTimescale ] = useState({
+    start: 0,
+    end: 15,
+  })
 
   const axisNames = ['Week', 'Points'];
   const syncKey = 'syncKey';
@@ -110,6 +119,11 @@ const ProgressTab = () => {
         setDisplayedStudents(ids);
 
         setDisplayedData(weeklyPts);
+        /// setinit state for timescale - TODO change this when subcribe to mqtt
+        // setTimescale({
+        //   start: 0,
+        //   end: weeklyPts.length,
+        // })
         setDisplayedCumulativeData(cumulativePts);
 
         setWeeklyCommits(weeklyComms);
@@ -119,17 +133,48 @@ const ProgressTab = () => {
       });
     }, []
   );
-
+  
   useEffect(() => {
-    MQTTConnect(dispatch);
+    MQTTConnect(dispatch).then( client => setClient(client));
+    return () => client.end();
   }, []);
 
   useEffect(() => {
     let _mode = determineMode(state);
     if (selectedMode !== _mode) {
-      handleModeClick(_mode);
+      // handleModeClick(_mode);
+      setSelectedMode(_mode);
+      setdisplayedModes(modes.filter(name => name !== _mode));
+      if (_mode === "points") {
+        setDisplayedData(weeklyPoints);
+        setDisplayedCumulativeData(cumulativePoints);
+      }
+      else if (_mode === "exercises") {
+        setDisplayedData(weeklyExercises);
+        setDisplayedCumulativeData(cumulativeExercises);
+      }
+      else if (_mode === "commits") {
+        setDisplayedData(weeklyCommits);
+        setDisplayedCumulativeData(cumulativeCommits);
+      }
+      else if (_mode === "submissions") {
+        setDisplayedData(weeklySubmissions);
+        setDisplayedCumulativeData(cumulativeSubmissions);
+      }
+      else {
+        console.log("Selected unimplemented mode:", newMode);
+      }
     }
   }, [state.mode]);
+
+  useEffect(() => {
+    if (!state.timescale)
+    {
+      return;
+    }
+    const newTimescale = {...state.timescale};
+    setTimescale(newTimescale);
+  }, [state.timescale]);
 
   // Toggle selection of a student that is clicked in the student list:
   const handleListClick = (id) => {
@@ -161,6 +206,11 @@ const ProgressTab = () => {
     setSelectedMode(newMode);
     setdisplayedModes(modes.filter(name => name !== newMode));
     
+    // publish newmode
+    client.publish("VISDOM", JSON.stringify({mode: newMode})).then(() => {
+      console.log("published mode", newMode);
+    });
+
     if (newMode === "points") {
       setDisplayedData(weeklyPoints);
       setDisplayedCumulativeData(cumulativePoints);
@@ -357,8 +407,27 @@ const ProgressTab = () => {
         <Line id={avgDataKey} type="linear" dataKey={avgDataKey} dot={false}
               stroke={avgStrokeColor} strokeWidth={avgStrokeWidth}
               style={{display: showAvg ? "" : "none"}}/>
-        
-        <Brush y={chartHeight-5} tickFormatter={(tick) => tick + 1}></Brush>
+        <Brush 
+          startIndex={timescale.start}
+          endIndex={timescale.end}
+          ref={timescaleBar} 
+          y={chartHeight-5} 
+          tickFormatter={(tick) => tick + 1}
+          onChange={() => {
+            // console.log(JSON.stringify(timescaleBar.current.props.startIndex))
+            setTimescale({
+              // base on data index, not time scaling day
+              start: timescaleBar.current.props.startIndex,
+              end: timescaleBar.current.props.endIndex,
+            });
+            if (!state.timescale || state.timescale.start != timescale.start || state.timescale.end != timescale.end)
+            {
+              client.publish("VISDOM", JSON.stringify({timescale: timescale})).then(() => {
+                console.log("published timescale", timescale);
+              });
+            }
+          }}
+          ></Brush>
       </LineChart>
     </>
   );

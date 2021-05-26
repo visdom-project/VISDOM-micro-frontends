@@ -1,5 +1,5 @@
 import axios from 'axios'
-import ElasticSearchConfiguration from './serviceConfiguration';
+import { ElasticSearchConfiguration } from './serviceConfiguration';
 
 const getStudentData = () => {
 
