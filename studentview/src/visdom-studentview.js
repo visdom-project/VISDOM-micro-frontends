@@ -9,10 +9,13 @@ const lifecycles = singleSpaReact({
   React,
   ReactDOM,
   rootComponent: App,
+  /* eslint-disable no-unused-vars */
   errorBoundary(err, info, props) {
     // Customize the root error boundary for your microfrontend here.
     return null;
   },
 });
 
-export const { bootstrap, mount, unmount } = lifecycles;
+export const bootstrap = lifecycles.bootstrap;
+export const mount = lifecycles.mount;
+export const unmount = lifecycles.unmount;

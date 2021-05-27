@@ -1,14 +1,20 @@
-// eslint-disable-next-line no-undef
-const elasticsearchHost = __ELASTICSEARCH_HOST__;
-// eslint-disable-next-line no-undef
-const mqttHost = __MQTT_HOST__;
+/* eslint-disable no-undef */
+// TODO: solve this - undefined ?
+// const elasticsearchHost = __ELASTICSEARCH_HOST__;
+// const mqttHost = __MQTT_HOST__;
+const elasticsearchHost = "https://elasticsearch.tlt-cityiot.rd.tuni.fi";
+const mqttHost = "ws://127.0.0.1:9001";
 
 export const ElasticSearchConfiguration = {
-    host: elasticsearchHost,
-    createUrl: url => elasticsearchHost + "/" + url,
+  host: elasticsearchHost,
+  createUrl: function (url) {
+    return elasticsearchHost + "/" + url;
+  },
 };
 
 export const MQTTConfiguration = {
-    host: mqttHost,
-    createUrl: url => mqttHost + "/" + url,
+  host: mqttHost,
+  createUrl: function (url) {
+    return mqttHost + "/" + url;
+  },
 };

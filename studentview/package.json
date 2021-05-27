@@ -6,6 +6,7 @@
     "@testing-library/user-event": "^7.2.1",
     "async-mqtt": "^2.6.1",
     "axios": "^0.21.1",
+    "buffer": "^6.0.3",
     "dotenv": "^10.0.0",
     "moment": "^2.29.1",
     "react": "^17.0.1",
@@ -42,7 +43,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged && concurrently yarn:test yarn:lint"
+      "pre-commit": "pretty-quick --staged && concurrently yarn:lint"
     }
   },
   "devDependencies": {
@@ -72,6 +73,6 @@
     "webpack-cli": "^4.2.0",
     "webpack-config-single-spa-react": "^2.0.0",
     "webpack-dev-server": "^4.0.0-beta.0",
-    "webpack-merge": "^5.4.0"
+    "webpack-merge": "^5.7.3"
   }
 }

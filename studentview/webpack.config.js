@@ -1,6 +1,8 @@
 const { merge } = require("webpack-merge");
+const singleSpaDefaults = require("webpack-config-single-spa");
 const webpack = require("webpack");
-const singleSpaDefaults = require("webpack-config-single-spa-react");
+
+require("dotenv").config();
 
 module.exports = (webpackConfigEnv, argv) => {
   const defaultConfig = singleSpaDefaults({
@@ -29,9 +31,6 @@ module.exports = (webpackConfigEnv, argv) => {
           use: "url-loader?name=[name].[ext]",
         },
       ],
-    },
-    devServer: {
-      https: true,
     },
   });
 };

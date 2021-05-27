@@ -1,7 +1,11 @@
+/* eslint-disable camelcase */
 import axios from "axios";
-import { ElasticSearchConfiguration } from "./serviceConfiguration";
+// import { ElasticSearchConfiguration } from "./serviceConfiguration";
 
-const baseUrl = ElasticSearchConfiguration.createUrl("gitlab-course-40-commit-data-anonymized/_search");
+// TODO: fix this
+// const baseUrl = ElasticSearchConfiguration.createUrl("gitlab-course-40-commit-data-anonymized/_search");
+const baseUrl =
+  "https://elasticsearch.tlt-cityiot.rd.tuni.fi/gitlab-course-40-commit-data-anonymized/_search";
 
 const getAllStudentData = () => {
   const request = axios
