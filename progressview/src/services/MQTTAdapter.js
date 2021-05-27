@@ -5,7 +5,7 @@ import {
   receiveMessage,
 } from "../contexts/MessageContext";
 
-const MQTT_ADDR = MQTTConfiguration.createUrl();
+const MQTT_ADDR = MQTTConfiguration.createUrl("");
 const MQTT_EVENTS = {
   CONNECT: "connect",
   RECONNECT: "reconnect",

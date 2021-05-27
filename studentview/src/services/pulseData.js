@@ -1,7 +1,9 @@
 /* eslint-disable camelcase */
+
 import axios from "axios";
 import { ElasticSearchConfiguration } from "./serviceConfiguration";
 
+// TODO: fix this
 const baseUrl = ElasticSearchConfiguration.createUrl(
   "gitlab-course-40-commit-data-anonymized/_search"
 );
