@@ -32,7 +32,7 @@
     "camelcase": "warn",
     "arrow-spacing": "warn",
     "no-var": "error",
-    "no-console": "off",
+    "no-console": "warn",
     "prefer-const": "off",
     "no-unreachable": "error",
     "complexity": ["warn", 80],
