@@ -1,13 +1,11 @@
 import MQTT from "async-mqtt";
-// import { MQTTConfiguration } from "./serviceConfiguration";
+import { MQTTConfiguration } from "./serviceConfiguration";
 import {
   updateConnectionStatus,
   receiveMessage,
 } from "../contexts/MessageContext";
 
-// const MQTT_ADDR = MQTTConfiguration.createUrl("");
-const MQTT_ADDR = "ws://127.0.0.1:9001/";
-console.log(MQTT_ADDR);
+const MQTT_ADDR = MQTTConfiguration.createUrl("");
 
 const MQTT_EVENTS = {
   CONNECT: "connect",

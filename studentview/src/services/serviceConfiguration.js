@@ -1,9 +1,13 @@
 /* eslint-disable no-undef */
-// TODO: solve this - undefined ?
-// const elasticsearchHost = __ELASTICSEARCH_HOST__;
-// const mqttHost = __MQTT_HOST__;
-const elasticsearchHost = "https://elasticsearch.tlt-cityiot.rd.tuni.fi";
-const mqttHost = "ws://127.0.0.1:9001";
+/*
+  TODO: This is hopefully a very temporary resolution to packaging issues.
+  Please fix these packages ASAP.
+*/
+window.Buffer = window.Buffer || require("buffer/").Buffer;
+window.process = window.process || require("process");
+
+const elasticsearchHost = __ELASTICSEARCH_HOST__;
+const mqttHost = __MQTT_HOST__;
 
 export const ElasticSearchConfiguration = {
   host: elasticsearchHost,

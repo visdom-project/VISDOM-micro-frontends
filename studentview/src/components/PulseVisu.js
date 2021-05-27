@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-shadow */
-
 import React, { useEffect, useState, useRef } from "react";
 import {
   BarChart,
@@ -19,9 +18,8 @@ import {
   useMessageDispatch,
   useMessageState,
 } from "../contexts/MessageContext";
-// import MQTT from "async-mqtt";
 
-// import { MQTTConnect } from "../services/MQTTAdapter";
+import { MQTTConnect } from "../services/MQTTAdapter";
 import moment from "moment";
 
 export const StudentList = ({ setStudentID, studentID }) => {
@@ -96,12 +94,14 @@ export const PulseVisu = () => {
   const [studentID, setStudentID] = useState("");
   const [data, setData] = useState([]);
 
-  // base on data index, not time scaling day
-  // choose other way to initizlize this
   const [timescale, setTimescale] = useState({
     start: 0,
     end: 15,
   });
+
+  useEffect(() => {
+    MQTTConnect(dispatch);
+  }, []);
 
   useEffect(() => {
     pulseData
@@ -109,20 +109,6 @@ export const PulseVisu = () => {
       .then((response) => setData(response[0]))
       .catch((err) => console.log(err));
   }, [studentID]);
-
-  // useEffect(() => {
-  //   MQTTConnect(dispatch).then( client => setClient(client));
-  //   return () => client.end();
-  // }, []);
-
-  // useEffect(() => {
-  //   if (!state.timescale)
-  //   {
-  //     return;
-  //   }
-  //   const newTimescale = {...state.timescale};
-  //   setTimescale(newTimescale);
-  // }, [state.timescale]);
 
   if (!studentID || !data)
     return <StudentList setStudentID={setStudentID} studentID={studentID} />;
