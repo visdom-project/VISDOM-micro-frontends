@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-shadow */
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -89,18 +89,22 @@ export const PulseVisu = () => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
 
-  const timescaleBar = useRef(null);
   const [client, setClient] = useState(null);
   const [studentID, setStudentID] = useState("");
   const [data, setData] = useState([]);
 
+  const [graphKey, graphShouldUpdate] = useState(0);
+
+  //hard coding without metadata
+  const maxlength = 98;
   const [timescale, setTimescale] = useState({
     start: 0,
-    end: 15,
+    end: maxlength - 1,
   });
 
   useEffect(() => {
-    MQTTConnect(dispatch);
+    MQTTConnect(dispatch).then((client) => setClient(client));
+    return () => client.end();
   }, []);
 
   useEffect(() => {
@@ -110,6 +114,19 @@ export const PulseVisu = () => {
       .catch((err) => console.log(err));
   }, [studentID]);
 
+  useEffect(() => {
+    if (!state.timescale) {
+      return;
+    }
+    if (
+      state.timescale.start !== timescale.start ||
+      state.timescale.end !== timescale.end
+    ) {
+      setTimescale(Math.min(state.timescale, maxlength - 1));
+      graphShouldUpdate(graphKey + 1);
+    }
+  }, [state.timescale]);
+
   if (!studentID || !data)
     return <StudentList setStudentID={setStudentID} studentID={studentID} />;
 
@@ -117,6 +134,7 @@ export const PulseVisu = () => {
     <div>
       <StudentList setStudentID={setStudentID} studentID={studentID} />
       <BarChart
+        key={graphKey}
         width={document.documentElement.clientWidth * 0.9}
         height={document.documentElement.clientHeight * 0.5 + 150}
         margin={{ top: 10, right: 15, left: 25, bottom: 100 }}
@@ -144,18 +162,43 @@ export const PulseVisu = () => {
         <Bar dataKey="inTimeCommit" stackId="a" fill="#ffe700" barSize={15} />
         <Bar dataKey="lateCommit" stackId="a" fill="#e0301e" barSize={15} />
         <Brush
-          // startIndex={timescale.start}
-          // endIndex={timescale.end}
-          // ref={timescaleBar}
+          startIndex={timescale.start}
+          endIndex={timescale.end}
           tickFormatter={(tickItem) =>
             moment(tickItem * (1000 * 60 * 60 * 24)).format("ddd MMM Do")
           }
           y={document.documentElement.clientHeight * 0.5 + 120}
           height={25}
           stroke="#8884d8"
-          // onchange={() => {
-          //   return null
-          // }}
+          onChange={(e) => {
+            setTimescale({
+              start: e.startIndex,
+              end: e.endIndex,
+            });
+
+            if (
+              !state.timescale ||
+              state.timescale.start !== timescale.start ||
+              state.timescale.end !== timescale.end
+            ) {
+              client
+                .publish(
+                  "VISDOM",
+                  JSON.stringify({
+                    timescale: {
+                      start: e.startIndex,
+                      end: e.endIndex,
+                    },
+                  })
+                )
+                .then(() => {
+                  console.log("published timescale", {
+                    start: e.startIndex,
+                    end: e.endIndex,
+                  });
+                });
+            }
+          }}
         />
       </BarChart>
     </div>

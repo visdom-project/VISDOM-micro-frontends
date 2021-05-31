@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Brush } from "recharts";
 import DropdownMenu from "./DropdownMenu";
 import CheckBoxMenu from "./CheckBoxMenu";
@@ -68,8 +68,8 @@ const ProgressTab = () => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
 
-  const timescaleBar = useRef(null);
   const [client, setClient] = useState(null);
+  const [lineChartShouldUpdate, setLineChartShouldUpdate] = useState(0);
 
   const [studentIds, setStudentIds] = useState([]);
   const [weeklyPoints, setWeeklyPoints] = useState([]);
@@ -103,10 +103,11 @@ const ProgressTab = () => {
     { name: "init" },
   ]);
 
-  // base on data index, not time scaling day
+  // hard coding const without metadata
+  const maxlength = 98;
   const [timescale, setTimescale] = useState({
     start: 0,
-    end: 15,
+    end: maxlength,
   });
 
   const axisNames = ["Week", "Points"];
@@ -161,9 +162,7 @@ const ProgressTab = () => {
       setDisplayedStudents(ids);
 
       setDisplayedData(weeklyPts);
-
       setDisplayedCumulativeData(cumulativePts);
-
       setWeeklyCommits(weeklyComms);
       setCumulativeCommits(cumulativeComms);
       setWeeklySubmissions(weeklySubs);
@@ -172,11 +171,6 @@ const ProgressTab = () => {
   }, []);
 
   useEffect(() => {
-    /// setinit state for timescale - TODO change this when subcribe to mqtt
-    // setTimescale({
-    //   start: 0,
-    //   end: weeklyPts.length,
-    // })
     MQTTConnect(dispatch).then((client) => setClient(client));
     return () => client.end();
   }, []);
@@ -209,8 +203,13 @@ const ProgressTab = () => {
     if (!state.timescale) {
       return;
     }
-    const newTimescale = { ...state.timescale };
-    setTimescale(newTimescale);
+    if (
+      state.timescale.start !== timescale.start ||
+      state.timescale.end !== timescale.end
+    ) {
+      setTimescale(state.timescale);
+      setLineChartShouldUpdate(lineChartShouldUpdate + 1);
+    }
   }, [state.timescale]);
 
   // Toggle selection of a student that is clicked in the student list:
@@ -293,14 +292,12 @@ const ProgressTab = () => {
       setShowAvg(!showAvg);
     }
   };
-
   const handleToggleStudentGroupClick = (groupIdentifier) => {
     const showGroup = document.getElementById(
       `input-${groupIdentifier}`
     ).checked;
     const gradeSwitches = document.querySelectorAll(".gradeswitch");
     const color = showGroup ? "black" : "grey";
-
     if (groupIdentifier === "all") {
       setDisplayedStudents(showGroup ? studentIds : []);
       gradeSwitches.forEach((node) => (node.checked = showGroup));
@@ -382,7 +379,7 @@ const ProgressTab = () => {
   };
 
   return (
-    <>
+    <div className="chart" key={lineChartShouldUpdate}>
       <div className="fit-row">
         <GroupDisplay
           grades={grades}
@@ -410,7 +407,10 @@ const ProgressTab = () => {
         className="intendedChart"
         width={chartWidth}
         height={chartHeight}
-        data={displayedData}
+        data={displayedData.slice(
+          Math.floor(timescale.start / 7),
+          Math.ceil(timescale.end / 7)
+        )}
         syncId={syncKey}
         margin={margins}
       >
@@ -546,39 +546,43 @@ const ProgressTab = () => {
           style={{ display: showAvg ? "" : "none" }}
         />
         <Brush
-          startIndex={timescale.start}
-          endIndex={timescale.end}
-          ref={timescaleBar}
+          dataKey={dataKey}
+          startIndex={Math.floor(timescale.start / 7)}
+          endIndex={Math.ceil(timescale.end / 7)}
           y={chartHeight - 5}
           tickFormatter={(tick) => tick + 1}
-          onChange={() => {
-            // console.log(JSON.stringify(timescaleBar.current.props.startIndex))
-            if (
-              timescaleBar.current.props.startIndex === timescale.start &&
-              timescaleBar.current.props.endIndex === timescale.end
-            ) {
-              return;
-            }
+          onChange={(e) => {
             setTimescale({
-              // base on data index, not time scaling day
-              start: timescaleBar.current.props.startIndex,
-              end: timescaleBar.current.props.endIndex,
+              start: e.startIndex * 7,
+              end: e.endIndex * 7 - 1,
             });
+
             if (
               !state.timescale ||
-              state.timescale.start != timescale.start ||
-              state.timescale.end != timescale.end
+              state.timescale.start !== timescale.start ||
+              state.timescale.end !== timescale.end
             ) {
               client
-                .publish("VISDOM", JSON.stringify({ timescale: timescale }))
+                .publish(
+                  "VISDOM",
+                  JSON.stringify({
+                    timescale: {
+                      start: e.startIndex * 7,
+                      end: e.endIndex * 7 - 1,
+                    },
+                  })
+                )
                 .then(() => {
-                  console.log("published timescale", timescale);
+                  console.log("published timescale", {
+                    start: e.startIndex * 7,
+                    end: e.endIndex * 7 - 1,
+                  });
                 });
             }
           }}
         ></Brush>
       </LineChart>
-    </>
+    </div>
   );
 };
 
