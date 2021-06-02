@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Brush } from "recharts";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Brush,
+  ResponsiveContainer,
+} from "recharts";
 import DropdownMenu from "./DropdownMenu";
 import CheckBoxMenu from "./CheckBoxMenu";
 import StudentSelector from "./StudentSelector";
 import dataService from "../services/progressData";
 import GroupDisplay from "./GroupDisplay.js";
-import { MQTTConnect } from "../services/MQTTAdapter";
+import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
 import {
   useMessageState,
   useMessageDispatch,
@@ -23,7 +31,7 @@ const Controls = (props) => {
   } = props;
 
   return (
-    <div className="fit-row">
+    <div className="fit-row" style={{ display: "flex" }}>
       <CheckBoxMenu
         options={showableLines}
         handleClick={handleToggleRefLineVisibilityClick}
@@ -379,7 +387,11 @@ const ProgressTab = () => {
   };
 
   return (
-    <div className="chart" key={lineChartShouldUpdate}>
+    <div
+      className="chart"
+      key={lineChartShouldUpdate}
+      style={{ paddingTop: "30px" }}
+    >
       <div className="fit-row">
         <GroupDisplay
           grades={grades}
@@ -403,185 +415,172 @@ const ProgressTab = () => {
         ></Controls>
       </div>
 
-      <LineChart
-        className="intendedChart"
-        width={chartWidth}
-        height={chartHeight}
-        data={displayedData.slice(
-          Math.floor(timescale.start / 7),
-          Math.ceil(timescale.end / 7)
-        )}
-        syncId={syncKey}
-        margin={margins}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis
-          dataKey={dataKey}
-          label={{ value: axisNames[0], position: "bottom" }}
-        />
-        <YAxis
-          label={{
-            value: `${selectedMode}`,
-            angle: -90,
-            position: "left",
-            offset: -10,
-          }}
-        />
+      <ResponsiveContainer minWidth="300px" minHeight="700px">
+        <LineChart
+          className="intendedChart"
+          data={displayedData.slice(
+            Math.floor(timescale.start / 7),
+            Math.ceil(timescale.end / 7)
+          )}
+          syncId={syncKey}
+          margin={margins}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey={dataKey}
+            label={{ value: axisNames[0], position: "bottom" }}
+          />
+          <YAxis
+            label={{
+              value: `${selectedMode}`,
+              angle: -90,
+              position: "left",
+              offset: -10,
+            }}
+          />
 
-        {
-          // Draw average point lines for each grade from history data:
-          grades.map((index) => (
+          {
+            // Draw average point lines for each grade from history data:
+            grades.map((index) => (
+              <Line
+                key={`avg_${selectedMode}_grade_${index}`}
+                type="linear"
+                dot={false}
+                label={
+                  <ExpectedLabel
+                    grade={index}
+                    strokeColor={"#78b5a2"}
+                    display={showExpected}
+                  />
+                }
+                dataKey={`avg_${selectedMode}_grade_${index}`}
+                stroke={expectedStrokeColor}
+                strokeWidth={avgStrokeWidth}
+                style={{ display: showExpected ? "" : "none" }}
+              ></Line>
+            ))
+          }
+
+          {displayedStudents.map((student) => (
             <Line
-              key={`avg_${selectedMode}_grade_${index}`}
-              type="linear"
-              dot={false}
-              label={
-                <ExpectedLabel
-                  grade={index}
-                  strokeColor={"#78b5a2"}
-                  display={showExpected}
-                />
-              }
-              dataKey={`avg_${selectedMode}_grade_${index}`}
-              stroke={expectedStrokeColor}
-              strokeWidth={avgStrokeWidth}
-              style={{ display: showExpected ? "" : "none" }}
-            ></Line>
-          ))
-        }
-
-        {displayedStudents.map((student) => (
-          <Line
-            key={student}
-            onClick={() => handleStudentLineClick(student)}
-            className="hoverable"
-            type="linear"
-            dot={false}
-            dataKey={student}
-            stroke={studentStrokeColor}
-            strokeWidth={studentStrokeWidth}
-          ></Line>
-        ))}
-
-        <Line
-          id={avgDataKey}
-          type="linear"
-          dataKey={avgDataKey}
-          dot={false}
-          stroke={avgStrokeColor}
-          strokeWidth={avgStrokeWidth}
-          style={{ display: showAvg ? "" : "none" }}
-        />
-      </LineChart>
-
-      <h2>{`Cumulative weekly ${selectedMode}`}</h2>
-
-      <LineChart
-        className="intendedChart"
-        width={chartWidth}
-        height={chartHeight + selectorHeight}
-        data={displayedCumulativeData}
-        syncId={syncKey}
-        margin={{ top: 10, right: 10, left: 20, bottom: selectorHeight }}
-      >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis
-          dataKey={dataKey}
-          label={{ value: axisNames[0], position: "bottom" }}
-        />
-        <YAxis
-          label={{
-            value: `cumulative ${selectedMode}`,
-            angle: -90,
-            position: "left",
-            offset: -10,
-          }}
-        />
-
-        {
-          // Draw average point lines for each grade from history data:
-          grades.map((index) => (
-            <Line
-              key={`avg_cum_${selectedMode}_grade_${index}`}
-              label={
-                <ExpectedLabel
-                  grade={index}
-                  strokeColor={"#78b5a2"}
-                  display={showExpected}
-                />
-              }
-              type="linear"
-              dot={false}
-              dataKey={`avg_cum_${selectedMode}_grade_${index}`}
-              stroke={expectedStrokeColor}
-              strokeWidth={avgStrokeWidth}
-              style={{ display: showExpected ? "" : "none" }}
-            ></Line>
-          ))
-        }
-
-        {
-          // Draw student lines:
-          displayedStudents.map((key) => (
-            <Line
-              key={key}
-              onClick={() => handleStudentLineClick(key)}
+              key={student}
+              onClick={() => handleStudentLineClick(student)}
               className="hoverable"
               type="linear"
               dot={false}
-              dataKey={key}
+              dataKey={student}
               stroke={studentStrokeColor}
               strokeWidth={studentStrokeWidth}
             ></Line>
-          ))
-        }
+          ))}
 
-        <Line
-          id={avgDataKey}
-          type="linear"
-          dataKey={avgDataKey}
-          dot={false}
-          stroke={avgStrokeColor}
-          strokeWidth={avgStrokeWidth}
-          style={{ display: showAvg ? "" : "none" }}
-        />
-        <Brush
-          dataKey={dataKey}
-          startIndex={Math.floor(timescale.start / 7)}
-          endIndex={Math.ceil(timescale.end / 7)}
-          y={chartHeight - 5}
-          tickFormatter={(tick) => tick + 1}
-          onChange={(e) => {
-            setTimescale({
-              start: e.startIndex * 7,
-              end: e.endIndex * 7 - 1,
-            });
+          <Line
+            id={avgDataKey}
+            type="linear"
+            dataKey={avgDataKey}
+            dot={false}
+            stroke={avgStrokeColor}
+            strokeWidth={avgStrokeWidth}
+            style={{ display: showAvg ? "" : "none" }}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+      <h2>{`Cumulative weekly ${selectedMode}`}</h2>
+      <ResponsiveContainer minWidth="300px" minHeight="500px">
+        <LineChart
+          className="intendedChart"
+          data={displayedCumulativeData}
+          syncId={syncKey}
+          margin={{ top: 10, right: 10, left: 20, bottom: selectorHeight }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey={dataKey}
+            label={{ value: axisNames[0], position: "bottom" }}
+          />
+          <YAxis
+            label={{
+              value: `cumulative ${selectedMode}`,
+              angle: -90,
+              position: "left",
+              offset: -10,
+            }}
+          />
 
-            if (
-              !state.timescale ||
-              state.timescale.start !== timescale.start ||
-              state.timescale.end !== timescale.end
-            ) {
-              client
-                .publish(
-                  "VISDOM",
-                  JSON.stringify({
-                    timescale: {
-                      start: e.startIndex * 7,
-                      end: e.endIndex * 7 - 1,
-                    },
-                  })
-                )
-                .then(() => {
-                  console.log("published timescale", {
+          {
+            // Draw average point lines for each grade from history data:
+            grades.map((index) => (
+              <Line
+                key={`avg_cum_${selectedMode}_grade_${index}`}
+                label={
+                  <ExpectedLabel
+                    grade={index}
+                    strokeColor={"#78b5a2"}
+                    display={showExpected}
+                  />
+                }
+                type="linear"
+                dot={false}
+                dataKey={`avg_cum_${selectedMode}_grade_${index}`}
+                stroke={expectedStrokeColor}
+                strokeWidth={avgStrokeWidth}
+                style={{ display: showExpected ? "" : "none" }}
+              ></Line>
+            ))
+          }
+
+          {
+            // Draw student lines:
+            displayedStudents.map((key) => (
+              <Line
+                key={key}
+                onClick={() => handleStudentLineClick(key)}
+                className="hoverable"
+                type="linear"
+                dot={false}
+                dataKey={key}
+                stroke={studentStrokeColor}
+                strokeWidth={studentStrokeWidth}
+              ></Line>
+            ))
+          }
+
+          <Line
+            id={avgDataKey}
+            type="linear"
+            dataKey={avgDataKey}
+            dot={false}
+            stroke={avgStrokeColor}
+            strokeWidth={avgStrokeWidth}
+            style={{ display: showAvg ? "" : "none" }}
+          />
+          <Brush
+            dataKey={dataKey}
+            startIndex={Math.floor(timescale.start / 7)}
+            endIndex={Math.ceil(timescale.end / 7)}
+            tickFormatter={(tick) => tick + 1}
+            onChange={(e) => {
+              setTimescale({
+                start: e.startIndex * 7,
+                end: e.endIndex * 7 - 1,
+              });
+
+              if (
+                !state.timescale ||
+                state.timescale.start !== timescale.start ||
+                state.timescale.end !== timescale.end
+              ) {
+                publishMessage(client, {
+                  timescale: {
                     start: e.startIndex * 7,
                     end: e.endIndex * 7 - 1,
-                  });
+                  },
                 });
-            }
-          }}
-        ></Brush>
-      </LineChart>
+              }
+            }}
+          ></Brush>
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 };
