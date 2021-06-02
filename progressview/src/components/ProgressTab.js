@@ -254,8 +254,8 @@ const ProgressTab = () => {
     setdisplayedModes(modes.filter((name) => name !== newMode));
 
     // publish newmode
-    client.publish("VISDOM", JSON.stringify({ mode: newMode })).then(() => {
-      console.log("published mode", newMode);
+    publishMessage(client, {
+      mode: newMode,
     });
 
     if (newMode === "points") {
