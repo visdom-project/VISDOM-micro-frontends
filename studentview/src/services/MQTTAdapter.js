@@ -48,3 +48,7 @@ export const MQTTConnect = (dispatch) => {
       updateConnectionStatus(dispatch, false);
     });
 };
+
+export const publishMessage = (client, messageObj) => {
+  return client.publish(MQTT_TOPIC, JSON.stringify(messageObj));
+};

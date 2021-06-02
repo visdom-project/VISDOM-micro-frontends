@@ -10,6 +10,7 @@ import {
   CartesianGrid,
   Tooltip,
   Brush,
+  ResponsiveContainer,
 } from "recharts";
 import pulseData from "../services/pulseData";
 import DropdownMenu from "./DropdownMenu";
@@ -19,7 +20,7 @@ import {
   useMessageState,
 } from "../contexts/MessageContext";
 
-import { MQTTConnect } from "../services/MQTTAdapter";
+import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
 import moment from "moment";
 
 export const StudentList = ({ setStudentID, studentID }) => {
@@ -122,7 +123,14 @@ export const PulseVisu = () => {
       state.timescale.start !== timescale.start ||
       state.timescale.end !== timescale.end
     ) {
-      setTimescale(Math.min(state.timescale, maxlength - 1));
+      if (state.timescale.end > maxlength - 1) {
+        setTimescale({
+          ...timescale,
+          end: maxlength - 1,
+        });
+      } else {
+        setTimescale(state.timescale);
+      }
       graphShouldUpdate(graphKey + 1);
     }
   }, [state.timescale]);
@@ -131,76 +139,66 @@ export const PulseVisu = () => {
     return <StudentList setStudentID={setStudentID} studentID={studentID} />;
 
   return (
-    <div>
+    <div className="" style={{ minHeight: "700px" }}>
       <StudentList setStudentID={setStudentID} studentID={studentID} />
-      <BarChart
-        key={graphKey}
-        width={document.documentElement.clientWidth * 0.9}
-        height={document.documentElement.clientHeight * 0.5 + 150}
-        margin={{ top: 10, right: 15, left: 25, bottom: 100 }}
-        data={data}
-      >
-        <CartesianGrid horizontal={false} />
-        <XAxis
-          dataKey="dateInSecond"
-          tickFormatter={(tickItem) =>
-            moment(tickItem * (1000 * 60 * 60 * 24)).format("ddd MMM Do")
-          }
-          angle={-90}
-          textAnchor="end"
-          scale="time"
-          tickCount={7}
-          interval={0}
-        />
-        <YAxis allowDataOverflow={true} />
-        <Tooltip
-          labelFormatter={(label) =>
-            moment(label * (1000 * 60 * 60 * 24)).format("ddd MMM Do")
-          }
-        />
-        <Bar dataKey="earlyCommit" stackId="a" fill="#74ee15" barSize={15} />
-        <Bar dataKey="inTimeCommit" stackId="a" fill="#ffe700" barSize={15} />
-        <Bar dataKey="lateCommit" stackId="a" fill="#e0301e" barSize={15} />
-        <Brush
-          startIndex={timescale.start}
-          endIndex={timescale.end}
-          tickFormatter={(tickItem) =>
-            moment(tickItem * (1000 * 60 * 60 * 24)).format("ddd MMM Do")
-          }
-          y={document.documentElement.clientHeight * 0.5 + 120}
-          height={25}
-          stroke="#8884d8"
-          onChange={(e) => {
-            setTimescale({
-              start: e.startIndex,
-              end: e.endIndex,
-            });
+      <ResponsiveContainer minWidth="300px" minHeight="700px">
+        <BarChart
+          key={graphKey}
+          margin={{ top: 10, right: 15, left: 25, bottom: 100 }}
+          data={data}
+        >
+          <CartesianGrid horizontal={false} />
+          <XAxis
+            height={140}
+            dataKey="dateInSecond"
+            tickFormatter={(tickItem) =>
+              moment(tickItem * (1000 * 60 * 60 * 24)).format("ddd MMM Do")
+            }
+            angle={-90}
+            textAnchor="end"
+            scale="time"
+            tickCount={7}
+            interval={0}
+          />
+          <YAxis allowDataOverflow={true} />
+          <Tooltip
+            labelFormatter={(label) =>
+              moment(label * (1000 * 60 * 60 * 24)).format("ddd MMM Do")
+            }
+          />
+          <Bar dataKey="earlyCommit" stackId="a" fill="#74ee15" barSize={15} />
+          <Bar dataKey="inTimeCommit" stackId="a" fill="#ffe700" barSize={15} />
+          <Bar dataKey="lateCommit" stackId="a" fill="#e0301e" barSize={15} />
+          <Brush
+            startIndex={timescale.start}
+            endIndex={timescale.end}
+            tickFormatter={(tickItem) =>
+              moment(tickItem * (1000 * 60 * 60 * 24)).format("ddd MMM Do")
+            }
+            height={25}
+            stroke="#8884d8"
+            onChange={(e) => {
+              setTimescale({
+                start: e.startIndex,
+                end: e.endIndex,
+              });
 
-            if (
-              !state.timescale ||
-              state.timescale.start !== timescale.start ||
-              state.timescale.end !== timescale.end
-            ) {
-              client
-                .publish(
-                  "VISDOM",
-                  JSON.stringify({
-                    timescale: {
-                      start: e.startIndex,
-                      end: e.endIndex,
-                    },
-                  })
-                )
-                .then(() => {
-                  console.log("published timescale", {
+              if (
+                !state.timescale ||
+                state.timescale.start !== timescale.start ||
+                state.timescale.end !== timescale.end
+              ) {
+                publishMessage(client, {
+                  timescale: {
                     start: e.startIndex,
                     end: e.endIndex,
-                  });
+                  },
                 });
-            }
-          }}
-        />
-      </BarChart>
+              }
+            }}
+          />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 };
