@@ -1,0 +1,51 @@
+
+.triangle-issue-display {
+  display: inline-flex;
+  /* margin-top: calc(100% - 4.5em); */
+  flex-wrap: wrap;
+  max-height: 50%;
+  width: inherit;
+  /* overflow-y: scroll; */
+}
+
+.triangle-down {
+  border-style: solid;
+  border-width: 2em 1.2em 0em 1.2em;
+  width: 0;
+  height: 0;
+  translate: none !important;
+  flex: 0 0 20%;
+}
+
+.triangle-up {
+  border-style: solid;
+  border-width: 0em 1.2em 2em 1.2em;
+  width: 0;
+  height: 0;
+  translate: none !important;
+  flex: 0 0 20%;
+}
+
+.triangle-down > div {
+  translate: -1.2em -3.8em;
+  font-size: 0.5em;
+  font-weight: bolder;
+}
+
+.triangle-up > div {
+  translate: -1.2em 2.2em;
+  font-size: 0.5em;
+  font-weight: bolder;
+}
+
+.exercise-number {
+  display: flex;
+}
+
+.issue:hover {
+  border-color: aqua #0000;
+}
+
+.details {
+  position: absolute;
+}

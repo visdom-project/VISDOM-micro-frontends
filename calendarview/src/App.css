@@ -1,0 +1,13 @@
+
+.App {
+  width: inherit;
+  margin: 0 auto;
+  padding-top: 2vw;
+}
+
+.fit-row {
+  display: flex;
+  margin: auto;
+  margin-right: 1em;
+}
+
