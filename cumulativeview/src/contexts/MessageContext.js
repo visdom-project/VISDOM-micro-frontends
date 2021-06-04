@@ -24,11 +24,13 @@ function MessageReducer(state, action) {
       const message = JSON.parse(action.payload.message.toString());
       let instances = message.instances ? message.instances : state.instances;
       let mode = message.mode ? message.mode : state.mode;
+      let timescale = message.timescale ? message.timescale : state.timescale;
 
       return {
         ...state,
         instances: instances,
         mode: mode,
+        timescale: timescale,
       };
     }
     default: {
@@ -37,12 +39,14 @@ function MessageReducer(state, action) {
   }
 }
 
-const MessageProvider = ({ children }) => {
+function MessageProvider({ children }) {
   const [state, dispatch] = React.useReducer(MessageReducer, {
     connected: false,
     instances: [],
+    timescale: null,
     mode: null,
   });
+
   return (
     <MessageContext.Provider value={state}>
       <MessageDispatchContext.Provider value={dispatch}>
@@ -50,17 +54,17 @@ const MessageProvider = ({ children }) => {
       </MessageDispatchContext.Provider>
     </MessageContext.Provider>
   );
-};
+}
 
-const useMessageState = () => {
+function useMessageState() {
   const context = React.useContext(MessageContext);
 
-  if (!context) {
+  if (context === undefined) {
     throw new Error("useMessageState must be used within a MessageProvider");
   }
 
   return context;
-};
+}
 
 function useMessageDispatch() {
   const context = React.useContext(MessageDispatchContext);

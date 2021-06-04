@@ -72,7 +72,7 @@ const ExpectedLabel = ({ index, x, y, strokeColor, grade, display }) => {
   return <></>;
 };
 
-const ProgressTab = () => {
+const CumulativeTab = () => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
 
@@ -80,17 +80,17 @@ const ProgressTab = () => {
   const [lineChartShouldUpdate, setLineChartShouldUpdate] = useState(0);
 
   const [studentIds, setStudentIds] = useState([]);
-  const [weeklyPoints, setWeeklyPoints] = useState([]);
+  // const [weeklyPoints, setWeeklyPoints] = useState([]);
   const [cumulativePoints, setCumulativePoints] = useState([{ name: "init" }]);
-  const [weeklyExercises, setWeeklyExercises] = useState([]);
+  // const [weeklyExercises, setWeeklyExercises] = useState([]);
   const [cumulativeExercises, setCumulativeExercises] = useState([
     { name: "init" },
   ]);
-  const [weeklyCommits, setWeeklyCommits] = useState([]);
+  // const [weeklyCommits, setWeeklyCommits] = useState([]);
   const [cumulativeCommits, setCumulativeCommits] = useState([
     { name: "init" },
   ]);
-  const [weeklySubmissions, setWeeklySubmissions] = useState([]);
+  // const [weeklySubmissions, setWeeklySubmissions] = useState([]);
   const [cumulativeSubmissions, setCumulativeSubmissions] = useState([
     { name: "init" },
   ]);
@@ -106,7 +106,7 @@ const ProgressTab = () => {
   const [showExpected, setShowExpected] = useState(true);
 
   const [displayedStudents, setDisplayedStudents] = useState([]);
-  const [displayedData, setDisplayedData] = useState([]);
+  // const [displayedData, setDisplayedData] = useState([]);
   const [displayedCumulativeData, setDisplayedCumulativeData] = useState([
     { name: "init" },
   ]);
@@ -119,10 +119,10 @@ const ProgressTab = () => {
   });
 
   const axisNames = ["Week", "Points"];
-  const syncKey = "syncKey";
   const avgDataKey = "weeklyAvgs";
   const dataKey = "name";
 
+  const selectorHeight = 40;
   const avgStrokeWidth = 3;
   const studentStrokeWidth = 2;
   const studentStrokeColor = "#8884d861";
@@ -161,7 +161,7 @@ const ProgressTab = () => {
       setStudentIds(ids);
       setDisplayedStudents(ids);
 
-      setDisplayedData(weeklyPts);
+      // setDisplayedData(weeklyPts);
       setDisplayedCumulativeData(cumulativePts);
       setWeeklyCommits(weeklyComms);
       setCumulativeCommits(cumulativeComms);
@@ -178,19 +178,20 @@ const ProgressTab = () => {
   useEffect(() => {
     let _mode = determineMode(state);
     if (selectedMode !== _mode) {
+      // handleModeClick(_mode);
       setSelectedMode(_mode);
       setdisplayedModes(modes.filter((name) => name !== _mode));
       if (_mode === "points") {
-        setDisplayedData(weeklyPoints);
+        // setDisplayedData(weeklyPoints);
         setDisplayedCumulativeData(cumulativePoints);
       } else if (_mode === "exercises") {
-        setDisplayedData(weeklyExercises);
+        // setDisplayedData(weeklyExercises);
         setDisplayedCumulativeData(cumulativeExercises);
       } else if (_mode === "commits") {
-        setDisplayedData(weeklyCommits);
+        // setDisplayedData(weeklyCommits);
         setDisplayedCumulativeData(cumulativeCommits);
       } else if (_mode === "submissions") {
-        setDisplayedData(weeklySubmissions);
+        // setDisplayedData(weeklySubmissions);
         setDisplayedCumulativeData(cumulativeSubmissions);
       } else {
         console.log("Selected unimplemented mode:", newMode);
@@ -250,16 +251,16 @@ const ProgressTab = () => {
     });
 
     if (newMode === "points") {
-      setDisplayedData(weeklyPoints);
+      // setDisplayedData(weeklyPoints);
       setDisplayedCumulativeData(cumulativePoints);
     } else if (newMode === "exercises") {
-      setDisplayedData(weeklyExercises);
+      // setDisplayedData(weeklyExercises);
       setDisplayedCumulativeData(cumulativeExercises);
     } else if (newMode === "commits") {
-      setDisplayedData(weeklyCommits);
+      // setDisplayedData(weeklyCommits);
       setDisplayedCumulativeData(cumulativeCommits);
     } else if (newMode === "submissions") {
-      setDisplayedData(weeklySubmissions);
+      // setDisplayedData(weeklySubmissions);
       setDisplayedCumulativeData(cumulativeSubmissions);
     } else {
       console.log("Selected unimplemented mode:", newMode);
@@ -402,16 +403,16 @@ const ProgressTab = () => {
         ></Controls>
       </div>
 
+      <h2>{`Cumulative weekly ${selectedMode}`}</h2>
       <ResponsiveContainer
         minWidth="300px"
-        minHeight="700px"
+        minHeight="500px"
         key={lineChartShouldUpdate}
       >
         <LineChart
           className="intendedChart"
-          data={displayedData}
-          syncId={syncKey}
-          margin={margins}
+          data={displayedCumulativeData}
+          margin={{ top: 10, right: 10, left: 20, bottom: selectorHeight }}
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
@@ -420,7 +421,7 @@ const ProgressTab = () => {
           />
           <YAxis
             label={{
-              value: `${selectedMode}`,
+              value: `cumulative ${selectedMode}`,
               angle: -90,
               position: "left",
               offset: -10,
@@ -431,9 +432,7 @@ const ProgressTab = () => {
             // Draw average point lines for each grade from history data:
             grades.map((index) => (
               <Line
-                key={`avg_${selectedMode}_grade_${index}`}
-                type="linear"
-                dot={false}
+                key={`avg_cum_${selectedMode}_grade_${index}`}
                 label={
                   <ExpectedLabel
                     grade={index}
@@ -441,7 +440,9 @@ const ProgressTab = () => {
                     display={showExpected}
                   />
                 }
-                dataKey={`avg_${selectedMode}_grade_${index}`}
+                type="linear"
+                dot={false}
+                dataKey={`avg_cum_${selectedMode}_grade_${index}`}
                 stroke={expectedStrokeColor}
                 strokeWidth={avgStrokeWidth}
                 style={{ display: showExpected ? "" : "none" }}
@@ -449,18 +450,21 @@ const ProgressTab = () => {
             ))
           }
 
-          {displayedStudents.map((student) => (
-            <Line
-              key={student}
-              onClick={() => handleStudentLineClick(student)}
-              className="hoverable"
-              type="linear"
-              dot={false}
-              dataKey={student}
-              stroke={studentStrokeColor}
-              strokeWidth={studentStrokeWidth}
-            ></Line>
-          ))}
+          {
+            // Draw student lines:
+            displayedStudents.map((key) => (
+              <Line
+                key={key}
+                onClick={() => handleStudentLineClick(key)}
+                className="hoverable"
+                type="linear"
+                dot={false}
+                dataKey={key}
+                stroke={studentStrokeColor}
+                strokeWidth={studentStrokeWidth}
+              ></Line>
+            ))
+          }
 
           <Line
             id={avgDataKey}
@@ -501,4 +505,4 @@ const ProgressTab = () => {
   );
 };
 
-export default ProgressTab;
+export default CumulativeTab;
