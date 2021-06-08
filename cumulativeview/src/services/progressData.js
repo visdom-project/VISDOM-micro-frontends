@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable camelcase */
 import axios from "axios";
 import historyDataService from "../services/historyData";
 import { ElasticSearchConfiguration } from "./serviceConfiguration";
@@ -232,16 +234,16 @@ const getData = () => {
         return [
           calcWeeklyAvgs(weeklyPoints),
           calcWeeklyAvgs(cumulativePoints),
-          calcWeeklyAvgs(weeklyExercises),
+          // calcWeeklyAvgs(weeklyExercises),
           calcWeeklyAvgs(cumulativeExercises),
-          weeklyCommits,
+          // weeklyCommits,
           cumulativeCommits,
-          weeklySubmissions,
+          // weeklySubmissions,
           cumulativeSubmissions,
         ];
       });
     })
-    .catch((someError) => [[], []]);
+    .catch(() => [[], []]);
 
   return request;
 };

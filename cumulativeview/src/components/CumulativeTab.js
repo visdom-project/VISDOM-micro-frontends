@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 import {
   LineChart,
@@ -130,7 +132,6 @@ const CumulativeTab = () => {
   const avgStrokeColor = "#b1b1b1";
 
   const grades = ["0", "1", "2", "3", "4", "5"];
-  const margins = { top: 10, right: 10, left: 20, bottom: 25 };
 
   const determineMode = (s) => {
     if (s && s.mode) {
@@ -144,35 +145,37 @@ const CumulativeTab = () => {
       const [
         weeklyPts,
         cumulativePts,
-        weeklyExers,
+        // weeklyExers,
         cumulativeExers,
-        weeklyComms,
+        // weeklyComms,
         cumulativeComms,
-        weeklySubs,
+        // weeklySubs,
         cumulativeSubs,
       ] = response;
 
-      setWeeklyPoints(weeklyPts);
+      // setWeeklyPoints(weeklyPts);
       setCumulativePoints(cumulativePts);
-      setWeeklyExercises(weeklyExers);
+      // setWeeklyExercises(weeklyExers);
       setCumulativeExercises(cumulativeExers);
 
+      //get student ids list
       const ids = dataService.getStudentIds(weeklyPts);
       setStudentIds(ids);
       setDisplayedStudents(ids);
 
       // setDisplayedData(weeklyPts);
       setDisplayedCumulativeData(cumulativePts);
-      setWeeklyCommits(weeklyComms);
+      // setWeeklyCommits(weeklyComms);
       setCumulativeCommits(cumulativeComms);
-      setWeeklySubmissions(weeklySubs);
+      // setWeeklySubmissions(weeklySubs);
       setCumulativeSubmissions(cumulativeSubs);
     });
   }, []);
 
   useEffect(() => {
-    MQTTConnect(dispatch).then((client) => setClient(client));
-    return () => client.end();
+    return MQTTConnect(dispatch)
+      .then((newClient) => setClient(newClient))
+      .then((newClient) => () => newClient.end());
   }, []);
 
   useEffect(() => {
@@ -194,7 +197,7 @@ const CumulativeTab = () => {
         // setDisplayedData(weeklySubmissions);
         setDisplayedCumulativeData(cumulativeSubmissions);
       } else {
-        console.log("Selected unimplemented mode:", newMode);
+        console.log("Selected unimplemented mode:", _mode);
       }
     }
   }, [state.mode]);
