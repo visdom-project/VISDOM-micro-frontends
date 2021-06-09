@@ -116,6 +116,12 @@ export const PulseVisu = () => {
   }, [studentID]);
 
   useEffect(() => {
+    // if empty array then render nothing, if more than one intance(s), render first one;
+    const currentIntance = state.instances[0] || "";
+    setStudentID(currentIntance);
+  }, [state.instances]);
+
+  useEffect(() => {
     if (!state.timescale) {
       return;
     }
@@ -182,23 +188,23 @@ export const PulseVisu = () => {
                 start: e.startIndex,
                 end: e.endIndex,
               });
-
-              if (
-                !state.timescale ||
-                state.timescale.start !== timescale.start ||
-                state.timescale.end !== timescale.end
-              ) {
-                publishMessage(client, {
-                  timescale: {
-                    start: e.startIndex,
-                    end: e.endIndex,
-                  },
-                });
-              }
             }}
           />
         </BarChart>
       </ResponsiveContainer>
+      <button
+        onClick={() => {
+          if (client) {
+            const instances = studentID ? [studentID] : [];
+            publishMessage(client, {
+              timescale: timescale,
+              instances: instances,
+            });
+          }
+        }}
+      >
+        Sync
+      </button>
     </div>
   );
 };

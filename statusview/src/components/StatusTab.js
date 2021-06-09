@@ -170,10 +170,6 @@ const StatusTab = () => {
   };
 
   const handleModeSwitchClick = (newMode) => {
-    publishMessage(client, {
-      mode: newMode,
-    });
-
     setSelectedMode(newMode);
     setdisplayedModes(modes.filter((name) => name !== newMode));
 
@@ -337,16 +333,26 @@ const StatusTab = () => {
       updateTreshold(treshold, undefined, commits);
     });
   }, []);
+
   useEffect(() => {
     MQTTConnect(dispatch).then((client) => setClient(client));
     return () => client.end();
   }, []);
+
   useEffect(() => {
     let _mode = determineMode(state);
     if (selectedMode !== _mode) {
       handleModeSwitchClick(_mode);
     }
   }, [state.mode]);
+
+  useEffect(() => {
+    // if empty array then render nothing, if more than one intance(s), render first one;
+    const currentIntance = state.instances[0] || "";
+    setSelectedStudent(currentIntance);
+    console.log(currentIntance);
+  }, [state.instances]);
+
   return (
     <>
       <div className="fit-row">
@@ -383,7 +389,19 @@ const StatusTab = () => {
         updateTreshold={updateTreshold}
         treshold={treshold}
       ></MultiChart>
-
+      <button
+        onClick={() => {
+          if (client) {
+            const instances = selectedStudent ? [selectedStudent] : [];
+            publishMessage(client, {
+              mode: selectedMode,
+              instances: instances,
+            });
+          }
+        }}
+      >
+        Sync
+      </button>
       <StudentDetailView
         selectedStudentID={selectedStudent}
       ></StudentDetailView>

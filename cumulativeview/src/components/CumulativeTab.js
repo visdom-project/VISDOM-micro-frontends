@@ -215,6 +215,14 @@ const CumulativeTab = () => {
     }
   }, [state.timescale]);
 
+  useEffect(() => {
+    if (!state.instances || !state.instances[0]) {
+      setDisplayedStudents(studentIds);
+      return;
+    }
+    setDisplayedStudents(state.instances);
+  }, [state.instances]);
+
   // Toggle selection of a student that is clicked in the student list:
   const handleListClick = (id) => {
     const targetNode = document.querySelector(`#li-${id}`);
@@ -247,11 +255,6 @@ const CumulativeTab = () => {
 
     setSelectedMode(newMode);
     setdisplayedModes(modes.filter((name) => name !== newMode));
-
-    // publish newmode
-    publishMessage(client, {
-      mode: newMode,
-    });
 
     if (newMode === "points") {
       // setDisplayedData(weeklyPoints);
@@ -454,7 +457,7 @@ const CumulativeTab = () => {
           }
 
           {
-            // Draw student lines:
+            // Draw student lines:z`
             displayedStudents.map((key) => (
               <Line
                 key={key}
@@ -487,23 +490,23 @@ const CumulativeTab = () => {
                 start: e.startIndex * 7,
                 end: e.endIndex * 7 - 1,
               });
-
-              if (
-                !state.timescale ||
-                state.timescale.start !== timescale.start ||
-                state.timescale.end !== timescale.end
-              ) {
-                publishMessage(client, {
-                  timescale: {
-                    start: e.startIndex * 7,
-                    end: e.endIndex * 7 - 1,
-                  },
-                });
-              }
             }}
           ></Brush>
         </LineChart>
       </ResponsiveContainer>
+      <button
+        onClick={() => {
+          if (client) {
+            publishMessage(client, {
+              mode: selectedMode,
+              timescale: timescale,
+              instances: displayedStudents,
+            });
+          }
+        }}
+      >
+        Sync
+      </button>
     </div>
   );
 };

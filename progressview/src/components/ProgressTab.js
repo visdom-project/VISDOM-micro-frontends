@@ -171,8 +171,9 @@ const ProgressTab = () => {
   }, []);
 
   useEffect(() => {
-    MQTTConnect(dispatch).then((client) => setClient(client));
-    return () => client.end();
+    return MQTTConnect(dispatch)
+      .then((newClient) => setClient(newClient))
+      .then((newClient) => () => newClient.end());
   }, []);
 
   useEffect(() => {
@@ -193,10 +194,18 @@ const ProgressTab = () => {
         setDisplayedData(weeklySubmissions);
         setDisplayedCumulativeData(cumulativeSubmissions);
       } else {
-        console.log("Selected unimplemented mode:", newMode);
+        console.log("Selected unimplemented mode:", _mode);
       }
     }
   }, [state.mode]);
+
+  useEffect(() => {
+    if (!state.instances || !state.instances[0]) {
+      setDisplayedStudents(studentIds);
+      return;
+    }
+    setDisplayedStudents(state.instances);
+  }, [state.instances]);
 
   useEffect(() => {
     if (!state.timescale) {
@@ -243,11 +252,6 @@ const ProgressTab = () => {
 
     setSelectedMode(newMode);
     setdisplayedModes(modes.filter((name) => name !== newMode));
-
-    // publish newmode
-    publishMessage(client, {
-      mode: newMode,
-    });
 
     if (newMode === "points") {
       setDisplayedData(weeklyPoints);
@@ -480,23 +484,23 @@ const ProgressTab = () => {
                 start: e.startIndex * 7,
                 end: e.endIndex * 7 - 1,
               });
-
-              if (
-                !state.timescale ||
-                state.timescale.start !== timescale.start ||
-                state.timescale.end !== timescale.end
-              ) {
-                publishMessage(client, {
-                  timescale: {
-                    start: e.startIndex * 7,
-                    end: e.endIndex * 7 - 1,
-                  },
-                });
-              }
             }}
           ></Brush>
         </LineChart>
       </ResponsiveContainer>
+      <button
+        onClick={() => {
+          if (client) {
+            publishMessage(client, {
+              mode: selectedMode,
+              timescale: timescale,
+              instances: displayedStudents,
+            });
+          }
+        }}
+      >
+        Sync
+      </button>
     </div>
   );
 };
