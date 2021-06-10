@@ -6,9 +6,7 @@
 }
 
 .day {
-  /* width: calc(13vw - 2em); */
-  flex: 0 0 13.5%;
-  /* height: calc(13vw - 2em); */
+  width: calc(15vw - 2em);
   border: 1px darkgrey solid;
   padding: 1em;
   margin-bottom: 0.5em;
@@ -24,3 +22,4 @@
   margin: 0;
   padding: 0 0 1em 0;
 }
+

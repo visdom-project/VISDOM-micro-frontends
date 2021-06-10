@@ -9,5 +9,6 @@
   display: flex;
   margin: auto;
   margin-right: 1em;
+  flex-wrap: wrap;
 }
 

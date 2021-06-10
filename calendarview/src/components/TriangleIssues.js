@@ -4,11 +4,7 @@ import { ColorSchemes } from '../reducers/colorSchemeReducer'
 import '../styles/triangle-issues.css'
 import '../styles/details.css'
 
-const DetailWindow = ({ issue, isVisible, issueIndex }) => {
-
-	if (!isVisible) {
-		return <></>
-	}
+const DetailWindow = ({ issue, issueIndex }) => {
 
 	return (
 		<div className='details' style={{ color: 'black', fontSize: '1em', background: "white" }}>
@@ -40,7 +36,6 @@ const getIssueColor = (colorScheme, issue) => {
 
 const TriangleIssue = ({ index, dx, y, orientation, issue }) => {
 	const colors = useSelector(state => state.colorScheme)
-	const [showDetails, setShowDetails] = useState(false);
 
 	const exerciseNumber = issue.exercise.name
 		.substr(0, issue.exercise.name.search(/\|/))
@@ -56,20 +51,14 @@ const TriangleIssue = ({ index, dx, y, orientation, issue }) => {
 		color: textColor
 	}
 
-	const toggleDetailVisibility = () => {
-		console.log(issue);
-		setShowDetails(!showDetails)
-	}
-
 	return (
 		<div 
 			style={triangleStyle} 
 			className={`issue ${orientation}`}
-			onClick={toggleDetailVisibility}>
+		>
 			<div className="exercise-number">{exerciseNumber}</div>
 			<DetailWindow 
 				issue={issue} 
-				isVisible={showDetails} 
 				issueIndex={index} />
 		</div>
 	)
