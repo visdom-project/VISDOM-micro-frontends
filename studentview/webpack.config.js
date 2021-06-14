@@ -1,4 +1,4 @@
-const { merge } = require("webpack-merge");
+const webpackMerge = require("webpack-merge");
 const singleSpaDefaults = require("webpack-config-single-spa");
 const webpack = require("webpack");
 
@@ -12,7 +12,7 @@ module.exports = (webpackConfigEnv, argv) => {
     argv,
   });
 
-  return merge(defaultConfig, {
+  return webpackMerge.smart(defaultConfig, {
     // modify the webpack config however you'd like to by adding to this object
     plugins: [
       new webpack.DefinePlugin({
