@@ -3,7 +3,7 @@
 /* eslint-disable no-shadow */
 import React, { useEffect, useState } from "react";
 
-import pulseData from "../services/pulseData";
+import getAllStudentData from "../services/studentData";
 import DropdownMenu from "./DropdownMenu";
 import "../stylesheets/dropdown.css";
 import {
@@ -79,8 +79,7 @@ const ControlForm = () => {
   }, [])
 
   useEffect(() => {
-    pulseData
-      .getAllStudentData()
+    getAllStudentData()
       .then((res) => setStudentData(res))
       .catch((err) => console.log(err));
   }, []);

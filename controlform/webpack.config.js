@@ -3,7 +3,6 @@ const singleSpaDefaults = require("webpack-config-single-spa");
 const webpack = require("webpack");
 
 require("dotenv").config();
-const buffer = require("buffer/");
 
 module.exports = (webpackConfigEnv, argv) => {
   const defaultConfig = singleSpaDefaults({

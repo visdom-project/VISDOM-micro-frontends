@@ -24,4 +24,4 @@ const getAllStudentData = () => {
   return request;
 };
 
-export default { getAllStudentData };
+export default getAllStudentData;
