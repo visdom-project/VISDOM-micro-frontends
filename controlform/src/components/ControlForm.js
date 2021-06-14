@@ -1,3 +1,4 @@
+/* eslint-disable no-promise-executor-return */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-shadow */
@@ -19,7 +20,7 @@ const RangeInput = ({ max, min, setRange, title, range }) => {
     event.preventDefault();
     const { value, name } = event.target;
     const newRange = {
-      ...range, 
+      ...range,
       [name]: parseInt(value),
     };
     const inRange = (number, max, min) => (number <= max && number >= min);
@@ -35,7 +36,7 @@ const RangeInput = ({ max, min, setRange, title, range }) => {
     <div className="input-form">
       <label>{title}</label>
       <br />
-      <div style={{display : ""}}> Start: </div>
+      <div style={{ display : "" }}> Start: </div>
       <input className="input-box"
         type="number"
         name="start"
@@ -65,7 +66,7 @@ const ControlForm = () => {
 
   //hard coding without metadata
   const maxlength = 98;
-  
+
   const modes = ["points", "exercises", "commits", "submissions"];
 
   useEffect(() => {
@@ -75,12 +76,13 @@ const ControlForm = () => {
         start: 0,
         end: maxlength-1,
       }
-    })
-  }, [])
+    });
+  }, []);
 
   useEffect(() => {
     getAllStudentData()
       .then((res) => setStudentData(res))
+      // eslint-disable-next-line no-console
       .catch((err) => console.log(err));
   }, []);
 
@@ -92,8 +94,8 @@ const ControlForm = () => {
   return (
     <div>
       <div className="fit-row">
-        {studentData && 
-        <DropdownMenu 
+        {studentData &&
+        <DropdownMenu
           options={studentData}
           selectedOption={state.instances ? state.instances[0] || "ALL" : "" }
           handleClick={ (instance) => updateLocalState(dispatch, {
@@ -116,7 +118,7 @@ const ControlForm = () => {
           title="Visualization mode:"
         />
         <br />
-        <RangeInput 
+        <RangeInput
           max={maxlength-1}
           min={0}
           range={state.timescale}
@@ -126,14 +128,14 @@ const ControlForm = () => {
           })}
         />
         <br />
-        { state.timescale && 
-          state.timescale.start > state.timescale.end && <span style={{background: "red" }}>Invalid range!</span>
+        { state.timescale &&
+          state.timescale.start > state.timescale.end && <span style={{ background: "red" }}>Invalid range!</span>
         }
       </div>
       <button
         onClick={() => {
           // state condition comes here
-          if (client 
+          if (client
             && state.timescale.start <= state.timescale.end) {
             publishMessage(client, {
               timescale: state.timescale,

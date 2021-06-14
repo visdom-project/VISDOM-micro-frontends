@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import { ElasticSearchConfiguration } from "./serviceConfiguration";
 
@@ -19,6 +18,7 @@ const getAllStudentData = () => {
       });
       return allStudentData;
     })
+    // eslint-disable-next-line no-console
     .catch((someError) => console.log(someError));
 
   return request;

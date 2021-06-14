@@ -43,7 +43,7 @@ const MessageReducer = (state, action) => {
         instances: instances,
         timescale: timescale,
         mode: mode,
-      }
+      };
     }
     default: {
       throw new Error(`Unhandled action type:${action.type}`);
@@ -97,7 +97,7 @@ async function receiveMessage(dispatch, messageObj) {
 }
 
 async function updateLocalState(dispatch, stateObj) {
-  dispatch({ type: UPDATE_LOCAL_STATE, payload: stateObj});
+  dispatch({ type: UPDATE_LOCAL_STATE, payload: stateObj });
 }
 
 export {

@@ -11,7 +11,7 @@ const DropdownMenu = ({ handleClick, options, selectedOption, title, selectAllOp
           className="dropdown-options"
           style={{ maxHeight: "200px", overflow: "scroll" }}
         >
-          {selectAllOption ? 
+          {selectAllOption ?
           <button key="all" onClick={() => handleSelectAll()}>
             ALL
           </button> : null}
