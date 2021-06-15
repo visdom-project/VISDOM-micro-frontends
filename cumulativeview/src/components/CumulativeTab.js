@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import DropdownMenu from "./DropdownMenu";
 import CheckBoxMenu from "./CheckBoxMenu";
-import StudentSelector from "./StudentSelector";
+// import StudentSelector from "./StudentSelector";
 import dataService from "../services/progressData";
 import GroupDisplay from "./GroupDisplay.js";
 import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
@@ -225,21 +225,21 @@ const CumulativeTab = () => {
   }, [state.instances]);
 
   // Toggle selection of a student that is clicked in the student list:
-  const handleListClick = (id) => {
-    const targetNode = document.querySelector(`#li-${id}`);
+  // const handleListClick = (id) => {
+  //   const targetNode = document.querySelector(`#li-${id}`);
 
-    if (targetNode === null) {
-      console.log(`Node with id: ${id} was null!`);
-      return;
-    }
+  //   if (targetNode === null) {
+  //     console.log(`Node with id: ${id} was null!`);
+  //     return;
+  //   }
 
-    if (targetNode.style.color === "grey") {
-      setDisplayedStudents(displayedStudents.concat(targetNode.textContent));
-      targetNode.style.color = "black";
-    } else {
-      handleStudentLineClick(id);
-    }
-  };
+  //   if (targetNode.style.color === "grey") {
+  //     setDisplayedStudents(displayedStudents.concat(targetNode.textContent));
+  //     targetNode.style.color = "black";
+  //   } else {
+  //     handleStudentLineClick(id);
+  //   }
+  // };
 
   // Hide student that was clicked from the chart:
   const handleStudentLineClick = (id) => {
@@ -392,7 +392,7 @@ const CumulativeTab = () => {
           grades={grades}
           handleClick={handleToggleStudentGroupClick}
         />
-        <StudentSelector students={studentIds} handleClick={handleListClick} />
+        {/* <StudentSelector students={studentIds} handleClick={handleListClick} /> */}
       </div>
 
       <div className="fit-row">
