@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from "react";
 import {
   ComposedChart,
@@ -99,6 +100,7 @@ const MyRefLine = () => {
   );
 };
 
+// eslint-disable-next-line max-lines-per-function
 const MultiChart = (props) => {
   const {
     chartWidth,
@@ -131,6 +133,7 @@ const MultiChart = (props) => {
   const margins = { top: 10, right: 20, left: 20, bottom: 25 };
 
   if (data === undefined || commonData === undefined) {
+    // eslint-disable-next-line no-console
     console.log(
       "Either student data or common student data is undefined. Data:",
       data,
@@ -147,6 +150,7 @@ const MultiChart = (props) => {
     const alphabets = "abcdefghijklmnopqrstuvwxyz";
     if (countData !== undefined && countData.length > 0) {
       let i = 0;
+      // eslint-disable-next-line no-unused-vars
       submissionMapping = countData[0][key].map((item) => {
         i += 1;
         submissionTicks.push(i);

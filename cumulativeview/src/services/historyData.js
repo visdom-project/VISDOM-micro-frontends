@@ -14,7 +14,7 @@ const getHistoryData = () => {
     .then((response) => {
       return response.data.hits.hits[0]._source["data_by_weeks"];
     })
-    .catch((someError) => [[], []]);
+    .catch(() => [[], []]);
 
   return request;
 };

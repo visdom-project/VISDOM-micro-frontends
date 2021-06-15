@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from "react";
 import "../stylesheets/groupdisplay.css";
 
@@ -32,7 +33,7 @@ const GroupDisplay = ({ grades, handleClick }) => {
             <td>
               <label className="switch" style={{ margin: "0em 0em" }}>
                 <input
-                  id={`input-all`}
+                  id={"input-all"}
                   type="checkbox"
                   onClick={() => handleClick("all")}
                   defaultChecked

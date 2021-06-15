@@ -167,6 +167,7 @@ const getData = () => {
       ] = getCommitData(response, moduleMapping);
 
       // Add history data to data set:
+      // eslint-disable-next-line no-shadow
       return historyDataService.getHistoryData().then((response) => {
         const historyByWeeks = response;
         Object.keys(historyByWeeks).forEach((weekName) => {

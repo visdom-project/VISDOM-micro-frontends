@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 import dataService from "../services/statusData";
 import MultiChart from "./StatusChart";
@@ -78,6 +80,7 @@ const Controls = (props) => {
   );
 };
 
+// eslint-disable-next-line max-lines-per-function
 const StatusTab = () => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
@@ -162,6 +165,7 @@ const StatusTab = () => {
     return modes[0];
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleStudentClick = (data, barIndex) => {
     if (data !== undefined) {
       const newSelected = data.id;
@@ -335,7 +339,7 @@ const StatusTab = () => {
   }, []);
 
   useEffect(() => {
-    MQTTConnect(dispatch).then((client) => setClient(client));
+    MQTTConnect(dispatch).then((newClient) => setClient(newClient));
     return () => client.end();
   }, []);
 

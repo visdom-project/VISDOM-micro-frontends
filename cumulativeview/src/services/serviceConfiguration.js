@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const elasticsearchHost = __ELASTICSEARCH_HOST__;
 const mqttHost = __MQTT_HOST__;
 

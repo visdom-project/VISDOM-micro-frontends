@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const elasticsearchHost = __ELASTICSEARCH_HOST__;
 const mqttHost = __MQTT_HOST__;
 
@@ -13,4 +14,4 @@ export const MQTTConfiguration = {
   createUrl: function (url) {
     return mqttHost + "/" + url;
   },
-}; 
+};

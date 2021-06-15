@@ -1,6 +1,6 @@
 const compare = (a, b) => {
-  const aVal = a.totPts - a.missed + a.week
-  const bVal = b.totPts - b.missed + b.week
+  const aVal = a.totPts - a.missed + a.week;
+  const bVal = b.totPts - b.missed + b.week;
 
   if (aVal < bVal) {
     return -1;
@@ -9,21 +9,21 @@ const compare = (a, b) => {
     return 1;
   }
   return 0;
-}
+};
 
 const orderData = (data) => {
-  const orderedData = []
+  const orderedData = [];
 
   data.forEach(week => {
-    orderedData.push({"week": week.week, "data": week.data.sort(compare)})
+    orderedData.push({ "week": week.week, "data": week.data.sort(compare) });
   });
 
-  return orderedData
-}
+  return orderedData;
+};
 
 const compareCounts = (a, b) => {
-  const aVal = a.cumulativePoints
-  const bVal = b.cumulativePoints
+  const aVal = a.cumulativePoints;
+  const bVal = b.cumulativePoints;
 
   if (aVal < bVal) {
     return -1;
@@ -32,16 +32,16 @@ const compareCounts = (a, b) => {
     return 1;
   }
   return 0;
-}
+};
 
 const orderCountData = (data) => {
-  const orderedData = []
+  const orderedData = [];
 
   data.forEach(week => {
-    orderedData.push({"week": week.week, "data": week.data.sort(compareCounts)})
+    orderedData.push({ "week": week.week, "data": week.data.sort(compareCounts) });
   });
 
-  return orderedData
-}
+  return orderedData;
+};
 
 export default { orderData, orderCountData };

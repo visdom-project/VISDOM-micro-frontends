@@ -1,4 +1,3 @@
-/* eslint-disable no-promise-executor-return */
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-shadow */

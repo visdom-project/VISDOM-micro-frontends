@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 import {
   LineChart,
@@ -72,6 +74,7 @@ const ExpectedLabel = ({ index, x, y, strokeColor, grade, display }) => {
   return <></>;
 };
 
+// eslint-disable-next-line max-lines-per-function
 const ProgressTab = () => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
@@ -171,9 +174,12 @@ const ProgressTab = () => {
   }, []);
 
   useEffect(() => {
-    return MQTTConnect(dispatch)
-      .then((newClient) => setClient(newClient))
-      .then((newClient) => () => newClient.end());
+    const newClient = MQTTConnect(dispatch)
+      .then((newClient) => {
+        setClient(newClient);
+        return newClient;
+      });
+    return () => newClient.end();
   }, []);
 
   useEffect(() => {

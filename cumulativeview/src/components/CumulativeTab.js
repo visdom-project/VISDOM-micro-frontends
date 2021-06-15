@@ -74,6 +74,7 @@ const ExpectedLabel = ({ index, x, y, strokeColor, grade, display }) => {
   return <></>;
 };
 
+// eslint-disable-next-line max-lines-per-function
 const CumulativeTab = () => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();

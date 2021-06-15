@@ -39,6 +39,7 @@ function MessageReducer(state, action) {
   }
 }
 
+// eslint-disable-next-line react/prop-types
 function MessageProvider({ children }) {
   const [state, dispatch] = React.useReducer(MessageReducer, {
     connected: false,

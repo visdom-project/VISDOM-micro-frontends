@@ -43,6 +43,7 @@ export const MQTTConnect = (dispatch) => {
       return client;
     })
     .catch((error) => {
+      // eslint-disable-next-line no-console
       console.log("MQTT connection error:", error);
       updateConnectionStatus(dispatch, false);
     });

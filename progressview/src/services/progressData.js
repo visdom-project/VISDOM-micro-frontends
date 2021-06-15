@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import axios from "axios";
 import historyDataService from "../services/historyData";
 import { ElasticSearchConfiguration } from "./serviceConfiguration";
@@ -40,6 +41,7 @@ const getPointsForWeek = (data, moduleId) => {
     }, 0);
     return [correct_week.points, exercises];
   }
+  // eslint-disable-next-line no-console
   console.log(
     "progressData.js::getPointsForWeek(): Could not find points for a student!"
   );
@@ -165,6 +167,7 @@ const getData = () => {
       ] = getCommitData(response, moduleMapping);
 
       // Add history data to data set:
+      // eslint-disable-next-line no-shadow
       return historyDataService.getHistoryData().then((response) => {
         const historyByWeeks = response;
         Object.keys(historyByWeeks).forEach((weekName) => {
@@ -241,13 +244,14 @@ const getData = () => {
         ];
       });
     })
-    .catch((someError) => [[], []]);
+    .catch(() => [[], []]);
 
   return request;
 };
 
 const getStudentIds = (data) => {
   if (data === undefined || data[0] === undefined) {
+    // eslint-disable-next-line no-console
     console.log(
       "progressData.js::getStudentIds(): data is undefined. Returning empty student list."
     );

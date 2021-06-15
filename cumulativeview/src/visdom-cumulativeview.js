@@ -10,8 +10,10 @@ const lifecycles = singleSpaReact({
   React,
   ReactDOM,
   rootComponent: App,
+  // eslint-disable-next-line no-unused-vars
   errorBoundary(err, info, props) {
     // Customize the root error boundary for your microfrontend here.
+    // eslint-disable-next-line react/jsx-no-undef
     return <ErrorBoundary />;
   },
 });
