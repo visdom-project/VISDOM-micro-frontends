@@ -6,11 +6,11 @@
 }
 
 .day {
-  width: calc(15vw - 2em);
+  width: calc(100%/7);
+  height: calc(13vw - 2em);
   border: 1px darkgrey solid;
   padding: 1em;
   margin-bottom: 0.5em;
-  height: fit-content;
 }
 
 .date-content {
