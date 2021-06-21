@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import DropdownMenu from "./DropdownMenu";
 import CheckBoxMenu from "./CheckBoxMenu";
-// import StudentSelector from "./StudentSelector";
+import ConfigDialog from "./ConfigDialog";
 import dataService from "../services/progressData";
 import GroupDisplay from "./GroupDisplay.js";
 import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
@@ -99,11 +99,15 @@ const CumulativeTab = () => {
   ]);
 
   const modes = ["points", "exercises", "commits", "submissions"];
+  
+  const initialSelectedGroup = Array(8).fill(true);
+  const [group, setGroup] = useState(initialSelectedGroup);
+
   const [selectedMode, setSelectedMode] = useState(modes[0]);
   const [displayedModes, setdisplayedModes] = useState(
     modes.filter((mode) => mode !== selectedMode)
   );
-
+  
   const showableLines = ["Average", "Expected"];
   const [showAvg, setShowAvg] = useState(true);
   const [showExpected, setShowExpected] = useState(true);
@@ -113,7 +117,7 @@ const CumulativeTab = () => {
   const [displayedCumulativeData, setDisplayedCumulativeData] = useState([
     { name: "init" },
   ]);
-
+  
   // hard coding const without metadata
   const maxlength = 98;
   const [timescale, setTimescale] = useState({
@@ -299,7 +303,11 @@ const CumulativeTab = () => {
       setShowAvg(!showAvg);
     }
   };
+
+
+
   const handleToggleStudentGroupClick = (groupIdentifier) => {
+    console.log(groupIdentifier)
     const showGroup = document.getElementById(
       `input-${groupIdentifier}`
     ).checked;
@@ -308,11 +316,23 @@ const CumulativeTab = () => {
     if (groupIdentifier === "all") {
       setDisplayedStudents(showGroup ? studentIds : []);
       gradeSwitches.forEach((node) => (node.checked = showGroup));
-      studentIds.forEach(
-        (studentId) =>
-          (document.querySelector(`#li-${studentId}`).style.color = color)
-      );
+      // studentIds.forEach(
+      //   (studentId) =>
+      //     (document.querySelector(`#li-${studentId}`).style.color = color)
+      // );
+
+      setGroup( new Array(8).fill(showGroup));
     } else {
+      const newGroup = [...group];
+      newGroup[groupIdentifier] = !newGroup[groupIdentifier];
+
+      if (newGroup[groupIdentifier] === false) {
+        newGroup[newGroup.length-1] = false;
+      }
+      if ( !newGroup.slice(0, newGroup.length-1).some(e => e === false)) {
+        newGroup[newGroup.length-1] = true;
+      }
+      setGroup(newGroup);
       const targetData =
         displayedCumulativeData[displayedCumulativeData.length - 1];
       const targetGrade = parseInt(groupIdentifier);
@@ -335,16 +355,16 @@ const CumulativeTab = () => {
       );
 
       // Toggle the "visibility" of the selected students in the student listing:
-      targetStudents
-        .filter(
-          (student) =>
-            !["week", "weeklyAvgs"].includes(student) &&
-            !student.startsWith("avg_")
-        )
-        .forEach(
-          (studentId) =>
-            (document.querySelector(`#li-${studentId}`).style.color = color)
-        );
+      // targetStudents
+      //   .filter(
+      //     (student) =>
+      //       !["week", "weeklyAvgs"].includes(student) &&
+      //       !student.startsWith("avg_")
+      //   )
+      //   .forEach(
+      //     (studentId) =>
+      //       (document.querySelector(`#li-${studentId}`).style.color = color)
+      //   );
 
       // Toggle the visibility of students by selecting correct group of students to be displayed:
       const disp = showGroup
@@ -386,29 +406,36 @@ const CumulativeTab = () => {
   };
 
   return (
+    
     <div className="chart" style={{ paddingTop: "30px" }}>
-      <div className="fit-row">
-        <GroupDisplay
-          grades={grades}
-          handleClick={handleToggleStudentGroupClick}
-        />
-        {/* <StudentSelector students={studentIds} handleClick={handleListClick} /> */}
-      </div>
+      <ConfigDialog
+      title={{button: "Show view configuration",
+            dialog: "Select Student Group",
+            confirm: "OK"}}>
+        <div className="fit-row">
+          <GroupDisplay
+            grades={grades}
+            handleClick={handleToggleStudentGroupClick}
+            groupSelected={group}
+          />
+          {/* <StudentSelector students={studentIds} handleClick={handleListClick} /> */}
+        </div>
 
-      <div className="fit-row">
-        <h2>{`Weekly ${selectedMode}`}</h2>
-        <Controls
-          handleClick={handleModeClick}
-          modes={displayedModes}
-          selectedMode={selectedMode}
-          showableLines={showableLines}
-          handleToggleRefLineVisibilityClick={
-            handleToggleRefLineVisibilityClick
-          }
-          showAvg={showAvg}
-          showExpected={showExpected}
-        ></Controls>
-      </div>
+        <div className="fit-row">
+          <h2>{`Weekly ${selectedMode}`}</h2>
+          <Controls
+            handleClick={handleModeClick}
+            modes={displayedModes}
+            selectedMode={selectedMode}
+            showableLines={showableLines}
+            handleToggleRefLineVisibilityClick={
+              handleToggleRefLineVisibilityClick
+            }
+            showAvg={showAvg}
+            showExpected={showExpected}
+          ></Controls>
+        </div>
+      </ConfigDialog>
 
       <h2>{`Cumulative weekly ${selectedMode}`}</h2>
       <ResponsiveContainer

@@ -2,7 +2,7 @@
 import React from "react";
 import "../stylesheets/groupdisplay.css";
 
-const GroupDisplay = ({ grades, handleClick }) => {
+const GroupDisplay = ({ grades, handleClick, groupSelected }) => {
 
   return (
     <div style={{ paddingLeft: "2em" }}>
@@ -12,7 +12,7 @@ const GroupDisplay = ({ grades, handleClick }) => {
           <tr key={`grade-${grade}`}>
             <td>
               <label className="switch" style={{ marginTop: "0.2em" }}>
-                <input className="gradeswitch" id={`input-${grade}`} type="checkbox" onClick={() => handleClick(grade)} defaultChecked></input>
+                <input className="gradeswitch" id={`input-${grade}`} type="checkbox" onClick={() => handleClick(grade)} defaultChecked={groupSelected[grade]}></input>
                 <span className="slider round"></span>
               </label>
             </td>
@@ -21,7 +21,7 @@ const GroupDisplay = ({ grades, handleClick }) => {
         <tr key="All">
           <td>
             <label className="switch" style={{ margin: "0em 0em" }}>
-              <input id={"input-all"} type="checkbox" onClick={() => handleClick("all")} defaultChecked></input>
+              <input id={"input-all"} type="checkbox" onClick={() => handleClick("all")} defaultChecked={groupSelected[groupSelected.length -1]}></input>
               <span className="slider round"></span>
             </label>
           </td>
