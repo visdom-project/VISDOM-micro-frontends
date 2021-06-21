@@ -52,7 +52,6 @@ const TriangleIssue = ({ index, dx, y, orientation, issue }) => {
 		borderColor: getIssueColor(colors, issue),
 		color: textColor
 	}
-	console.log(prefix(triangleStyle))
 
 	return (
 		<div 

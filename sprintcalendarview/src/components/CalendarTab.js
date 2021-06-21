@@ -22,9 +22,6 @@ const CalendarTab = () => {
   const [timePeriod, setTimePeriod] = useState({
     startDate: null, endDate: null})
 
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-
   //hard coding without metadata
   const maxlength = 98;
   const [timescale, setTimescale] = useState({
@@ -49,19 +46,11 @@ const CalendarTab = () => {
       getTimeframe(timePeriod.startDate, timePeriod.endDate, studentID)
       .then(frame => {
         setTimeframe(frame)
-        setStartDate(frame[0].key)
-        setEndDate(frame[frame.length - 1].key)
       })
       .catch(error => console.log(error))
     }
   }, [timePeriod]) // eslint-disable-line
 
-  useEffect(() => {
-    setTimescale({
-      start: timeframe.findIndex(d => d.key === startDate),
-      end: timeframe.findIndex(d => d.key === endDate)
-    })
-  }, [startDate, endDate])
 
   useEffect(() => {
     MQTTConnect(dispatch).then(client => setClient(client));
@@ -98,11 +87,6 @@ const CalendarTab = () => {
     <div className="calendar-tab">
       <DropDownMenu studentID={studentID} setStudentID={setStudentID} />
       {studentID && <TimeSelection 
-        timeframe={timeframe}
-        startDate={startDate}
-        endDate={endDate}
-        setStartDate={setStartDate}
-        setEndDate={setEndDate}
         timescale={timescale}
         setTimescale={setTimescale}
         maxlength={maxlength}
