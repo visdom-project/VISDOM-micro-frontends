@@ -178,11 +178,10 @@ const ProgressTab = () => {
   }, []);
 
   useEffect(() => {
-    const newClient = MQTTConnect(dispatch)
-      .then((newClient) => {
-        setClient(newClient);
-        return newClient;
-      });
+    const newClient = MQTTConnect(dispatch).then((newClient) => {
+      setClient(newClient);
+      return newClient;
+    });
     return () => newClient.end();
   }, []);
 
@@ -306,11 +305,10 @@ const ProgressTab = () => {
     }
   };
   const handleToggleStudentGroupClick = (groupIdentifier) => {
-    const showGroup = document.getElementById(
-      `input-${groupIdentifier}`
-    ).checked;
+    const showGroup = document.getElementById(`input-${groupIdentifier}`)
+      .checked;
     const gradeSwitches = document.querySelectorAll(".gradeswitch");
-    const color = showGroup ? "black" : "grey";
+    // const color = showGroup ? "black" : "grey";
     if (groupIdentifier === "all") {
       setDisplayedStudents(showGroup ? studentIds : []);
       gradeSwitches.forEach((node) => (node.checked = showGroup));
@@ -318,16 +316,16 @@ const ProgressTab = () => {
       //   (studentId) =>
       //     (document.querySelector(`#li-${studentId}`).style.color = color)
       // );
-      setGroup( new Array(8).fill(showGroup));
+      setGroup(new Array(8).fill(showGroup));
     } else {
       const newGroup = [...group];
       newGroup[groupIdentifier] = !newGroup[groupIdentifier];
 
       if (newGroup[groupIdentifier] === false) {
-        newGroup[newGroup.length-1] = false;
+        newGroup[newGroup.length - 1] = false;
       }
-      if ( !newGroup.slice(0, newGroup.length-1).some(e => e === false)) {
-        newGroup[newGroup.length-1] = true;
+      if (!newGroup.slice(0, newGroup.length - 1).some((e) => e === false)) {
+        newGroup[newGroup.length - 1] = true;
       }
       setGroup(newGroup);
       const targetData =
@@ -405,9 +403,12 @@ const ProgressTab = () => {
   return (
     <div className="chart" style={{ paddingTop: "30px" }}>
       <ConfigDialog
-        title={{button: "Show view configuration",
-        dialog: "Select Student Group",
-        confirm: "OK"}}>
+        title={{
+          button: "Show view configuration",
+          dialog: "Select Student Group",
+          confirm: "OK",
+        }}
+      >
         <div className="fit-row">
           <GroupDisplay
             grades={grades}

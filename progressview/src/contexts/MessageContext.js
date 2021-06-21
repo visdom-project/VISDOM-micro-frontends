@@ -27,10 +27,10 @@ function MessageReducer(state, action) {
       let timescale = message.timescale ? message.timescale : state.timescale;
 
       return {
-          ...state,
-          instances: instances,
-          mode: mode,
-          timescale: timescale,
+        ...state,
+        instances: instances,
+        mode: mode,
+        timescale: timescale,
       };
     }
     default: {

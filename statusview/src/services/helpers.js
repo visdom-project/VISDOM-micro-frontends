@@ -14,8 +14,8 @@ const compare = (a, b) => {
 const orderData = (data) => {
   const orderedData = [];
 
-  data.forEach(week => {
-    orderedData.push({ "week": week.week, "data": week.data.sort(compare) });
+  data.forEach((week) => {
+    orderedData.push({ week: week.week, data: week.data.sort(compare) });
   });
 
   return orderedData;
@@ -37,8 +37,8 @@ const compareCounts = (a, b) => {
 const orderCountData = (data) => {
   const orderedData = [];
 
-  data.forEach(week => {
-    orderedData.push({ "week": week.week, "data": week.data.sort(compareCounts) });
+  data.forEach((week) => {
+    orderedData.push({ week: week.week, data: week.data.sort(compareCounts) });
   });
 
   return orderedData;

@@ -11,6 +11,7 @@ import {
   useMessageDispatch,
 } from "../contexts/MessageContext";
 import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
+import ConfigDialog from "./ConfigDialog";
 const Controls = (props) => {
   const {
     handleModeClick,
@@ -103,7 +104,7 @@ const StatusTab = () => {
   const [displayedModes, setdisplayedModes] = useState(
     modes.filter((mode) => mode !== selectedMode)
   );
-
+  const [openStatusDialog, setOpenStatusDialog] = useState(false);
   const [treshold, setTreshold] = useState(0.4);
   const [studentsBelowTreshold, setStudentsBelowTreshold] = useState(-99);
 
@@ -170,7 +171,9 @@ const StatusTab = () => {
     if (data !== undefined) {
       const newSelected = data.id;
       setSelectedStudent(newSelected);
+      setOpenStatusDialog(true);
     }
+
   };
 
   const handleModeSwitchClick = (newMode) => {
@@ -406,9 +409,20 @@ const StatusTab = () => {
       >
         Sync
       </button>
-      <StudentDetailView
-        selectedStudentID={selectedStudent}
-      ></StudentDetailView>
+
+      <ConfigDialog
+        title={{
+          button: "Show student detail",
+          dialog: "Commit details",
+          confirm: null,
+        }}
+        openDialog={openStatusDialog}
+        setOpenDialog={ openState => setOpenStatusDialog(openState) }
+      >
+        <StudentDetailView
+          selectedStudentID={selectedStudent}
+        ></StudentDetailView>
+      </ConfigDialog>
     </>
   );
 };
