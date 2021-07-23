@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { Grid, Typography, Select, MenuItem, FormControl, InputLabel, Button, Slider } from "@material-ui/core";
+import { Grid, Typography, Select, MenuItem, FormControl, InputLabel, Button, Slider, TextField } from "@material-ui/core";
 import VisGraph from "./VisGraph";
 
 import { getAllStudentsData, fetchStudentData } from "../services/studentData";
@@ -30,6 +30,7 @@ const EKGTab = () => {
 
   const grades = [0, 1, 2, 3, 4, 5];
 
+
   ///test
   const init = {
     type: "Passed",
@@ -39,11 +40,12 @@ const EKGTab = () => {
     color: "#000000",
     colorFilled: "#ffffff",
     resetZero: "yes",
+    scaleFactor: 1,
 };
   const [configs, setConfigs] = useState([init]);
   // little hard code
   const maxlength = 98;
-
+  
   useEffect(() => {
     const newClient = MQTTConnect(dispatch).then( client => {
       setClient(client);
@@ -114,32 +116,58 @@ const EKGTab = () => {
                 return (
                   <Grid item key={`config-${index}`}>
                     {Object.keys(config).map( selection => {
+                      if (selection.startsWith("scale")){
+                        return (
+                          <FormControl
+                          key={`form-${index}-${selection}`}
+                          style={{
+                            margin:  "10px",
+                            minWidth: "100px",
+                          }}>
+                            <TextField 
+                            name={selection}
+                            type="number"
+                            value={parseFloat(config[selection])}
+                            label={selection}
+                            onChange={(event) => {
+                                if (isNaN(parseFloat(event.target.value)))
+                                {
+                                  return;
+                                }
+                                const newConfigs = [...configs];
+                                newConfigs[index][event.target.name] = parseFloat(event.target.value);
+                                setConfigs(newConfigs);
+                              }}/>
+                          </FormControl>
+                        );
+                      }
+
                       return (
                         <FormControl
                           key={`form-${index}-${selection}`}
                           style={{
                             margin:  "10px",
-                            minWidth: "100px"
+                            minWidth: "100px",
                           }}
                         >
                           <InputLabel>{selection}</InputLabel>
-                          <Select
-                            style={ selection.startsWith("color") ? { background: config[selection], color: "white" } : null}
-                            value={config[selection]}
-                            name={selection}
-                            onChange={ (event) => {
-                              const newConfigs = [...configs];
-                              newConfigs[index][event.target.name] = event.target.value;
-                              setConfigs(newConfigs);
-                            }}
-                          >
-                            {OPTIONS_MAP[selection].map(choosable => (
-                              <MenuItem key={choosable} value={choosable} style={ selection.startsWith("color") ? { background: choosable, color: "white" } : null}>
-                                {choosable}
-                              </MenuItem>
-                            ))
-                            }
-                          </Select>
+                            <Select
+                              style={ selection.startsWith("color") ? { background: config[selection], color: "white" } : null}
+                              value={config[selection]}
+                              name={selection}
+                              onChange={ (event) => {
+                                const newConfigs = [...configs];
+                                newConfigs[index][event.target.name] = event.target.value;
+                                setConfigs(newConfigs);
+                              }}
+                            >
+                              {OPTIONS_MAP[selection].map(choosable => (
+                                <MenuItem key={choosable} value={choosable} style={ selection.startsWith("color") ? { background: choosable, color: "white" } : null}>
+                                  {choosable}
+                                </MenuItem>
+                              ))
+                              }
+                            </Select>
                         </FormControl>
                       );
                     })}

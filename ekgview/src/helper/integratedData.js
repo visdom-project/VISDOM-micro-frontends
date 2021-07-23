@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { curveBumpX } from "d3-shape";
 import { REVERSE_TYPE_MAPPING, EXPECTED_TYPE_MAPPING } from "./constants";
 
@@ -18,7 +17,7 @@ export const getCurveType = (curve) => {
 
 // eslint-disable-next-line no-unused-vars
 export const getValFunction = (valueType) => {
-    return (value, limit=1) => value / limit;
+    return (value, limit=1, scaleFactor=1) => !scaleFactor ? value / limit : value / limit * scaleFactor;
 };
 
 export const getDirectionFunction = (direction) => {
@@ -77,6 +76,7 @@ export const extractData = (data, configs) => {
             let dataValue = week[dataType];
             //value type: absolute/relative/expected
             const valueType = config["value"];
+            const scaleFactor = config["scaleFactor"];
             let limit = 1;
             switch (valueType) {
                 case "absolute":
@@ -99,14 +99,14 @@ export const extractData = (data, configs) => {
 
             const coordData = [];
             coordData.push(lastPoint);
-            const centreValue = getValFunction()(dataValue, limit);
+            const centreValue = getValFunction()(dataValue, limit, scaleFactor);
             //step to next point in x-axis
 
             if (direction !== "horizontal")
             {
                 lastPoint = { ...lastPoint, x: lastPoint.x + 1 };
             }
-            lastPoint = getDirectionFunction(direction)(centreValue, lastPoint);
+            lastPoint = getDirectionFunction(direction)(centreValue, lastPoint );
             coordData.push(lastPoint);
             if (resetZero === "yes") {
                 lastPoint = { x: lastPoint.x +1, y: 0, y0: y0 };
@@ -122,7 +122,7 @@ export const extractData = (data, configs) => {
         const index = week.index;
         const lastIndex = lastPoint.x;
         const start = 0.2;
-        const end = 0.8;
+        // const end = 0.8;
         const interval = 0.6;
 
         return weekData.map( segment => {
@@ -135,14 +135,17 @@ export const extractData = (data, configs) => {
         });
     });
 
+    const start = 0.2;
+    const end = 0.8;
+
     const defaultColor = "#000000";
     const defaultColorFilled = "#ffffff";
     const startData = [
         { x: 0, y:0, y0: 0 },
-        { x: 0.2, y:0, y0: 0 },
+        { x: start, y:0, y0: 0 },
     ];
     const endData = [
-        { x: 0.8, y:0, y0: 0 },
+        { x: end, y:0, y0: 0 },
         { x: 1, y:0, y0: 0 },
     ];
     const startSegment = {
