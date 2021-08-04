@@ -10,8 +10,23 @@ export const TYPE_MAPPING = {
     numberOfExercises: "Number of exercises",
     pointRatio: "Points ratio",
     notPassedRatio: "Missed points ratio",
+    expectedPoints: "Expected points"
 };
 
+export const DATA_TYPES = [
+    "passed",
+    "pointsToPass",
+    "submission",
+    "commit",
+    "maxPoints",
+    "notPassedPoints",
+    "points",
+    "numberOfExercisesAttemped",
+    "numberOfExercises",
+    "pointRatio",
+    "notPassedRatio",
+    "expectedPoints"
+];
 export const REVERSE_TYPE_MAPPING = ((map) => {
     const newObj = {};
     Object.entries(map).forEach(pair => {
@@ -26,6 +41,7 @@ export const EXPECTED_TYPE_MAPPING = {
     submission: "expectedSubmissions",
     commit: "expectedCommit",
     points: "expectedPoints",
+    expectedPoints: "expectedPoints",
     notPassedPoints: "expectedNotPassPoints",
     numberOfExercises: "numberOfExercises",
     numberOfExercisesAttemped: "expectedExercises",
@@ -44,15 +60,5 @@ export const OPTIONS_MAP = {
     scaleFactor: [],
 };
 
-export const DATA_TYPES = [
-    "passed",
-    "pointsToPass",
-    "submission",
-    "commit",
-    "maxPoints",
-    "points",
-    "numberOfExercises",
-    "pointRatio",
-    "notPassedRatio",
-];
+
 

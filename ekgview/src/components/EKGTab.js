@@ -45,7 +45,7 @@ const EKGTab = () => {
   const [configs, setConfigs] = useState([init]);
   // little hard code
   const maxlength = 98;
-  
+
   useEffect(() => {
     const newClient = MQTTConnect(dispatch).then( client => {
       setClient(client);
@@ -124,7 +124,7 @@ const EKGTab = () => {
                             margin:  "10px",
                             minWidth: "100px",
                           }}>
-                            <TextField 
+                            <TextField
                             name={selection}
                             type="number"
                             value={parseFloat(config[selection])}

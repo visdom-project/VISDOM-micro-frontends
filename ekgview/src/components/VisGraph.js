@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { VerticalGridLines, HorizontalGridLines, XAxis, FlexibleWidthXYPlot, YAxis, LineSeries, AreaSeries, Hint, RadarChart } from "react-vis";
 import ConfigDialog from "./ConfigDialog";
-import ConfigurableFieldSelector from "./ConfigrableFieldSelector";
+import ConfigurableFieldSelector from "./ConfigurableFieldSelector";
 import "../../node_modules/react-vis/dist/style.css";
 import { getPropertiesDomain, getCurveType, extractData } from "../helper/integratedData";
 import { Grid } from "@material-ui/core";
@@ -45,13 +45,16 @@ const VisGraph = ({ data, configs, displayedWeek }) => {
             alignItems="center"
             >
                 <Grid item>
-                    <RadarChart
+                    {
+                        Object.entries(radarChartDomain).length !== 0 && 
+                        <RadarChart
                         data={[selectedDisplayFields.reduce( (obj, key) => {obj[key] = dataRadarChart[key]; return obj;}, {})]}
                         domains={selectedDisplayFields.map( key => ({ name: key, domain: radarChartDomain[key] }))}
                         height={400}
                         width={400}
                         margin={{ left: 80, right: 80, top: 50, bottom: 20 }}
-                    />
+                        />
+                    }
                 </Grid>
                 <Grid item>
                     <ConfigurableFieldSelector

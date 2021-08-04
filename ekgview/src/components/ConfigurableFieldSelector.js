@@ -8,7 +8,7 @@ import {
   Grid,
 } from "@material-ui/core";
 
-const ConfigDialog = ({ selected, setSelected, allSelections }) => {
+const ConfigurableFieldSelector = ({ selected, setSelected, allSelections }) => {
     const unselected = allSelections.filter(selection => !selected.includes(selection));
     return (
         <Grid
@@ -66,4 +66,4 @@ const ConfigDialog = ({ selected, setSelected, allSelections }) => {
     );
 };
 
-export default ConfigDialog;
+export default ConfigurableFieldSelector;
