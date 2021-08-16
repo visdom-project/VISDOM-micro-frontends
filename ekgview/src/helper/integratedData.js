@@ -40,12 +40,16 @@ export const getDirectionFunction = (direction) => {
     }
 };
 
-export const extractData = (data, configs) => {
+export const extractData = (data, configs, relativeTimescale=false, pulseRatio=1.5) => {
 
     if (data.length === 0 || configs.length === 0) {
         return [];
     }
     const y0 = 0;
+    const INTERVAL = pulseRatio/ (pulseRatio + 1);
+    const START = (1 - INTERVAL) / 2;
+    const END = START + INTERVAL;
+    
 
     //extract maximum value
     let maximumRelativeData = { ...data[0] };
@@ -57,6 +61,7 @@ export const extractData = (data, configs) => {
         });
     });
 
+    const lengthInterval = [];
     const integratedData = data.map( week => {
         let lastPoint = { x: 0, y: 0, y0: y0 };
         const weekData = configs.map(config => {
@@ -111,31 +116,29 @@ export const extractData = (data, configs) => {
         });
         const index = week.index;
         const lastIndex = lastPoint.x;
-        const start = 0.2;
-        // const end = 0.8;
-        const interval = 0.6;
+        lengthInterval.push(lastIndex);
 
         return weekData.map( segment => {
             const segmentData = segment.data;
             const augumentedData = segmentData.map(coord => ({
                 ...coord,
-                x: coord.x / lastIndex * interval + start,
+                x: coord.x / lastIndex * INTERVAL + START,
             }));
             return { ...segment, data: augumentedData, index: index };
         });
     });
 
-    const start = 0.2;
-    const end = 0.8;
+
+    
 
     const defaultColor = "#000000";
     const defaultColorFilled = "#ffffff";
     const startData = [
         { x: 0, y:0, y0: 0 },
-        { x: start, y:0, y0: 0 },
+        { x: START, y:0, y0: 0 },
     ];
     const endData = [
-        { x: end, y:0, y0: 0 },
+        { x: END, y:0, y0: 0 },
         { x: 1, y:0, y0: 0 },
     ];
     const startSegment = {
@@ -163,8 +166,24 @@ export const extractData = (data, configs) => {
     const augumentedSegments = integratedData.map( week => {
         return week.map(segment => ({
             ...segment,
-            data: segment.data.map(coord => ({ ...coord, x: coord.x + segment.index + 1 })),
+            data: relativeTimescale ? segment.data.map(coord => ({ ...coord, x: coord.x + segment.index + 1 })) : segment.data,
         }));
     });
-    return augumentedSegments.flat();
+
+    if (relativeTimescale){
+        return augumentedSegments.flat();
+    }
+    else {
+        let lastX = 0;
+        const augumentedSegmentsNotTimeRelative = augumentedSegments.map((weekSegments, index) => {
+            const weekLength = lengthInterval[index] / INTERVAL;
+
+            const newSegments = weekSegments.map(segment => {
+                return {...segment, data: segment.data.map(point => ({...point, x: lastX + point.x * lengthInterval[index] / INTERVAL}))}
+            });
+            lastX += weekLength;
+            return newSegments;
+        });
+        return augumentedSegmentsNotTimeRelative.flat();
+    }
 };

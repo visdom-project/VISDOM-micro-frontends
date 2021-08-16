@@ -4,9 +4,9 @@ import { VerticalGridLines, HorizontalGridLines, XAxis, FlexibleWidthXYPlot, YAx
 import "../../node_modules/react-vis/dist/style.css";
 import { getCurveType, extractData } from "../helper/integratedData";
 
-const VisGraph = ({ data, configs, displayedWeek }) => {
+const VisGraph = ({ data, configs, displayedWeek, compress, pulseRatio }) => {
     const dataInTimeframe =data.filter(week => week.index < displayedWeek[1] && week.index >= displayedWeek[0] - 1);
-    const segments = extractData(dataInTimeframe, configs);
+    const segments = extractData(dataInTimeframe, configs, compress, pulseRatio);
     const [hintTooltipValue, setHintTooltipValue] = useState(false);
 
     const tickValues = [];
@@ -14,11 +14,11 @@ const VisGraph = ({ data, configs, displayedWeek }) => {
         tickValues.push(i);
     }
 
-    return (
+    return pulseRatio !== 0 && ( 
     <FlexibleWidthXYPlot height={500}>
         <VerticalGridLines />
         <HorizontalGridLines />
-        <XAxis tickValues={tickValues}/>
+        {compress ? <XAxis tickValues={tickValues}/> : null }
         <YAxis />
         {hintTooltipValue && <Hint value={hintTooltipValue} /> }
         {
@@ -48,7 +48,9 @@ const VisGraph = ({ data, configs, displayedWeek }) => {
                     color: segment.color,
                     fill: segment.colorFilled === "#ffffff" ? null : segment.colorFilled,
                     curve: getCurveType(segment.shape),
-                    onSeriesMouseOver: () => setHintTooltipValue({ ...dataTooltip, x: segment.index + 1, y: 0 }),
+                    // onSeriesMouseOver: (e) => setHintTooltipValue({ ...dataTooltip, x: segment.index + 1, y: 0 }),
+                    onSeriesMouseOver: () => setHintTooltipValue({ ...dataTooltip, x: segment.data[0].x + 1, y: 0 }),
+
                     onSeriesMouseOut: () => setHintTooltipValue(false),
                 };
                 return (<Series key={`segment-${index}`} {...segmentProps}/>);

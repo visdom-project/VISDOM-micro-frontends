@@ -25,6 +25,12 @@ const EKGTab = () => {
   const [displayData, setDisplayData] = useState([]);
   const [expectedGrade, setExpectedGrade] = useState(1);
 
+  const relativeTimescaleOptions = [true, false];
+  const [relativeTimescale, setRelativeTimescale] = useState(false);
+
+  const DEFAULT_PULSE_RATIO = 1.5
+  const [pulseRatio, setPulseRatio] = useState(DEFAULT_PULSE_RATIO);
+
   const [numberOfWeeks, setNumberOfweeks] = useState(0);
   const [displayedWeek, setDisplayedWeek] = useState([1, 0]);
 
@@ -33,7 +39,7 @@ const EKGTab = () => {
 
   ///test
   const init = {
-    type: "Passed",
+    type: "Points",
     value: "absolute",
     direction: "up",
     shape: "triangle",
@@ -108,6 +114,32 @@ const EKGTab = () => {
               title="Select expected grade level"
               selectAllOption={false}
             />
+            <DropdownMenu
+              options={relativeTimescaleOptions.map(e => JSON.stringify(e))}
+              selectedOption={JSON.stringify(relativeTimescale)}
+              handleClick={ option => setRelativeTimescale(option === "true")}
+              title="Select compress graph option"
+              selectAllOption={false}
+            />
+            <FormControl
+              key="ratio-form"
+              style={{
+                margin:  "10px",
+                minWidth: "100px",
+              }}>
+                <TextField
+                name="Pulse ratio"
+                type="number"
+                value={pulseRatio}
+                label="Pulse ratio"
+                onChange={(event) => {
+                    if (isNaN(parseFloat(event.target.value)))
+                    {
+                      return;
+                    }
+                    setPulseRatio(parseFloat(event.target.value));
+                  }}/>
+              </FormControl>
             <Grid item>
               <Typography>Configs:</Typography>
             </Grid>
@@ -203,7 +235,7 @@ const EKGTab = () => {
 
         </div>
         <div>
-          <VisGraph data={displayData} configs={configs} displayedWeek={displayedWeek}/>
+          <VisGraph data={displayData} configs={configs} displayedWeek={displayedWeek} compress={relativeTimescale} pulseRatio={pulseRatio} />
         </div>
         {
           state && state.instances && state.instances[0] && state.timescale &&
