@@ -4,12 +4,13 @@ import {
   XAxis,
   YAxis,
   VerticalRectSeries,
-  FlexibleXYPlot,
+  FlexibleWidthXYPlot,
   Hint
 } from "react-vis";
 import "../../node_modules/react-vis/dist/style.css";
 
-import dataForGraph from "../services/dataForGraph";
+import { dataForRectGraph } from "../services/dataProcessing";
+import { tipStyle } from "../services/helpers";
 
 const RectangleGraph = ({ 
   day, 
@@ -19,33 +20,25 @@ const RectangleGraph = ({
   range
 }) => {
   const [data, setData] = useState([]);
-  const typeX = configProps.width.split("-")[0];
-  const typeY = configProps.height.split("-")[0];
-  const typeOpacity = configProps.opacity.split("-")[0];
-  const typeColor = configProps.color.split("-")[0];
-
   const [hoverCell, setHoverCell] = useState(false);
 
-  const tipStyle = {
-    display: 'flex',
-    color: '#000',
-    background: '#eff7f6',
-    alignItems: 'center',
-    padding: '5px',
-    border: "1px darkgrey solid",
-  };
+  const typeX = configProps.width.split("-")[0];
+  const typeY = configProps.height.split("-")[0];
 
   useEffect(() => {
     if (day.data.length > 0) {
-      setData(dataForGraph(day.data, typeX, typeY, typeOpacity, typeColor));
+      setData(dataForRectGraph(day.data, configProps));
     }
   }, [configProps]); //eslint-disable-line
 
   return(
-    <div className="rectangle-graph" style={{ width: width, height: height, marginTop: "20px" }}>
-      <FlexibleXYPlot xDomain={range.rangeX} yDomain={range.rangeY}>
-        <XAxis title={typeX} tickFormat={val => Math.round(val) === val ? val : ""} />
-        <YAxis title={typeY} tickFormat={val => Math.round(val) === val ? val : ""} />
+    <div 
+      className="rectangle-graph"
+      style={{ width: `${width}`, marginTop: "20px" }}
+    >
+      <FlexibleWidthXYPlot height={height} xDomain={range.rangeX} yDomain={range.rangeY}>
+        <XAxis hideLine hideTicks tickFormat={() => ""} />
+        <YAxis hideLine hideTicks tickFormat={() => ""} />
         <VerticalRectSeries
           data={data}
           colorType="literal"
@@ -62,7 +55,7 @@ const RectangleGraph = ({
             {typeY} : {hoverCell.y}
           </div>
         </Hint>}
-      </FlexibleXYPlot>
+      </FlexibleWidthXYPlot>
     </div>
   )
 }

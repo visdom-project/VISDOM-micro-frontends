@@ -1,6 +1,10 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect} from "react"
 
-import { _NUMBER_OF_WEEKS_, _DAYS_OF_WEEK_ } from "../services/helpers";
+import { 
+  _NUMBER_OF_WEEKS_,
+  _DAYS_OF_WEEK_,
+  _COLOR_PALETTES_ 
+} from "../services/helpers";
 import studentData from "../services/studentData";
 import {
   useMessageDispatch,
@@ -22,18 +26,23 @@ const RectangleVisu = () => {
   const [studentID, setStudentID] = useState("");
   const [data, setData] = useState([]);
   const [configProps, setConfigProps] = useState({
+    dayMode: "summary",
     width: "commitDay-width",
-    height: "points-height",
+    height: "commit-height",
     opacity: "",
-    color: ""
+    color: "",
+    pointMode: "",
+    fillMode: _COLOR_PALETTES_.default
   })
   const [mode, setMode] = useState(false);
   const [weekDisplay, setWeekDisplay] = useState([0, _NUMBER_OF_WEEKS_]);
   const [radarMode, setRadarMode] = useState(false);
   const [radarConfigProps, setRadarConfigProps] = useState({
+    dayMode: "summary",
     display: ["submissions", "commits", "points"],
     color: "",
-    opacity: ""
+    opacity: "",
+    fillMode: _COLOR_PALETTES_.default
   })
 
    //hard coding without metadata
@@ -99,8 +108,6 @@ const RectangleVisu = () => {
         setRadarMode={setRadarMode}
         radarConfigProps={radarConfigProps}
         setRadarConfigProps={setRadarConfigProps}
-        timescale={timescale}
-        setTimescale={setTimescale}
       />}
       {studentID && <button
         onClick={() => {
@@ -119,6 +126,7 @@ const RectangleVisu = () => {
         rawData={data} 
         configProps={configProps} 
         weekDisplay={[Math.round(timescale.start/_DAYS_OF_WEEK_), Math.round(timescale.end/_DAYS_OF_WEEK_)]}
+        setTimescale={setTimescale}
       />}
       {mode && <CalendarModeVisu
         studentID={studentID}

@@ -4,9 +4,7 @@ import { RadarChart } from "react-vis";
 
 import "../../node_modules/react-vis/dist/style.css";
 import { getPropertiesDomain } from "../helper/integratedData";
-import { Grid, Box } from "@material-ui/core";
-import DoneIcon from "@material-ui/icons/Done";
-import CloseIcon from "@material-ui/icons/Close";
+import { AiOutlineCheck, AiOutlineClose } from "react-icons/ai";
 
 const VisGraph = ({ data, configs, displayedWeek }) => {
     const domainProperties = getPropertiesDomain(data);
@@ -17,9 +15,9 @@ const VisGraph = ({ data, configs, displayedWeek }) => {
     }
 
     return (
-        <Grid container direction="row" alignItems="center">
+        <div style={{ display: "flex", flexWrap: "wrap" }}>
             {weekIndices.map((index) => {
-                const weekData = data[index-1]; //different in starting index
+                const weekData = data[index - 1]; //different in starting index
                 const dataRadarChart = {
                     "Attemped exercises": weekData.numberOfExercisesAttemped,
                     "NO submissions": weekData.submission,
@@ -34,8 +32,8 @@ const VisGraph = ({ data, configs, displayedWeek }) => {
                 };
 
                 return (
-                    <Grid item key={`radarchart-index-${index}`}>
-                        <Box border={1}>
+                    <div key={`radarchart-index-${index}`}>
+                        <div style={{ border: "1px darkgrey solid" }}>
                             <h1 style={{ textAlign: "center" }}>Week {index}</h1>
                             {
                                 Object.entries(radarChartDomain).length !== 0 &&
@@ -49,14 +47,30 @@ const VisGraph = ({ data, configs, displayedWeek }) => {
                             }
                             {
                                 weekData.passed ?
-                                <DoneIcon style={{ position: "relative", left: "250px", color: "green" }} /> :
-                                <CloseIcon style={{ position: "relative", left: "250px", color: "red" }} />
+                                <AiOutlineCheck 
+                                    style={{ 
+                                        position: "relative", 
+                                        width: "10%", 
+                                        height: "10%", 
+                                        left: "100%",
+                                        color: "green", 
+                                        transform: "translate(-200%, 0)" }} 
+                                /> :
+                                <AiOutlineClose 
+                                    style={{ 
+                                        position: "relative", 
+                                        width: "10%", 
+                                        height: "10%",
+                                        left: "250px", 
+                                        color: "red",
+                                        transform: "translate(-200%, 0)" }} 
+                                />
                             }
-                        </Box>
-                    </Grid>
+                        </div>
+                    </div>
                 );
             })}
-        </Grid>
+        </div>
     );
 };
 

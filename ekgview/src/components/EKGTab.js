@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 
-import { Grid, Typography, Select, MenuItem, FormControl, InputLabel, Button, Slider, TextField } from "@material-ui/core";
+import {
+  Form,
+  Button,
+  Table
+} from "react-bootstrap";
+import { TwoThumbInputRange } from "react-two-thumb-input-range";
 import VisGraph from "./VisGraph";
 
 import { getAllStudentsData, fetchStudentData } from "../services/studentData";
@@ -10,8 +15,6 @@ import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
 
 import DropdownMenu from "./DropdownMenu";
 import ConfigDialog from "./ConfigDialog";
-import ClearIcon from "@material-ui/icons/Clear";
-import AddIcon from "@material-ui/icons/Add";
 
 import { OPTIONS_MAP } from "../helper/constants";
 
@@ -34,7 +37,7 @@ const EKGTab = () => {
   const [pulseRatio, setPulseRatio] = useState(DEFAULT_PULSE_RATIO);
 
   const [numberOfWeeks, setNumberOfweeks] = useState(0);
-  const [displayedWeek, setDisplayedWeek] = useState([1, 0]);
+  const [displayedWeek, setDisplayedWeek] = useState([1, numberOfWeeks]);
 
   const grades = [0, 1, 2, 3, 4, 5];
 
@@ -123,116 +126,104 @@ const EKGTab = () => {
               title="Select compress graph option"
               selectAllOption={false}
             />
-            <FormControl
-              key="ratio-form"
-              style={{
-                margin:  "10px",
-                minWidth: "100px",
-              }}>
-                <TextField
-                name="Pulse ratio"
-                type="number"
-                value={pulseRatio}
-                label="Pulse ratio"
-                onChange={(event) => {
+            <div className="ratio-form">
+              <Form.Label>Pulse ratio</Form.Label>
+              <span>
+                <Form.Control
+                  type="number"
+                  value={pulseRatio}
+                  onChange={(event) => {
                     if (isNaN(parseFloat(event.target.value)))
                     {
                       return;
                     }
                     setPulseRatio(parseFloat(event.target.value));
-                  }}/>
-              </FormControl>
-            <Grid item>
-              <Typography>Configs:</Typography>
-            </Grid>
-            {
-              configs.map( (config, index) => {
-                return (
-                  <Grid item key={`config-${index}`}>
-                    {Object.keys(config).map( selection => {
-                      if (selection.startsWith("scale")){
-                        return (
-                          <FormControl
-                          key={`form-${index}-${selection}`}
-                          style={{
-                            margin:  "10px",
-                            minWidth: "100px",
-                          }}>
-                            <TextField
-                            name={selection}
-                            type="number"
-                            value={parseFloat(config[selection])}
-                            label={selection}
-                            onChange={(event) => {
-                                if (isNaN(parseFloat(event.target.value)))
-                                {
-                                  return;
-                                }
-                                const newConfigs = [...configs];
-                                newConfigs[index][event.target.name] = parseFloat(event.target.value);
-                                setConfigs(newConfigs);
-                              }}/>
-                          </FormControl>
-                        );
-                      }
+                  }}
+                  style={{ margin:  "10px", width: "30%",}}
+                />
+              </span>
+            </div>
+            <Form.Label>Configs:</Form.Label>
+            <Table bordered>
+              <thead>
+                <tr>
+                  {Object.keys(init).map(selection => <th>{selection}</th>)}
+                  <th></th>
+                </tr>
+              </thead>
 
-                      return (
-                        <FormControl
-                          key={`form-${index}-${selection}`}
-                          style={{
-                            margin:  "10px",
-                            minWidth: "100px",
+              <tbody>
+              {configs.map((config, index) => (
+                <tr>
+                {Object.keys(config).map(selection => (
+                  <td>
+                    {selection.startsWith("scale")
+                      ? <Form.Control
+                          name={selection}
+                          key={`form-${index}-${selection}`} 
+                          type="number"
+                          value={parseFloat(config[selection])}
+                          onChange={(event) => {
+                            console.log(event.target)
+                            if (isNaN(parseFloat(event.target.value)))
+                            {
+                              return;
+                            }
+                            const newConfigs = [...configs];
+                            newConfigs[index][event.target.name] = parseFloat(event.target.value);
+                            setConfigs(newConfigs);
                           }}
+                        />
+                      : <select
+                          name={selection}
+                          onChange={ (event) => {
+                            const newConfigs = [...configs];
+                            newConfigs[index][event.target.name] = event.target.value;
+                            setConfigs(newConfigs);
+                          }}
+                          style={ selection.startsWith("color") ? { background: config[selection], color: "white" } : null}
                         >
-                          <InputLabel>{selection}</InputLabel>
-                            <Select
-                              style={ selection.startsWith("color") ? { background: config[selection], color: "white" } : null}
-                              value={config[selection]}
-                              name={selection}
-                              onChange={ (event) => {
-                                const newConfigs = [...configs];
-                                newConfigs[index][event.target.name] = event.target.value;
-                                setConfigs(newConfigs);
-                              }}
+                          {OPTIONS_MAP[selection].map(choosable => (
+                            <option
+                              key={choosable}
+                              value={choosable}
+                              style={ selection.startsWith("color") ? { background: choosable, color: "white" } : null}
                             >
-                              {OPTIONS_MAP[selection].map(choosable => (
-                                <MenuItem key={choosable} value={choosable} style={ selection.startsWith("color") ? { background: choosable, color: "white" } : null}>
-                                  {choosable}
-                                </MenuItem>
-                              ))
-                              }
-                            </Select>
-                        </FormControl>
-                      );
-                    })}
+                              {choosable}
+                            </option>
+                          ))}
+                        </select>
+                      }
+                    </td>
+                  ))}
+                    <td>
                     <Button
-                      variant="contained"
-                      color="default"
-                      startIcon={<ClearIcon />}
-                      size="large"
-                      disableElevation
+                      variant="outline-danger"
+                      size="md"
                       onClick={() => {
                         const newConfigs = [...configs];
                         newConfigs.splice(index, 1);
                         setConfigs(newConfigs);
                       }}
-                    />
-                  </Grid>
-                );
-              })
-            }
+                    >
+                      x
+                    </Button>
+                    </td>
+                </tr>
+              ))}
+              </tbody>
+            </Table>
             <Button
-              variant="contained"
-              color="default"
-              startIcon={<AddIcon />}
-              size="medium"
-              disableElevation
+              variant="outline-success"
+              size="lg"
               onClick={() => {
                 const newConfigs = [...configs];
                 newConfigs.push(init);
                 setConfigs(newConfigs);
               }}
-            />
+            >
+              +
+            </Button>
           </ConfigDialog>
 
         </div>
@@ -242,14 +233,16 @@ const EKGTab = () => {
         {
           state && state.instances && state.instances[0] && state.timescale &&
           <>
-            <div className="timescale-slider" style={{ width: "400px", paddingLeft: "100px" }}>
-              <Typography id="range-slider" gutterBottom>
+            <div className="timescale-slider">
+              <Form.Label id="range-slider">
                 Week range
-              </Typography>
-              <Slider
-                value={displayedWeek}
-                onChange={(event, newValue) => {
-                  setDisplayedWeek(newValue.sort( (a, b) => a-b));
+              </Form.Label>
+              <TwoThumbInputRange
+                values={displayedWeek}
+                min={1}
+                max={15}
+                onChange={(newValue) => {
+                  setDisplayedWeek(newValue.sort((a,b) => a-b));
                   updateLocalState(dispatch, {
                     timescale: {
                       start: (newValue[0] - 1) * 7,
@@ -257,10 +250,6 @@ const EKGTab = () => {
                     }
                   });
                 }}
-                valueLabelDisplay="auto"
-                aria-labelledby="range-slider"
-                min={1}
-                max={numberOfWeeks}
               />
             </div>
             <button

@@ -68,23 +68,24 @@ const studentData = studentID => {
               name: module.name,
               startDate: moduleTime && moduleTime[i].startDate,
               endDate: moduleTime && moduleTime[i].endDate,
-              maxPoint: module.max_points,
+              maxPoints: module.max_points,
               submissions: module.submission_count,
               points: module.points,
               passed: module.points > 0,
               commits: 0,
               firstCommitDate: null,
               commitDays: 0,
+              difficulty: module.exercises.map(m => m.difficulty).includes("P") ? "P" : "",
               exercises: module.exercises.map(exercise => ({
-                exercisesName: exercise.name,
-                exerciseMaxPoints: exercise.max_points,
-                exercisePoints: exercise.points,
-                exercisePassed: exercise.points > 0,
-                exerciseSubmissions: exercise.submission_count,
-                exerciseDifficulty: exercise.difficulty,
-                exerciseCommits: 0,
-                exerciseFirstCommitDate: null,
-                exerciseDays: 0
+                name: exercise.name,
+                maxPoints: exercise.max_points,
+                points: exercise.points,
+                passed: exercise.points > 0,
+                submissions: exercise.submission_count,
+                difficulty: exercise.difficulty,
+                commits: 0,
+                firstCommitDate: null,
+                commitDays: 0
               }))
             };
           });
@@ -99,7 +100,7 @@ const studentData = studentID => {
               if (exerciseIndex !== undefined) {
                 const commitExercise = commitModule.exercises[exerciseIndex];
                 commitModule.commits += project.commit_count;
-                commitExercise.exerciseCommits = project.commit_count;
+                commitExercise.commits = project.commit_count;
                 project.commit_meta.forEach(commit => {
                   const commitDate = new Date(commit.commit_date);
                   commitDate.setHours(0, 0, 0, 0);
@@ -114,15 +115,15 @@ const studentData = studentID => {
                     commitModule.firstCommitDate = commitDate;
                   }
 
-                  if (!commitExercise.exerciseFirstCommitDate) {
-                    commitExercise.exerciseFirstCommitDate = commitDate;
-                    commitExercise.exerciseDays = 1;
-                  } else if (timeDiff(commitExercise.exerciseFirstCommitDate, commitDate) 
+                  if (!commitExercise.firstCommitDate) {
+                    commitExercise.firstCommitDate = commitDate;
+                    commitExercise.commitDays = 1;
+                  } else if (timeDiff(commitExercise.firstCommitDate, commitDate) 
                               > commitExercise.exerciseDays) {
-                    commitExercise.exerciseDays = timeDiff(commitExercise.exerciseFirstCommitDate, commitDate);
-                  } else if (timeDiff(commitExercise.exerciseFirstCommitDate, commitDate) < 0) {
-                    commitExercise.exerciseFirstCommitDate = commitDate;
-                    commitExercise.exerciseDays = Math.abs(timeDiff(commitExercise.exerciseFirstCommitDate, commitDate));
+                    commitExercise.commitDays = timeDiff(commitExercise.firstCommitDate, commitDate);
+                  } else if (timeDiff(commitExercise.firstCommitDate, commitDate) < 0) {
+                    commitExercise.firstCommitDate = commitDate;
+                    commitExercise.commitDays = Math.abs(timeDiff(commitExercise.firstCommitDate, commitDate));
                   }
                 })
               } else {

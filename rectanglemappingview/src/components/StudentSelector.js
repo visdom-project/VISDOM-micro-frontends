@@ -1,30 +1,41 @@
 import React, { useEffect, useState } from "react";
-import { makeStyles } from '@material-ui/core/styles';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
+// import { makeStyles } from '@material-ui/core/styles';
 
-import Card from '@material-ui/core/Card';
-import CardContent from "@material-ui/core/CardContent";
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
+// import Card from '@material-ui/core/Card';
+// import CardContent from "@material-ui/core/CardContent";
+// import Typography from '@material-ui/core/Typography';
+// import Divider from '@material-ui/core/Divider';
+
+import {
+  Card
+} from "react-bootstrap";
 
 import studentsInformation from "../services/studentsInformation";
 
-const useStyles = makeStyles((theme) => ({
-  formControl: {
-    margin: theme.spacing(1),
-    minWidth: 220,
-  },
-  root: {
-    minWidth: 100
-  },
-}));
+import "../styles/dropdown.css";
+
+export const DropdownMenu = ({ handleClick, options, selectedOption, title }) => {
+  return (
+    <div style={{ marginRight: "2em" }}>
+      <label style={{ paddingRight: "10px" }}>{title}</label>
+      <div className="dropdown">
+        <button className="dropdown-title-button">{selectedOption}</button>
+        <div
+          className="dropdown-options"
+          style={{ maxHeight: "200px", overflow: "scroll" }}
+        >
+          {options.map((option) => (
+            <button key={option} onClick={() => handleClick(option)}>
+              {option}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
   
 const StudentSelector = ({ studentID, setStudentID }) => {
-  const classes = useStyles();
-  const [open, setOpen] = useState(false);
   const [students, setStudents] = useState([]);
   const [student, setStudent] = useState({});
 
@@ -42,36 +53,25 @@ const StudentSelector = ({ studentID, setStudentID }) => {
 
   return (
     <div className="fit-row">
-      <FormControl className={classes.formControl} style={{ marginRight: "2em" }}>
-        <InputLabel id="studentID-input-label">Student ID</InputLabel>
-        <Select
-          labelId="studentID-input-label"
-          id="studentID-selector"
-          open={open}
-          onClose={() => setOpen(false)}
-          onOpen={() => setOpen(true)}
-          value={studentID}
-          onChange={e => setStudentID(e.target.value)}
-        >
-          <MenuItem value=""><em>None</em></MenuItem>
-          {students.map(s => <MenuItem key={s.student_id} value={s.student_id}>{s.student_id}</MenuItem>)}
-        </Select>
-      </FormControl>
-      {studentID && <Card className={classes.root}>
-        <CardContent>
-          <Typography variant="h5" component="h3">
+      <DropdownMenu 
+        handleClick={setStudentID}
+        options={students.map((student) => student.student_id)}
+        selectedOption={studentID}
+        title={"Student ID:"}
+      />
+      {studentID && <Card className="student-info-card" style={{ width: "18rem", border: "none" }}>
+        <Card.Body>
+          <Card.Title>
             {studentID}
-          </Typography>
-          <Divider />
-          <br />
-          <Typography variant="body2" component="p">
+          </Card.Title>
+          <Card.Text>
             <b>Full name</b>: {student.fullname}
             <br />
             <b>Username</b>: {student.username}
             <br />
             <b>Email</b>: {student.email}
-          </Typography>
-        </CardContent>
+          </Card.Text>
+        </Card.Body>
       </Card>}
     </div>
   )
