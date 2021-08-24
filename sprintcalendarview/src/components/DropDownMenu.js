@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllStudentData } from "../services/studentData";
 import "../styles/dropdown.css";
-import Slider from '@material-ui/core/Slider';
+import { TwoThumbInputRange } from "react-two-thumb-input-range";
 
 const DropdownList = ({ handleClick, options, selectedOption, title }) => {
   return (
@@ -38,8 +38,7 @@ export const TimeSelection = ({
     })
   }
 
-  const handleChange = (e, newValue) => {
-    e.preventDefault();
+  const handleChange = newValue => {
     setTimescale({
       start: newValue[0],
       end: newValue[1],
@@ -47,16 +46,12 @@ export const TimeSelection = ({
   }
 
   return (
-    <div className="fit-row">
-      <Slider
-        value={Object.keys(timescale).map(key => timescale[key])}
-        onChange={handleChange}
-        max={maxlength}
+    <div className="fit-row" style={{ paddingTop: "20px" }}>
+      <TwoThumbInputRange
+        values={Object.keys(timescale).map(key => timescale[key])}
         min={0}
-        getAriaValueText={value => value}
-        valueLabelDisplay="on"
-        aria-labelledby="range-slider"
-        style={{ marginTop: "40px" }}
+        max={maxlength}
+        onChange={handleChange}
       />
       <button key="reset-date" onClick={resetDate}>Reset</button>
     </div>
