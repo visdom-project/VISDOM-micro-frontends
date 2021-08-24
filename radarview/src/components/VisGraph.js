@@ -13,7 +13,6 @@ const VisGraph = ({ data, configs, displayedWeek }) => {
     for (let i=displayedWeek[0]; i <= displayedWeek[1]; i++){
         weekIndices.push(i);
     }
-    console.log(weekIndices)
 
     return (
         <div style={{ display: "flex", flexWrap: "wrap" }}>

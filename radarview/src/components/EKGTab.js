@@ -118,7 +118,6 @@ const EKGTab = () => {
                 min={1}
                 max={15}
                 onChange={newValue => {
-                  console.log("p",newValue.sort( (a, b) => a-b))
                   const val = newValue.sort( (a, b) => a-b);
                   setDisplayedWeek(val)
                   updateLocalState(dispatch, {
