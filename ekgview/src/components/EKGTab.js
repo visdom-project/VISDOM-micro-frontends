@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useReferredState } from "../helper/hooks";
 
 import {
   Form,
@@ -31,10 +32,10 @@ const EKGTab = () => {
   const [expectedGrade, setExpectedGrade] = useState(1);
 
   const relativeTimescaleOptions = [true, false];
-  const [relativeTimescale, setRelativeTimescale] = useState(false);
+  const [relativeTimescale, setRelativeTimescale] = useReferredState(false);
 
   const DEFAULT_PULSE_RATIO = 1.5;
-  const [pulseRatio, setPulseRatio] = useState(DEFAULT_PULSE_RATIO);
+  const [pulseRatio, setPulseRatio] = useReferredState(DEFAULT_PULSE_RATIO);
 
   const [numberOfWeeks, setNumberOfweeks] = useState(0);
   const [displayedWeek, setDisplayedWeek] = useState([1, numberOfWeeks]);
@@ -52,7 +53,7 @@ const EKGTab = () => {
     resetZero: "yes",
     scaleFactor: 1,
 };
-  const [configs, setConfigs] = useState([init]);
+  const [configs, setConfigs] = useReferredState([init]);
 
   // little hard code
   const maxlength = 98;
@@ -121,7 +122,7 @@ const EKGTab = () => {
             />
             <DropdownMenu
               options={relativeTimescaleOptions.map(e => JSON.stringify(e))}
-              selectedOption={JSON.stringify(relativeTimescale)}
+              selectedOption={JSON.stringify(relativeTimescale.current)}
               handleClick={ option => setRelativeTimescale(option === "true")}
               title="Select compress graph option"
               selectAllOption={false}
@@ -131,7 +132,7 @@ const EKGTab = () => {
               <span>
                 <Form.Control
                   type="number"
-                  value={pulseRatio}
+                  value={pulseRatio.current}
                   onChange={(event) => {
                     if (isNaN(parseFloat(event.target.value)))
                     {
@@ -153,7 +154,7 @@ const EKGTab = () => {
               </thead>
 
               <tbody>
-              {configs.map((config, index) => (
+              {configs.current.map((config, index) => (
                 <tr key={`tr-${index}}`}>
                 {Object.keys(config).map(selection => (
                   <td key={`td-${index}-${JSON.stringify(selection)}`}>
@@ -168,7 +169,7 @@ const EKGTab = () => {
                             {
                               return;
                             }
-                            const newConfigs = [...configs];
+                            const newConfigs = [...configs.current];
                             newConfigs[index][event.target.name] = parseFloat(event.target.value);
                             setConfigs(newConfigs);
                           }}
@@ -176,7 +177,7 @@ const EKGTab = () => {
                       : <select
                           name={selection}
                           onChange={ (event) => {
-                            const newConfigs = [...configs];
+                            const newConfigs = [...configs.current];
                             newConfigs[index][event.target.name] = event.target.value;
                             setConfigs(newConfigs);
                           }}
@@ -200,7 +201,7 @@ const EKGTab = () => {
                       variant="outline-danger"
                       size="md"
                       onClick={() => {
-                        const newConfigs = [...configs];
+                        const newConfigs = [...configs.current];
                         newConfigs.splice(index, 1);
                         setConfigs(newConfigs);
                       }}
@@ -216,7 +217,7 @@ const EKGTab = () => {
               variant="outline-success"
               size="lg"
               onClick={() => {
-                const newConfigs = [...configs];
+                const newConfigs = [...configs.current];
                 newConfigs.push(init);
                 setConfigs(newConfigs);
               }}
@@ -227,7 +228,7 @@ const EKGTab = () => {
 
         </div>
         <div>
-          <VisGraph data={displayData} configs={configs} displayedWeek={displayedWeek} compress={relativeTimescale} pulseRatio={pulseRatio} />
+          <VisGraph data={displayData} configs={configs.current} displayedWeek={displayedWeek} compress={relativeTimescale.current} pulseRatio={pulseRatio.current} />
         </div>
         {
           state && state.instances && state.instances[0] && state.timescale &&
