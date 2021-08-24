@@ -38,10 +38,6 @@ const CalendarTab = () => {
   },[studentID])
 
   useEffect(() => {
-    // Course: prog 2 S19 started on: new Date('2020-05-04T12:00:00+03:00')
-    // Round 1 started on: new Date('2020-05-04T12:00:00+03:00')
-    // const timeframeStart = new Date('2020-05-18T12:00:00+03:00')
-    // const timeframeEnd = new Date('2020-09-30T12:00:00+03:00')
     if (timePeriod.startDate && timePeriod.endDate) {
       getTimeframe(timePeriod.startDate, timePeriod.endDate, studentID)
       .then(frame => {
