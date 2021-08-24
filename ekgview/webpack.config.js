@@ -21,6 +21,12 @@ module.exports = (webpackConfigEnv, argv) => {
       new webpack.DefinePlugin({
         __MQTT_HOST__: JSON.stringify(process.env.MQTT_HOST),
       }),
+      new webpack.DefinePlugin({
+        __CONFIGURATION_HOST__: !process.env.CONFIGURATION_HOST ? "" : JSON.stringify(process.env.CONFIGURATION_HOST),
+      }),
+      new webpack.DefinePlugin({
+        MICROFRONTEND_KEY: JSON.stringify(process.env.MICROFRONTEND_KEY) || "ekgview",
+      }),
     ],
     module: {
       rules: [

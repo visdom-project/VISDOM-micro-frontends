@@ -4,6 +4,7 @@ import { Grid, Typography, Select, MenuItem, FormControl, InputLabel, Button, Sl
 import VisGraph from "./VisGraph";
 
 import { getAllStudentsData, fetchStudentData } from "../services/studentData";
+import { getConfigurationsList, getConfiguration, createConfig } from "../services/configurationStoring";
 import { updateLocalState, useMessageDispatch, useMessageState } from "../contexts/MessageContext";
 import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
 
@@ -18,6 +19,7 @@ import { OPTIONS_MAP } from "../helper/constants";
 const EKGTab = () => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
+
   const [client, setClient] = useState(null);
 
   const [studentList, setStudentList] = useState([]);
@@ -28,7 +30,7 @@ const EKGTab = () => {
   const relativeTimescaleOptions = [true, false];
   const [relativeTimescale, setRelativeTimescale] = useState(false);
 
-  const DEFAULT_PULSE_RATIO = 1.5
+  const DEFAULT_PULSE_RATIO = 1.5;
   const [pulseRatio, setPulseRatio] = useState(DEFAULT_PULSE_RATIO);
 
   const [numberOfWeeks, setNumberOfweeks] = useState(0);
@@ -37,7 +39,6 @@ const EKGTab = () => {
   const grades = [0, 1, 2, 3, 4, 5];
 
 
-  ///test
   const init = {
     type: "Points",
     value: "absolute",
@@ -49,6 +50,7 @@ const EKGTab = () => {
     scaleFactor: 1,
 };
   const [configs, setConfigs] = useState([init]);
+
   // little hard code
   const maxlength = 98;
 

@@ -49,7 +49,7 @@ export const extractData = (data, configs, relativeTimescale=false, pulseRatio=1
     const INTERVAL = pulseRatio/ (pulseRatio + 1);
     const START = (1 - INTERVAL) / 2;
     const END = START + INTERVAL;
-    
+
 
     //extract maximum value
     let maximumRelativeData = { ...data[0] };
@@ -129,7 +129,7 @@ export const extractData = (data, configs, relativeTimescale=false, pulseRatio=1
     });
 
 
-    
+
 
     const defaultColor = "#000000";
     const defaultColorFilled = "#ffffff";
@@ -179,7 +179,7 @@ export const extractData = (data, configs, relativeTimescale=false, pulseRatio=1
             const weekLength = lengthInterval[index] / INTERVAL;
 
             const newSegments = weekSegments.map(segment => {
-                return {...segment, data: segment.data.map(point => ({...point, x: lastX + point.x * lengthInterval[index] / INTERVAL}))}
+                return { ...segment, data: segment.data.map(point => ({ ...point, x: lastX + point.x * lengthInterval[index] / INTERVAL })) };
             });
             lastX += weekLength;
             return newSegments;

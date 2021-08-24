@@ -14,7 +14,7 @@ const VisGraph = ({ data, configs, displayedWeek, compress, pulseRatio }) => {
         tickValues.push(i);
     }
 
-    return pulseRatio !== 0 && ( 
+    return pulseRatio !== 0 && (
     <FlexibleWidthXYPlot height={500}>
         <VerticalGridLines />
         <HorizontalGridLines />
