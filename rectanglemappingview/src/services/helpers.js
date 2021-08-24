@@ -31,17 +31,26 @@ export const EXERCISE_INDICES = {
   "gdpr": 0
 }
 
+export const tipStyle = {
+  display: 'flex',
+  color: '#000',
+  background: '#eff7f6',
+  alignItems: 'center',
+  padding: '5px',
+  border: "1px darkgrey solid",
+};
+
 export const dateToNumber = date => 
   date ? Math.round(date.getTime() / _MS_PER_DAY_) : 0;
 
 export const rangeXDeterminationForDays = data => ([dateToNumber(data.startDate), dateToNumber(data.endDate)])
 
 export const rangeDetermination = (data, type) => {
-  const maxPointsAll = data.map(module => module.maxPoint);
+  const maxPointsAll = data.map(module => module.maxPoints);
   const submissionsAll = data.map(module => module.submissions);
   const commitsAll = data.map(module => module.commits);
   switch(type) {
-    case "point":
+    case "points":
       return [0, Math.max(...maxPointsAll)];
     case "maxPoints": 
       return [0, Math.max(...maxPointsAll)];
@@ -83,4 +92,28 @@ export const onSameDay = (firstDate, secondDate) => {
   return true
 }
 
-export const maximunDetermination = array => Math.max(...array)
+export const maximunDetermination = array => Math.max(...array);
+
+export const domainDetermination = (res, mode) => {
+  let commitD = 0;
+  let submissionD = 0;
+  let pointD = 0;
+  let exerciseD = 0;
+  if (mode === "detail"){
+    commitD = maximunDetermination(res.map(d => d.data).flat(1).map(d => d.commits));
+    submissionD = maximunDetermination(res.map(d => d.data).flat(1).map(d => d.submissions));
+    pointD = maximunDetermination(res.map(d => d.data).flat(1).map(d => d.maxPoints));
+  } else if (mode === "summary") {
+    commitD = maximunDetermination(res.map(d => d.data.map(e => e.commits).reduce((a,b) => a + b, 0)));
+    submissionD = maximunDetermination(res.map(d => d.data.map(e => e.submissions).reduce((a,b) => a + b, 0)));
+    pointD = maximunDetermination(res.map(d => d.data.map(e => e.maxPoints).reduce((a,b) => a + b, 0)));
+    exerciseD = maximunDetermination(res.map(d => d.data.length));
+  }
+  return ({
+    "commits": [0, commitD],
+    "submissions": [0, submissionD],
+    "points": [0, pointD],
+    "point ratio": [0, 1],
+    "attemped exercise": [0, exerciseD]
+  })
+}

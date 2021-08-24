@@ -1,93 +1,88 @@
 import React, { useState } from "react";
-import { 
-  Checkbox, 
-  DialogActions, 
-  DialogContent, 
-  Paper, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow,
-  Button,
+import {
+  InputGroup,
   Table,
-  DialogTitle,
-  Dialog,
-  Switch,
-  FormControlLabel,
-  Typography,
-  Slider } from "@material-ui/core";
-  
-import Alert from '@material-ui/lab/Alert';
+  Form,
+  Button,
+  Modal,
+  Alert
+} from "react-bootstrap";
+import { DropdownMenu } from "./StudentSelector";
 
-import { _DAYS_OF_WEEK_, _NUMBER_OF_WEEKS_ } from "../services/helpers";
+import { 
+  _DAYS_OF_WEEK_, 
+  _NUMBER_OF_WEEKS_,
+  _COLOR_PALETTES_
+} from "../services/helpers";
 
 const CalendarConfig = ({ 
   tempRadarMode, 
   setTempRadarMode,
   tempRadarConfigProps,
-  setTempRadarConfigProps
+  setTempRadarConfigProps,
 }) => {
-  const CONSTANT_PROPS = ["submissions", "commits", "points"];
-  const CHANGABLE_PROPS = ["point-ratio"];
-  const COLOR_PROPS = ["points", "result status"]
-
-  const checkboxDisable = key => (
-    <div>
-      <FormControlLabel 
-        disabled 
-        control={<Checkbox defaultChecked name={key} />} 
-        label={key}
-      />
-    </div>
-  )
+  const CHANGABLE_PROPS = ["submissions", "commits", "points", "point ratio", "attemped exercise"];
+  const COLOR_PROPS = ["points", "result status"];
 
   return(
     <div className="calendar-config">
-      <FormControlLabel
-        control={<Switch
+      <Form>
+        <Form.Switch
+          id="radar-mode-switch"
+          type="switch"
+          label="Radar chart"
           checked={tempRadarMode}
           onChange={() => setTempRadarMode(!tempRadarMode)}
-        />}
-        label="Radar chart"
-      />
+        />
+      </Form>
+
       {tempRadarMode && <div className="radar-config">
-        {CONSTANT_PROPS.map(c => checkboxDisable(c))}
-        {CHANGABLE_PROPS.map(p => <div>
-          <FormControlLabel 
-            control={<Checkbox 
-              value={p} 
+        <Form>
+        {CHANGABLE_PROPS.map(p => 
+          <div>
+            <Form.Check 
+              type="checkbox"
+              label={p}
+              value={p}
               name={p}
               checked={tempRadarConfigProps.display.includes(p)}
-              onChange={tempRadarConfigProps.display.includes(p)
+                onChange={tempRadarConfigProps.display.includes(p)
                 ? () => setTempRadarConfigProps({...tempRadarConfigProps, display: tempRadarConfigProps.display.filter(t => t !== p)})
                 : () => setTempRadarConfigProps({...tempRadarConfigProps, display: [...tempRadarConfigProps.display, p]})}
-            />} 
-            label={p}
-          />
+            />
+          </div>)}
+        </Form>
           <div>
             Color:
-            {COLOR_PROPS.map(p =>
-              <FormControlLabel
-                control={<Checkbox
-                  value={p}
-                  checked={tempRadarConfigProps.color === p}
-                  onChange={e => tempRadarConfigProps.color === e.target.value
-                    ? setTempRadarConfigProps({...tempRadarConfigProps, color: ""}) 
-                    : setTempRadarConfigProps({...tempRadarConfigProps, color: e.target.value}) 
-                  }
-                />}
-                label={p}
-              />  
-            )}
+            <Form className="radar-checkbox-properties">
+              {COLOR_PROPS.map(p =>
+                  <Form.Check
+                    inline
+                    type="checkbox"
+                    key={p}
+                    value={p}
+                    checked={tempRadarConfigProps.color === p}
+                    label={p}
+                    onChange={e => tempRadarConfigProps.color === e.target.value
+                      ? setTempRadarConfigProps({...tempRadarConfigProps, color: ""}) 
+                      : setTempRadarConfigProps({...tempRadarConfigProps, color: e.target.value}) 
+                    }
+                  />
+                )}
+              </Form>
           </div>
-        </div>)}
       </div>}
     </div>
   )
 }
 
-const TableConFig = ({ tempConfigProps, setTempConfigProps }) => {
+const TableConFig = ({ 
+  tempConfigProps, 
+  setTempConfigProps,
+  tempPointMode,
+  setTempPointMode,
+  tempMode
+}) => {
   const PROPERTIES = ["width", "height", "opacity", "color"];
 
   const createTableCell = (name, width, height, opacity, color) => {
@@ -99,9 +94,11 @@ const TableConFig = ({ tempConfigProps, setTempConfigProps }) => {
     createTableCell("Points", "points-width", "points-height", "points-opacity", "points-color"),
     createTableCell("Max points", "maxPoints-width", "maxPoints-height", null, null),
     createTableCell("Submissions", "submissions-width", "submissions-height", "submissions-opacity"),
-    createTableCell("Result status", null, null, null, "passed-color"),
+    createTableCell("Result status", null, null, null, "result status-color"),
     createTableCell("Commit Days", "commitDay-width")
   ];
+
+  const POINT_MODE = ["value", "percentage"];
 
   const checkboxCreator = key => {
     if (!key) return null;
@@ -115,44 +112,56 @@ const TableConFig = ({ tempConfigProps, setTempConfigProps }) => {
     resetConfig[property] = "";
 
     return(
-      <Checkbox
-        key={key}
-        value={key}
-        checked={tempConfigProps[property] === key}
-        onChange={e => setTempConfigProps(tempConfigProps[property] === e.target.value ? resetConfig : newConfig)}
-      />
+      <InputGroup className="checkbox-properties">
+        <InputGroup.Checkbox 
+          key={key}
+          value={key}
+          checked={tempConfigProps[property] === key}
+          onChange={e => setTempConfigProps(tempConfigProps[property] === e.target.value ? resetConfig : newConfig)}
+        />
+      </InputGroup>
     )
   }
 
   return(
-    <TableContainer component={Paper}>
-      <Table className="config-table" aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell></TableCell>
-            <TableCell>Width</TableCell>
-            <TableCell>Height</TableCell>
-            <TableCell>Opacity</TableCell>
-            <TableCell>Color</TableCell>
-          </TableRow>
-        </TableHead>
+    <Table bordered>
+      <thead>
+        <tr>
+          <th></th>
+          <th>Width</th>
+          <th>Height</th>
+          <th>Opacity</th>
+          <th>Color</th>
+        </tr>
+      </thead>
 
-        <TableBody>
-          {configdata.map(item => (
-            <TableRow className={item.name}>
-              <TableCell component="th" scope="row">
-                {item.name}
-              </TableCell>
-              {PROPERTIES.map(p => (
-                <TableCell>
-                  {checkboxCreator(item[p])}
-                </TableCell>
-              ))}
-            </TableRow>
+      <tbody>
+      {configdata.map(item => (
+        <tr className={item.name}>
+          <th>
+            {item.name}
+            <span>
+            {(!tempMode && (item.name === "Points" || item.name === "Max points")) &&
+              <DropdownMenu 
+                options={POINT_MODE}
+                title=""
+                selectedOption={item.name === "Points" ? tempPointMode.points : tempPointMode.maxPoints}
+                handleClick={option => item.name === "Points" 
+                  ? setTempPointMode({...tempPointMode, points: option})
+                  : setTempPointMode({...tempPointMode, maxPoints: option})
+                }
+              />}
+            </span>
+          </th>
+          {PROPERTIES.map(p => (
+            <th>
+              {checkboxCreator(item[p])}
+            </th>
           ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+        </tr>
+      ))}
+      </tbody>
+    </Table>
   )
 }
 
@@ -161,70 +170,100 @@ const ConfigurationTable = ({
   setConfigProps, 
   mode, 
   setMode,
-  weekDisplay,
-  setWeekDisplay,
   radarMode,
   setRadarMode,
   radarConfigProps,
   setRadarConfigProps,
-  timescale,
-  setTimescale
 }) => {
   const [tempConfigProps, setTempConfigProps] = useState(configProps);
   const [open, setOpen] = useState(false);
   const [tempMode, setTempMode] = useState(mode);
-  const [tempWeekDisplay, setTempWeekDisplay] = useState([Math.round(timescale.start/_DAYS_OF_WEEK_), Math.round(timescale.end/_DAYS_OF_WEEK_)]);
   const [tempRadarMode, setTempRadarMode] = useState(radarMode);
   const [tempRadarConfigProps, setTempRadarConfigProps] = useState(radarConfigProps);
   const [error, setError] = useState(false);
   const [message, setMessage] = useState("");
+  const [tempPointMode, setTempPointMode] = useState({
+    points: "value",
+    maxPoints: "value"
+  })
+
+  const DAY_MODE = ["detail", "summary"];
+
+  const handleColorPicker = e => {
+    e.preventDefault();
+    setTempConfigProps({...tempConfigProps, fillMode: e.target.value});
+    setTempRadarConfigProps({...tempRadarConfigProps, fillMode: e.target.value});
+  }
 
   const onSaveButtonClicked = e => {
     e.preventDefault();
     if (tempMode && tempConfigProps.width === "commitDay-width" && !tempRadarMode) {
-      setMessage("Commit days does not allowed in calendar mode!");
+      setMessage("Commit days is not allowed in calendar mode!");
       setTimeout(() => setMessage(""), 10000);
       setError(true);
     } else if (tempConfigProps.width.length === 0 || tempConfigProps.height.length === 0) {
       setMessage("Width or height is missing!");
       setTimeout(() => setMessage(""), 10000);
       setError(true);
+    } else if (tempRadarMode && tempRadarConfigProps.dayMode === "day detail" && tempRadarConfigProps.display.includes("attemped exercise")) {
+      setMessage("Attemped exercise is not allowed in this mode!");
+      setTimeout(() => setMessage(""), 10000);
+      setError(true);
     } else {
+      const typeY = tempConfigProps.height.split("-")[0];
+      if (typeY === "points") {
+        setConfigProps({...tempConfigProps, pointMode: tempPointMode.points});
+      } else if (typeY === "maxPoints") {
+        setConfigProps({...tempConfigProps, pointMode: tempPointMode.maxPoints});
+      } else {
+        setConfigProps(tempConfigProps);
+      }
       setOpen(false);
-      setConfigProps(tempConfigProps);
       setMode(tempMode);
-      // setWeekDisplay(tempWeekDisplay);
       setRadarMode(tempRadarMode);
       setRadarConfigProps(tempRadarConfigProps);
-      setTimescale({...timescale, 
-        start: tempWeekDisplay[0] * _DAYS_OF_WEEK_,
-        end: tempWeekDisplay[1] * _DAYS_OF_WEEK_
-      })
     }
   }
 
   return(
     <div className="config-dialog">
-      <Button variant="outlined" color="primary" onClick={() => setOpen(true)}>
+      <Button variant="outline-primary" onClick={() => setOpen(true)}>
         SHOW VIEW CONFIGUARTION
       </Button>
-      <Dialog 
-        open={open} 
+      <Modal
+        show={open}
         error={error}
-        onClose={() => setOpen(false)} 
-        aria-labelledby="form-dialog-title">
-        <DialogTitle id="dialog-title">View Configuration</DialogTitle>
+        fade={false}
+        onHide={() => setOpen(false)}
+        aria-labelledby="contained-modal-title-vcenter"
+        centered
+      >
+        <Modal.Header id="dialog-title">
+          <Modal.Title>View Configuration</Modal.Title>
+        </Modal.Header>
 
-        <DialogContent>
-          {message.length !== 0 && <Alert severity="error">
+        <Modal.Body>
+          {message.length !== 0 && <Alert variant="danger">
             {message}  
           </Alert>}
-          <FormControlLabel
-            control={<Switch 
+          <Form>
+            <Form.Switch
+              id="calendar-mode-switch"
+              type="switch"
+              label="Calendar mode"
               checked={tempMode}
               onChange={() => setTempMode(!tempMode)}
-            />}
-            label="Calendar mode"
+            />
+          </Form>
+
+          <DropdownMenu 
+            title="View mode"
+            options={DAY_MODE}
+            selectedOption={tempRadarMode ? tempRadarConfigProps.dayMode : tempConfigProps.dayMode}
+            handleClick={option => tempRadarMode 
+              ? setTempRadarConfigProps({...tempRadarConfigProps, dayMode: option})
+              : setTempConfigProps({...tempConfigProps, dayMode: option})
+            }
           />
 
           {tempMode && <CalendarConfig
@@ -232,37 +271,41 @@ const ConfigurationTable = ({
             setTempRadarMode={setTempRadarMode}
             tempRadarConfigProps={tempRadarConfigProps}
             setTempRadarConfigProps={setTempRadarConfigProps}
-          />}
-
-          {!tempMode && <div className="week-display">
-            <Typography gutterBottom>Weeks range display</Typography>
-            <Slider 
-              value={tempWeekDisplay}
-              valueLabelDisplay="auto"
-              aria-labelledby="range-slider"
-              getAriaValueText={value => value}
-              min={0}
-              max={_NUMBER_OF_WEEKS_}
-              onChange={(e, newValue) => setTempWeekDisplay(newValue)}
-            />
-          </div>}
-
-          {(!tempMode || !tempRadarMode) && <TableConFig 
             tempConfigProps={tempConfigProps}
             setTempConfigProps={setTempConfigProps}
           />}
 
-        </DialogContent>
+          {(!tempMode || !tempRadarMode) && <TableConFig 
+            tempConfigProps={tempConfigProps}
+            setTempConfigProps={setTempConfigProps}
+            tempPointMode={tempPointMode}
+            setTempPointMode={setTempPointMode}
+            tempMode={tempMode}
+          />}
 
-        <DialogActions>
-          <Button onClick={() => setOpen(false)} color="primary">
+          <div className="color-picker">
+            <Form.Label htmlFor="ColorInput">Color Picker<em>(will not aplly when color mode is chosen)</em></Form.Label>
+            <Form.Control 
+              type="color"
+              id="color-input"
+              color={configProps.fillMode}
+              defaultValue={configProps.fillMode}
+              onChange={handleColorPicker}
+              style={{ width: "30%" }}
+            />
+          </div>
+
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button onClick={() => setOpen(false)} variant="outline-secondary">
             Close
           </Button>
-          <Button onClick={onSaveButtonClicked} color="primary">
+          <Button onClick={onSaveButtonClicked} variant="outline-success">
             Save
           </Button>
-        </DialogActions>
-      </Dialog>
+        </Modal.Footer>
+      </Modal>
     </div>
   )
 } 

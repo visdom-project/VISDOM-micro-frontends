@@ -3,7 +3,6 @@
   background-color: #f8f9fa;
   display: flex;
   flex-wrap: wrap;
-  padding: auto;
   width: inherit;
 }
 
@@ -11,7 +10,7 @@
   width: calc(100%/7);
   height: 300px;
   border: 1px darkgrey solid;
-  padding: 1em;
+  padding: 0.5em;
   margin-bottom: 0.5em;
 }
 
@@ -19,5 +18,5 @@
   align-content: center;
   font-size: inherit;
   margin: 0;
-  padding: 0 0 1em 0;
+  padding: 0;
 }

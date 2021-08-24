@@ -1,74 +1,43 @@
 import React, { useEffect, useState } from "react";
 
 import { 
-  _COLOR_PALETTES_ 
+  _COLOR_PALETTES_,
+  tipStyle
 } from "../services/helpers";
+import { dataForRadarGraph } from "../services/dataProcessing";
 
-import { RadarChart, makeVisFlexible, Hint} from "react-vis";
+import { 
+  RadarChart, 
+  makeVisFlexible, 
+  Hint
+} from "react-vis";
 
 const FlexibleRadarChart = makeVisFlexible(RadarChart);
 
 const RadarGraph = ({ day, domain, width, height, radarConfigProps }) => {
-  const [data, setData] = useState(day.data);
+  const [data, setData] = useState([]);
   const [hoverCell, setHoverCell] = useState(false);
   const [hoverCellValue, setHoverCellValue] = useState(false);
 
-
   useEffect(() =>{
-    if (data.length > 0) {
-      const tempData = [...data];
-      tempData.forEach(d => {
-        if (radarConfigProps.color === "points") {
-          d.fill = d.points > 0
-            ? d.points === d.maxPoints
-              ? _COLOR_PALETTES_.fullPoint
-              : d.difficulty === "P"
-                ? _COLOR_PALETTES_.notDefined
-                : _COLOR_PALETTES_.partialPoint
-            : _COLOR_PALETTES_.noPoint
-        } else if (radarConfigProps.color === "result status") {
-          d.fill = d.passed
-            ? _COLOR_PALETTES_.fullPoint
-            : _COLOR_PALETTES_.noPoint  
-        } else {
-          d.fill = "";
-        }
-      })
-      setData(tempData);
+    if (day.data.length > 0) {
+      setData(dataForRadarGraph(day.data, radarConfigProps));
     }
   }, [radarConfigProps]) //eslint-disable-line
 
   if (day.data.length === 0) return null;
 
-  const tipStyle = {
-    display: 'flex',
-    color: '#000',
-    background: '#eff7f6',
-    alignItems: 'center',
-    padding: '5px',
-    border: "1px darkgrey solid",
-  };
-
   return (
-    <div className="radar-chart" style={{ width: width, height: height, marginTop: "20px" }}>
+    <div className="radar-chart" style={{ width: width, height: height }}>
       <FlexibleRadarChart
         data={data}
         startingAngle={0}
         colorType="literal"
-        margin={{left: 0, right: 40, top: 20, bottom: 20}}
-        domains={radarConfigProps.display.includes("point-ratio")
-          ? [
-            {name: "commits", domain: [0, domain.commit], getValue: d => d.commits},
-            {name: "points", domain: [0, domain.point], getValue: d => d.points},
-            {name: "submissions", domain: [0, domain.submission], getValue: d => d.submissions},
-            {name: "point ratio", domain: [0,1], getValue: d => d.maxPoints !== 0 ? d.points / d.maxPoints : 0}
-            ]
-          : [
-            {name: "commits", domain: [0, domain.commit], getValue: d => d.commits},
-            {name: "points", domain: [0, domain.point], getValue: d => d.points},
-            {name: "submissions", domain: [0, domain.submission], getValue: d => d.submissions}
-            ]}
-        tickFormat={val => Math.round(val) === val ? val : ""}
+        margin={{left: 0, right: 30, top: 10, bottom: 20}}
+        domains={radarConfigProps.display.map(key => ({
+          name: key,
+          domain: domain[key]
+        }))}
         onSeriesMouseOver={d => setHoverCell(d.event[0])}
         onSeriesMouseOut={() => setHoverCell(false)}
         onValueMouseOver={v => setHoverCellValue(v)}

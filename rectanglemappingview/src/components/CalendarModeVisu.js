@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { 
-  maximunDetermination, rangeDetermination
+  domainDetermination, 
+  rangeDetermination
 } from "../services/helpers";
 import dataForCalendarMode from "../services/dataForCalendarMode";
 
@@ -9,13 +10,10 @@ import RadarGraph from "./RadarGraph";
 import RectangleGraph from "./RectangleGraph";
 
 import '../styles/calendar.css';
-import { 
+import {
   Button,
-  Dialog, 
-  DialogActions, 
-  DialogContent, 
-  DialogTitle
-} from "@material-ui/core";
+  Modal
+} from "react-bootstrap";
 import studentData from "../services/studentData";
 
 const Day = ({ 
@@ -34,57 +32,70 @@ const Day = ({
       year: 'numeric',
       month: 'short'
     })
+  const [wheight, setwHeight] = useState(0)
+  const ref = useRef(null);
+
+  const heightCalculator = w => {
+    const xUnit = range.rangeX[1];
+    const yUnit = range.rangeY[1];
+    return isNaN(w * (yUnit / xUnit)) ? 0 : (w * (yUnit / xUnit));
+  }
+
+  const heightResponsive = () => {
+    setwHeight(heightCalculator(ref.current.offsetWidth))
+  }
+
+  useEffect(() => {
+    heightResponsive();
+    window.addEventListener("resize", heightResponsive);
+    return () => window.removeEventListener("resize", heightResponsive);
+  }, [configProps, day])
 
   return(
-    <div className="day">
-      <h4 className="date-content" onClick={() => setOpen(true)}>
-        {date_format}
+    <div key={`container-${date_format}`} className="day">
+      <div onClick={() => setOpen(radarMode && true)} ref={ref} style={{ width: "100%" }}>
+        <h4 className="date-content" style={{ width: "100%" }}>{date_format}</h4>
         {radarMode && <RadarGraph 
           day={day}
           domain={domain}
-          width="inherit" 
-          height="250px" 
+          width="100%" 
+          height="240px" 
           key={day.date.toString()}
-          radarConfigProps={radarConfigProps} 
+          radarConfigProps={radarConfigProps}
         />}
         {!radarMode && <RectangleGraph 
           day={day}
-          width="inherit" 
-          height="250px"
+          width="100%" 
+          height={wheight}
           range={range}
           configProps={configProps}
+          open={open}
         />}
-        </h4>
-        <div className="detail-radar-dialog" style={{width: "700px"}}>
-          <Dialog open={open} onClose={() => setOpen(false)} aria-labelledby="form-dialog-title">
-            <DialogTitle id="radar-dialog-title">
-              Detail of {date_format}
-            </DialogTitle>
-            <DialogContent>
-              {radarMode && <RadarGraph 
+      </div>
+      {radarMode && <div className="detail-radar-dialog" style={{width: "700px"}}>
+        <Modal show={open} onHide={() => setOpen(false)}>
+          <Modal.Header>
+            <Modal.Title id="radar-dialog-title">Detail of {date_format}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div style={{ width: "inherit" }}>
+              <RadarGraph 
                 day={day} 
                 domain={domain}
-                width="500px"
+                width="400px"
                 height="450px"
                 key={`detail-radar-${date_format}`}
                 radarConfigProps={radarConfigProps}
-              />}
-              {!radarMode && <RectangleGraph
-                day={day} 
-                width="500px"
-                height="450px"
-                key={`detail-rec-${date_format}`}
-                configProps={configProps}
-                range={range}
-              />}
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setOpen(false)} color="primary">
-                Close
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </div>
+              />
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button onClick={() => setOpen(false)} variant="outline-danger">
+              Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </div>}
     </div>
   )
 }
@@ -97,9 +108,11 @@ const CalendarModeVisu = ({
 }) => {
   const [data, setData] = useState([]);
   const [domain, setDomain] = useState({
-    commit: 0,
-    submission: 0,
-    point: 0
+    "commits": [0, 0],
+    "submissions": [0, 0],
+    "points": [0, 0],
+    "point ratio": [0, 1],
+    "attemped exercise": [0, 0]
   })
   const [range, setRange] = useState({
     rangeX: [0, 1],
@@ -114,19 +127,19 @@ const CalendarModeVisu = ({
         .then(res => {
           setData(res)
           if (res) {
-            const commitD = maximunDetermination(res.map(d => d.data).flat(1).map(d => d.commits));
-            const submissionD = maximunDetermination(res.map(d => d.data).flat(1).map(d => d.submissions));
-            const pointD = maximunDetermination(res.map(d => d.data).flat(1).map(d => d.maxPoints));
-            setDomain({...domain, commit: commitD, submission: submissionD, point: pointD})
+            setDomain(domainDetermination(res, radarConfigProps.dayMode));
           }
         })
         .then(err => console.log(err))
       studentData(studentID)
         .then(res => {
-          setRange({...range, rangeX: rangeDetermination(res, typeX), rangeY: rangeDetermination(res, typeY)})
+          const rangeD = rangeDetermination(res, typeX)[1] > rangeDetermination(res, typeY)[1] 
+            ? rangeDetermination(res, typeX) 
+            : rangeDetermination(res, typeY)
+          setRange({...range, rangeX: rangeD, rangeY: rangeD})
         })
     }
-  }, [studentID, configProps, radarMode]) //eslint-disable-line
+  }, [studentID, configProps, radarMode, radarConfigProps]) //eslint-disable-line
 
   if (!data) return <div>No data to show</div>
 

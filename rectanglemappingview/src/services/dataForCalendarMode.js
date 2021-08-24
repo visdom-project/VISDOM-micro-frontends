@@ -83,7 +83,8 @@ const dataForCalendarMode = studentID => {
                         points: commitExercise.points,
                         submissions: commitExercise.submission_count,
                         passed: commitExercise.passed,
-                        commits: 1, 
+                        commits: 1,
+                        pointRatio: commitExercise.max_points !== 0 ? (commitExercise.points / commitExercise.max_points) : 0,
                         fill: "",
                         stroke: "#000000"
                       })

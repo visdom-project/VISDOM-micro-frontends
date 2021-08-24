@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-
-import { Grid, Typography, Slider } from "@material-ui/core";
+import { Form} from "react-bootstrap";
+import { TwoThumbInputRange } from "react-two-thumb-input-range"
 import VisGraph from "./VisGraph";
 
 import { getAllStudentsData, fetchStudentData } from "../services/studentData";
@@ -94,9 +94,7 @@ const EKGTab = () => {
             dialog: "Modify show configuration",
             confirm: "OK",
           }}>
-            <Grid item>
-              <Typography>Configs:</Typography>
-            </Grid>
+            <Form.Label>Configs:</Form.Label>
             <ConfigurableFieldSelector
               selected={configs}
               setSelected={setConfigs}
@@ -112,24 +110,24 @@ const EKGTab = () => {
           state && state.instances && state.instances[0] && state.timescale &&
           <>
             <div className="timescale-slider" style={{ width: "400px", paddingLeft: "100px" }}>
-              <Typography id="range-slider" gutterBottom>
+              <Form.Label id="range-slider">
                 Week range
-              </Typography>
-              <Slider
-                value={displayedWeek}
-                onChange={(event, newValue) => {
-                  setDisplayedWeek(newValue.sort( (a, b) => a-b));
+              </Form.Label>
+              <TwoThumbInputRange
+                values={displayedWeek}
+                min={1}
+                max={15}
+                onChange={newValue => {
+                  console.log("p",newValue.sort( (a, b) => a-b))
+                  const val = newValue.sort( (a, b) => a-b);
+                  setDisplayedWeek(val)
                   updateLocalState(dispatch, {
                     timescale: {
-                      start: (newValue[0] - 1) * 7,
-                      end: (newValue[1] - 1) * 7 -1
+                      start: (val[0] - 1) * 7,
+                      end: (val[1] - 1) * 7 -1
                     }
                   });
                 }}
-                valueLabelDisplay="auto"
-                aria-labelledby="range-slider"
-                min={1}
-                max={numberOfWeeks}
               />
             </div>
             <button
