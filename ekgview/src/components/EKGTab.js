@@ -139,7 +139,7 @@ const EKGTab = () => {
                     }
                     setPulseRatio(parseFloat(event.target.value));
                   }}
-                  style={{ margin:  "10px", width: "30%",}}
+                  style={{ margin:  "10px", width: "30%", }}
                 />
               </span>
             </div>
@@ -147,24 +147,23 @@ const EKGTab = () => {
             <Table bordered>
               <thead>
                 <tr>
-                  {Object.keys(init).map(selection => <th>{selection}</th>)}
+                  {Object.keys(init).map(selection => <th key={JSON.stringify(selection)}>{selection}</th>)}
                   <th></th>
                 </tr>
               </thead>
 
               <tbody>
               {configs.map((config, index) => (
-                <tr>
+                <tr key={`tr-${index}}`}>
                 {Object.keys(config).map(selection => (
-                  <td>
+                  <td key={`td-${index}-${JSON.stringify(selection)}`}>
                     {selection.startsWith("scale")
                       ? <Form.Control
                           name={selection}
-                          key={`form-${index}-${selection}`} 
+                          key={`form-${index}-${selection}`}
                           type="number"
                           value={parseFloat(config[selection])}
                           onChange={(event) => {
-                            console.log(event.target)
                             if (isNaN(parseFloat(event.target.value)))
                             {
                               return;
@@ -242,7 +241,7 @@ const EKGTab = () => {
                 min={1}
                 max={15}
                 onChange={(newValue) => {
-                  setDisplayedWeek(newValue.sort((a,b) => a-b));
+                  setDisplayedWeek(newValue.sort((a, b) => a-b));
                   updateLocalState(dispatch, {
                     timescale: {
                       start: (newValue[0] - 1) * 7,

@@ -1,14 +1,14 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from "react";
-import { 
-  VerticalGridLines, 
-  HorizontalGridLines, 
-  XAxis, 
-  FlexibleWidthXYPlot, 
-  YAxis, 
-  LineSeries, 
-  AreaSeries, 
-  Hint 
+import {
+  VerticalGridLines,
+  HorizontalGridLines,
+  XAxis,
+  FlexibleWidthXYPlot,
+  YAxis,
+  LineSeries,
+  AreaSeries,
+  Hint
 } from "react-vis";
 import "../../node_modules/react-vis/dist/style.css";
 import { getCurveType, extractData } from "../helper/integratedData";
@@ -23,11 +23,7 @@ const VisGraph = ({ data, configs, displayedWeek, compress, pulseRatio }) => {
       tickValues.push(i);
   }
 
-<<<<<<< HEAD
-    return pulseRatio !== 0 && (
-=======
-  return pulseRatio !== 0 && ( 
->>>>>>> 24520fac4ce6b0b16a7b0aa8f789af0aa4610027
+  return pulseRatio !== 0 && (
     <FlexibleWidthXYPlot height={500}>
       <VerticalGridLines />
       <HorizontalGridLines />
