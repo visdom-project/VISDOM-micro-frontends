@@ -1,12 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from "react";
-import {
-  Button,
-  DialogTitle,
-  Dialog,
-  DialogActions,
-  DialogContent,
-} from "@material-ui/core";
+
+import { Button, Modal } from "react-bootstrap";
 
 const ConfigDialog = ({ title, children }) => {
   const [open, setOpen] = useState(false);
@@ -14,22 +9,28 @@ const ConfigDialog = ({ title, children }) => {
   const handleClose = () => setOpen(false);
   return (
     <div>
-      <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+      <Button variant="outline-primary" onClick={handleClickOpen}>
         {title.button}
       </Button>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        maxWidth="xl"
+      <Modal
+        show={open}
+        onHide={handleClose}
+        size="lg"
+        centered
       >
-        <DialogTitle id="alert-dialog-title">{title.dialog}</DialogTitle>
-        <DialogContent>{children}</DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>{title.confirm}</Button>
-        </DialogActions>
-      </Dialog>
+        <Modal.Header>
+          <Modal.Title  id="alert-dialog-title">
+            {title.dialog}
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>{children}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="outline-success" onClick={handleClose}>
+            {title.confirm}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

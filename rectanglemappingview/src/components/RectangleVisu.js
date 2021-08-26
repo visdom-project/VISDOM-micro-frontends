@@ -31,7 +31,12 @@ const RectangleVisu = () => {
     height: "commit-height",
     opacity: "",
     color: "",
-    pointMode: "",
+    pointMode: {
+      "commit": "value",
+      "points": "value",
+      "maxPoints": "value",
+      "submissions": "value"
+    },
     fillMode: _COLOR_PALETTES_.default
   })
   const [mode, setMode] = useState(false);

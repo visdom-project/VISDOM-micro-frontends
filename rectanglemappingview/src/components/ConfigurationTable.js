@@ -79,8 +79,6 @@ const CalendarConfig = ({
 const TableConFig = ({ 
   tempConfigProps, 
   setTempConfigProps,
-  tempPointMode,
-  setTempPointMode,
   tempMode
 }) => {
   const PROPERTIES = ["width", "height", "opacity", "color"];
@@ -136,31 +134,36 @@ const TableConFig = ({
       </thead>
 
       <tbody>
-      {configdata.map(item => (
-        <tr className={item.name}>
-          <th>
-            {item.name}
-            <span>
-            {(!tempMode && (item.name === "Points" || item.name === "Max points")) &&
-              <DropdownMenu 
-                options={POINT_MODE}
-                title=""
-                selectedOption={item.name === "Points" ? tempPointMode.points : tempPointMode.maxPoints}
-                handleClick={option => item.name === "Points" 
-                  ? setTempPointMode({...tempPointMode, points: option})
-                  : setTempPointMode({...tempPointMode, maxPoints: option})
-                }
-              />}
-            </span>
-          </th>
-          {PROPERTIES.map(p => (
-            <th>
-              {checkboxCreator(item[p])}
-            </th>
-          ))}
-        </tr>
-      ))}
-      </tbody>
+        {configdata.map(item => {
+          const typeY = item.height && item.height.split("-")[0];
+          return(
+            <tr className={item.name}>
+              <th>
+                {item.name}
+                <span>
+                {(!tempMode && item.name !== "Commit Days" && item.name !== "Result status") &&
+                  <DropdownMenu 
+                    options={POINT_MODE}
+                    title=""
+                    selectedOption={tempConfigProps.pointMode[typeY]}
+                    handleClick={option => {
+                      const newConfig = {...tempConfigProps.pointMode};
+                      newConfig[typeY] = option;
+                      setTempConfigProps({...tempConfigProps, pointMode: newConfig})
+                    }}
+                  />}
+                </span>
+              </th>
+              {PROPERTIES.map(p => (
+                <th>
+                  {checkboxCreator(item[p])}
+                </th>
+              ))}
+            </tr>
+          )
+        })
+      }
+    </tbody>
     </Table>
   )
 }
@@ -182,10 +185,6 @@ const ConfigurationTable = ({
   const [tempRadarConfigProps, setTempRadarConfigProps] = useState(radarConfigProps);
   const [error, setError] = useState(false);
   const [message, setMessage] = useState("");
-  const [tempPointMode, setTempPointMode] = useState({
-    points: "value",
-    maxPoints: "value"
-  })
 
   const DAY_MODE = ["detail", "summary"];
 
@@ -210,14 +209,7 @@ const ConfigurationTable = ({
       setTimeout(() => setMessage(""), 10000);
       setError(true);
     } else {
-      const typeY = tempConfigProps.height.split("-")[0];
-      if (typeY === "points") {
-        setConfigProps({...tempConfigProps, pointMode: tempPointMode.points});
-      } else if (typeY === "maxPoints") {
-        setConfigProps({...tempConfigProps, pointMode: tempPointMode.maxPoints});
-      } else {
-        setConfigProps(tempConfigProps);
-      }
+      setConfigProps(tempConfigProps)
       setOpen(false);
       setMode(tempMode);
       setRadarMode(tempRadarMode);
@@ -278,8 +270,6 @@ const ConfigurationTable = ({
           {(!tempMode || !tempRadarMode) && <TableConFig 
             tempConfigProps={tempConfigProps}
             setTempConfigProps={setTempConfigProps}
-            tempPointMode={tempPointMode}
-            setTempPointMode={setTempPointMode}
             tempMode={tempMode}
           />}
 

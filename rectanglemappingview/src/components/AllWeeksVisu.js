@@ -60,7 +60,7 @@ const AllWeeksVisu = ({
 
   return(
     <div className="all-weeks-visu" ref={ref} style={{ width: "100%"}}>
-      <FlexibleWidthXYPlot height={configProps.pointMode === "percentage" ? 450 : wheight + 50} xDomain={weekDisplay} yDomain={rangeY}>
+      <FlexibleWidthXYPlot height={configProps.pointMode[typeY] === "percentage" ? 450 : wheight + 50} xDomain={weekDisplay} yDomain={rangeY}>
         <VerticalGridLines />
         <HorizontalGridLines />
 
@@ -69,7 +69,7 @@ const AllWeeksVisu = ({
           tickFormat={val => Math.round(val) === val ? val : ""}
         />
         <YAxis
-          tickFormat={val => configProps.pointMode === "percentage" 
+          tickFormat={val => configProps.pointMode[typeY] === "percentage" 
             ? ((val/rangeY[1]) * 100).toFixed(0) + "%"
             : Math.round(val) === val ? val : ""}
         />
@@ -88,7 +88,7 @@ const AllWeeksVisu = ({
               ? Math.round((hoverCell.x - hoverCell.x0)*rangeX[1])
               : Math.round((hoverCell.x - hoverCell.x0)*_DAYS_OF_WEEK_)}
             <br />
-            {typeY} : {hoverCell.y - hoverCell.y0} {configProps.pointMode === "percentage" && `(${(((hoverCell.y - hoverCell.y0)/rangeY[1]) * 100).toFixed(0)}%)`}
+            {typeY} : {hoverCell.y - hoverCell.y0} {configProps.pointMode[typeY] === "percentage" && `(${(((hoverCell.y - hoverCell.y0)/rangeY[1]) * 100).toFixed(0)}%)`}
           </div>
         </Hint>}
       </FlexibleWidthXYPlot>
