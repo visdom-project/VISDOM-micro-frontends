@@ -20,6 +20,7 @@ import ConfigDialog from "./ConfigDialog";
 import { OPTIONS_MAP } from "../helper/constants";
 
 
+// eslint-disable-next-line max-lines-per-function
 const EKGTab = () => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
@@ -43,6 +44,7 @@ const EKGTab = () => {
   const [displayedWeek, setDisplayedWeek] = useState([1, numberOfWeeks]);
 
   const grades = [0, 1, 2, 3, 4, 5];
+
   const displayError = err => alert(err.response.data.error);
 
   const init = {
@@ -61,6 +63,7 @@ const EKGTab = () => {
   const maxlength = 98;
 
   useEffect(() => {
+    // eslint-disable-next-line no-shadow
     const newClient = MQTTConnect(dispatch).then(client => {
       setClient(client);
       return client;
@@ -149,7 +152,7 @@ const EKGTab = () => {
                       const newConfigurationList = [...configurationList];
                       newConfigurationList.push(configName.current);
                       setConfigurationList(newConfigurationList);
-                    }).catch(createConfig);
+                    }).catch(displayError);
                   }}
                   >
                   Create new config
