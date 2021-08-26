@@ -5,15 +5,10 @@ import { configConfiguration } from "./serviceConfiguration";
 const baseUrl = configConfiguration.createUrl(`v1/configurations/${MICROFRONTEND_KEY}`);
 
 export const getConfigurationsList = () => {
-    // eslint-disable-next-line no-undef
-    // const baseUrl = configConfiguration.createUrl(`v1/confiurations/${MICROFRONTEND_KEY}`);
-    // axios.get(baseUrl).then(response => console.log(response));
     return axios.get(baseUrl).then(response => response.data);
 };
 
 export const getConfiguration = (configName) => {
-    // eslint-disable-next-line no-undef
-    // const baseUrl = configConfiguration.createUrl(`v1/confiurations/${MICROFRONTEND_KEY}`);
     const requestConfig = {
         headers:{
             "config-name": configName,
