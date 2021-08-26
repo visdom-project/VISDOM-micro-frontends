@@ -42,7 +42,7 @@ export const getDirectionFunction = (direction) => {
 
 export const extractData = (data, configs, relativeTimescale=false, pulseRatio=1.5) => {
 
-    if (data.length === 0 || configs.length === 0) {
+    if (data.length === 0 || configs.length === 0 || pulseRatio <= 0) {
         return [];
     }
     const y0 = 0;

@@ -27,6 +27,8 @@ const EKGTab = () => {
   const [client, setClient] = useState(null);
 
   const [studentList, setStudentList] = useState([]);
+  const [configurationList, setConfigurationList] = useState([]);
+  const [currentConfiguration, setCurrentConfiguration] = useState("");
 
   const [displayData, setDisplayData] = useState([]);
   const [expectedGrade, setExpectedGrade] = useState(1);
@@ -41,7 +43,7 @@ const EKGTab = () => {
   const [displayedWeek, setDisplayedWeek] = useState([1, numberOfWeeks]);
 
   const grades = [0, 1, 2, 3, 4, 5];
-
+  const displayError = err => alert(err.response.data.error);
 
   const init = {
     type: "Points",
@@ -54,23 +56,37 @@ const EKGTab = () => {
     scaleFactor: 1,
 };
   const [configs, setConfigs] = useReferredState([init]);
-
+  const [configName, setConfigName] = useReferredState("");
   // little hard code
   const maxlength = 98;
 
   useEffect(() => {
-    const newClient = MQTTConnect(dispatch).then( client => {
+    const newClient = MQTTConnect(dispatch).then(client => {
       setClient(client);
       return client;
     });
-    // return;
     return () => newClient.end();
   }, []);
-
+  useEffect(() => {
+    if (!currentConfiguration.length) {
+      return;
+    }
+    getConfiguration(currentConfiguration).then(data => {
+      try {
+        data.config.configs && data.config.relativeTimescale && data.config.pulseRatio;
+      }
+      catch (error) {
+        throw { error: "Something not right with the configuration" };
+      }
+      setConfigs(data.config.configs);
+      setRelativeTimescale(data.config.relativeTimescale);
+      setPulseRatio(data.config.pulseRatio);
+    }).catch(displayError);
+  }, [currentConfiguration]);
   useEffect(() => {
     getAllStudentsData().then(list => setStudentList(list));
+    getConfigurationsList().then(list => setConfigurationList(list)).catch(displayError);
   }, []);
-
   useEffect(() => {
     updateLocalState(dispatch, {
       timescale: {
@@ -80,10 +96,8 @@ const EKGTab = () => {
       instances: [],
     });
   }, []);
-
   useEffect(() => {
-    if (!state.instances.length)
-    {
+    if (!state.instances.length) {
       return;
     }
     fetchStudentData(state.instances[0], expectedGrade)
@@ -93,7 +107,6 @@ const EKGTab = () => {
       setDisplayedWeek([Math.floor(state.timescale.start / 7) + 1, Math.ceil(state.timescale.end / 7) + 1]);
     });
   }, [state.instances, expectedGrade]);
-
   return (
     <div className="container-body">
         <DropdownMenu
@@ -112,7 +125,45 @@ const EKGTab = () => {
             button: "Show view configuration",
             dialog: "Modify show configuration",
             confirm: "OK",
-          }}>
+          }}
+          additionalFooter={
+            <div>
+              <Form.Control
+                  type="text"
+                  value={configName.current}
+                  onChange={(event) => setConfigName(event.target.value)}
+                  style={{ margin:  "10px", width: "80%", }}
+                />
+               <Button
+                  size="md"
+                  onClick={() => {
+                    if (! configName.current.length){
+                      return;
+                    }
+                    const publishConfiguration = {
+                      configs: configs.current,
+                      relativeTimescale: relativeTimescale.current,
+                      pulseRatio: pulseRatio.current,
+                    };
+                    createConfig(configName.current, publishConfiguration).then(() => {
+                      const newConfigurationList = [...configurationList];
+                      newConfigurationList.push(configName.current);
+                      setConfigurationList(newConfigurationList);
+                    }).catch(createConfig);
+                  }}
+                  >
+                  Create new config
+                    </Button>
+            </div>
+          }
+          >
+            <DropdownMenu
+              options={configurationList}
+              selectedOption={ currentConfiguration }
+              handleClick={ config => setCurrentConfiguration(config)}
+              title="Config name:"
+              selectAllOption={false}
+            />
             <DropdownMenu
               options={grades}
               selectedOption={expectedGrade}
@@ -134,8 +185,7 @@ const EKGTab = () => {
                   type="number"
                   value={pulseRatio.current}
                   onChange={(event) => {
-                    if (isNaN(parseFloat(event.target.value)))
-                    {
+                    if (isNaN(parseFloat(event.target.value))){
                       return;
                     }
                     setPulseRatio(parseFloat(event.target.value));

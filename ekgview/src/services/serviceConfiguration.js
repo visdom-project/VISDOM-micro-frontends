@@ -21,6 +21,6 @@ export const MQTTConfiguration = {
 export const configConfiguration = {
   host: configurationHost,
   createUrl: function (url) {
-    return mqttHost + "/" + url;
+    return configurationHost + "/" + url;
   },
 };

@@ -12,7 +12,7 @@ import {
  * @param {title} param0 title.button && title.dialog && title.confirm
  * @returns Dialog
  */
-const ConfigDialog = ({ title, children, openDialog, setOpenDialog, showButton=true}) => {
+const ConfigDialog = ({ title, children, openDialog, setOpenDialog, showButton=true, additionalFooter=null }) => {
   const [open, setOpen] = useState(false);
   const handleClickOpen = () =>
   {
@@ -50,8 +50,9 @@ const ConfigDialog = ({ title, children, openDialog, setOpenDialog, showButton=t
         <Modal.Header id="alert-dialog-title">
           <Modal.Title>{title.dialog}</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{ maxHeight: "800px", overflow: "scroll" }}>{children}</Modal.Body>
+        <Modal.Body style={{ maxHeight: "500px", overflow: "scroll" }}>{children}</Modal.Body>
         <Modal.Footer>
+          {additionalFooter}
           <Button variant="outline-success" onClick={handleClose}>
             {title.confirm}
           </Button>
