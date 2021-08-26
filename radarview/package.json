@@ -17,6 +17,7 @@
     "react": "^16.13.1",
     "react-bootstrap": "^1.6.1",
     "react-dom": "^16.13.1",
+    "react-icons": "^4.2.0",
     "react-two-thumb-input-range": "^1.0.7",
     "react-vis": "^1.11.7",
     "single-spa-react": "^3.0.1"
