@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
-const elasticsearchHost = __MQTT_HOST__;
-const mqttHost = __CONFIGURATION_HOST__;
+const elasticsearchHost = __ELASTICSEARCH_HOST__;
+const mqttHost = __MQTT_HOST__;
 
 export const ElasticSearchConfiguration = {
   host: elasticsearchHost,

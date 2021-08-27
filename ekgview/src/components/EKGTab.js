@@ -46,7 +46,7 @@ const EKGTab = () => {
   const grades = [0, 1, 2, 3, 4, 5];
 
   const displayError = err => alert(err.response.data.error);
-
+  
   const init = {
     type: "Points",
     value: "absolute",
@@ -61,7 +61,7 @@ const EKGTab = () => {
   const [configName, setConfigName] = useReferredState("");
   // little hard code
   const maxlength = 98;
-
+  console.log(configs);
   useEffect(() => {
     // eslint-disable-next-line no-shadow
     const newClient = MQTTConnect(dispatch).then(client => {
@@ -77,13 +77,13 @@ const EKGTab = () => {
     getConfiguration(currentConfiguration).then(data => {
       try {
         data.config.configs && data.config.relativeTimescale && data.config.pulseRatio;
+        setConfigs(data.config.configs);
+        setRelativeTimescale(data.config.relativeTimescale);
+        setPulseRatio(data.config.pulseRatio);
       }
       catch (error) {
         throw { error: "Something not right with the configuration" };
       }
-      setConfigs(data.config.configs);
-      setRelativeTimescale(data.config.relativeTimescale);
-      setPulseRatio(data.config.pulseRatio);
     }).catch(displayError);
   }, [currentConfiguration]);
   useEffect(() => {
@@ -229,6 +229,7 @@ const EKGTab = () => {
                         />
                       : <select
                           name={selection}
+                          value={config[selection]}
                           onChange={ (event) => {
                             const newConfigs = [...configs.current];
                             newConfigs[index][event.target.name] = event.target.value;
