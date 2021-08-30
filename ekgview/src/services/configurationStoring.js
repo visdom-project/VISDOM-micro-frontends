@@ -24,3 +24,11 @@ export const createConfig = (configName, config) => {
     };
     return axios.post(baseUrl, data).then(response => response.data);
 };
+
+export const modifyConfig = (configName, config) => {
+    const data = {
+        name: configName,
+        config: config,
+    };
+    return axios.put(baseUrl, data).then(response => response.data);
+}

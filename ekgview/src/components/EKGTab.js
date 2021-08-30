@@ -10,7 +10,7 @@ import { TwoThumbInputRange } from "react-two-thumb-input-range";
 import VisGraph from "./VisGraph";
 
 import { getAllStudentsData, fetchStudentData } from "../services/studentData";
-import { getConfigurationsList, getConfiguration, createConfig } from "../services/configurationStoring";
+import { getConfigurationsList, getConfiguration, createConfig, modifyConfig } from "../services/configurationStoring";
 import { updateLocalState, useMessageDispatch, useMessageState } from "../contexts/MessageContext";
 import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
 
@@ -46,7 +46,7 @@ const EKGTab = () => {
   const grades = [0, 1, 2, 3, 4, 5];
 
   const displayError = err => alert(err.response.data.error);
-  
+
   const init = {
     type: "Points",
     value: "absolute",
@@ -61,7 +61,7 @@ const EKGTab = () => {
   const [configName, setConfigName] = useReferredState("");
   // little hard code
   const maxlength = 98;
-  console.log(configs);
+
   useEffect(() => {
     // eslint-disable-next-line no-shadow
     const newClient = MQTTConnect(dispatch).then(client => {
@@ -130,33 +130,57 @@ const EKGTab = () => {
             confirm: "OK",
           }}
           additionalFooter={
-            <div>
-              <Form.Control
-                  type="text"
-                  value={configName.current}
-                  onChange={(event) => setConfigName(event.target.value)}
-                  style={{ margin:  "10px", width: "80%", }}
-                />
-               <Button
-                  size="md"
-                  onClick={() => {
-                    if (! configName.current.length){
-                      return;
-                    }
-                    const publishConfiguration = {
-                      configs: configs.current,
-                      relativeTimescale: relativeTimescale.current,
-                      pulseRatio: pulseRatio.current,
-                    };
-                    createConfig(configName.current, publishConfiguration).then(() => {
-                      const newConfigurationList = [...configurationList];
-                      newConfigurationList.push(configName.current);
-                      setConfigurationList(newConfigurationList);
-                    }).catch(displayError);
-                  }}
+            <div className="container" style={{width: "50%"}}>
+              <div className="row">
+                <div className="col">
+                  <Button
+                    size="md"
+                    onClick={() => {
+                      if (!currentConfiguration.length){
+                        return alert("Cant change configuration of unsaved configuration");
+                      }
+                      const publishConfiguration = {
+                        configs: configs.current,
+                        relativeTimescale: relativeTimescale.current,
+                        pulseRatio: pulseRatio.current,
+                      };
+                      modifyConfig(currentConfiguration, publishConfiguration).catch(displayError);
+                    }}
                   >
-                  Create new config
+                    Modify this config
+                  </Button>
+                </div>
+                <div className="col">
+                  <Form.Control
+                      type="text"
+                      value={configName.current}
+                      onChange={(event) => setConfigName(event.target.value)}
+                      style={{ margin:  "10px", width: "80%", }}
+                    />
+                  <Button
+                      size="md"
+                      onClick={() => {
+                        if (! configName.current.length){
+                          return;
+                        }
+                        const publishConfiguration = {
+                          configs: configs.current,
+                          relativeTimescale: relativeTimescale.current,
+                          pulseRatio: pulseRatio.current,
+                        };
+                        createConfig(configName.current, publishConfiguration).then(() => {
+                          const newConfigurationList = [...configurationList];
+                          newConfigurationList.push(configName.current);
+                          setConfigurationList(newConfigurationList);
+                          setConfigName(configName.current);
+                        }).catch(displayError);
+                      }}
+                      >
+                      Create new config
                     </Button>
+                </div>
+              </div>
+              
             </div>
           }
           >
