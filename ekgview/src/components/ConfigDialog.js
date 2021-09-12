@@ -52,10 +52,10 @@ const ConfigDialog = ({ title, children, openDialog, setOpenDialog, showButton=t
         </Modal.Header>
         <Modal.Body style={{ maxHeight: "500px", overflow: "scroll" }}>{children}</Modal.Body>
         <Modal.Footer>
-          {additionalFooter}
           <Button variant="outline-success" onClick={handleClose}>
             {title.confirm}
           </Button>
+          {additionalFooter}
         </Modal.Footer>
       </Modal>
     </div>

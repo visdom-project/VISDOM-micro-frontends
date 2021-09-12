@@ -4,7 +4,8 @@ import { useReferredState } from "../helper/hooks";
 import {
   Form,
   Button,
-  Table
+  Table,
+  Alert
 } from "react-bootstrap";
 import { TwoThumbInputRange } from "react-two-thumb-input-range";
 import VisGraph from "./VisGraph";
@@ -124,70 +125,74 @@ const EKGTab = () => {
 
         <div className="config-board">
           <ConfigDialog
+          showButton={state.instance}
           title={{
             button: "Show view configuration",
             dialog: "Modify show configuration",
             confirm: "OK",
           }}
-          additionalFooter={
-            <div className="container" style={{width: "50%"}}>
-              <div className="row">
-                <div className="col">
-                  <Button
-                    size="md"
-                    onClick={() => {
-                      if (!currentConfiguration.length){
-                        return alert("Cant change configuration of unsaved configuration");
-                      }
-                      const publishConfiguration = {
-                        configs: configs.current,
-                        relativeTimescale: relativeTimescale.current,
-                        pulseRatio: pulseRatio.current,
-                      };
-                      modifyConfig(currentConfiguration, publishConfiguration).catch(displayError);
-                    }}
-                  >
-                    Modify this config
-                  </Button>
-                </div>
-                <div className="col">
-                  <Form.Control
-                      type="text"
-                      value={configName.current}
-                      onChange={(event) => setConfigName(event.target.value)}
-                      style={{ margin:  "10px", width: "80%", }}
-                    />
-                  <Button
-                      size="md"
-                      onClick={() => {
-                        if (! configName.current.length){
-                          return;
-                        }
-                        const publishConfiguration = {
-                          configs: configs.current,
-                          relativeTimescale: relativeTimescale.current,
-                          pulseRatio: pulseRatio.current,
-                        };
-                        createConfig(configName.current, publishConfiguration).then(() => {
-                          const newConfigurationList = [...configurationList];
-                          newConfigurationList.push(configName.current);
-                          setConfigurationList(newConfigurationList);
-                          setConfigName(configName.current);
-                        }).catch(displayError);
-                      }}
-                      >
-                      Create new config
-                    </Button>
-                </div>
-              </div>
+          // additionalFooter={
+          //   <div className="container" style={{width: "50%"}}>
+          //     <div className="row">
+          //       <div className="col">
+          //         <Button
+          //           size="md"
+          //           onClick={() => {
+          //             if (!currentConfiguration.length){
+          //               return alert("Cant change configuration of unsaved configuration");
+          //             }
+          //             const publishConfiguration = {
+          //               configs: configs.current,
+          //               relativeTimescale: relativeTimescale.current,
+          //               pulseRatio: pulseRatio.current,
+          //             };
+          //             modifyConfig(currentConfiguration, publishConfiguration).catch(displayError);
+          //           }}
+          //         >
+          //           Modify this config
+          //         </Button>
+          //       </div>
+          //       <div className="col">
+          //         <Form.Control
+          //             type="text"
+          //             value={configName.current}
+          //             onChange={(event) => setConfigName(event.target.value)}
+          //             style={{ margin:  "10px", width: "80%", }}
+          //           />
+          //         <Button
+          //             size="md"
+          //             onClick={() => {
+          //               if (! configName.current.length){
+          //                 return;
+          //               }
+          //               const publishConfiguration = {
+          //                 configs: configs.current,
+          //                 relativeTimescale: relativeTimescale.current,
+          //                 pulseRatio: pulseRatio.current,
+          //               };
+          //               createConfig(configName.current, publishConfiguration).then(() => {
+          //                 const newConfigurationList = [...configurationList];
+          //                 newConfigurationList.push(configName.current);
+          //                 setConfigurationList(newConfigurationList);
+          //                 setConfigName(configName.current);
+          //               }).catch(displayError);
+          //             }}
+          //             >
+          //             Create new config
+          //           </Button>
+          //       </div>
+          //     </div>
               
-            </div>
-          }
+          //   </div>
+          // }
           >
             <DropdownMenu
               options={configurationList}
               selectedOption={ currentConfiguration }
-              handleClick={ config => setCurrentConfiguration(config)}
+              handleClick={ config => {
+                setCurrentConfiguration(config)
+                setConfigName(config)
+              }}
               title="Config name:"
               selectAllOption={false}
             />
@@ -304,6 +309,73 @@ const EKGTab = () => {
             </Button>
           </ConfigDialog>
 
+        </div>
+        <div className="storing-cofig-diaglog" style={{ padding: "5px 0 5px 0", display: "flex", justifyContent: "flex-end" }}>
+          <ConfigDialog
+            showButton={state.instances}
+            title={{
+              button: "Save",
+              dialog: "Storing Configuration",
+              confirm: "Cancel"
+            }}
+            additionalFooter={
+              (currentConfiguration !== configName.current || currentConfiguration.length === 0) 
+                ? <Button
+                  size="md"
+                  onClick={() => {
+                    if (! configName.current.length){
+                      return;
+                    }
+                    const publishConfiguration = {
+                      configs: configs.current,
+                      relativeTimescale: relativeTimescale.current,
+                      pulseRatio: pulseRatio.current,
+                    };
+                    createConfig(configName.current, publishConfiguration).then(() => {
+                      const newConfigurationList = [...configurationList];
+                      newConfigurationList.push(configName.current);
+                      setConfigurationList(newConfigurationList);
+                      setConfigName(configName.current);
+                    }).catch(displayError);
+                  }}
+                  >
+                  Create new config
+                </Button>
+                : <Button
+                  size="md"
+                  onClick={() => {
+                    if (!currentConfiguration.length){
+                      return alert("Cant change configuration of unsaved configuration");
+                    }
+                    const publishConfiguration = {
+                      configs: configs.current,
+                      relativeTimescale: relativeTimescale.current,
+                      pulseRatio: pulseRatio.current,
+                    };
+                    modifyConfig(currentConfiguration, publishConfiguration).catch(displayError);
+                  }}
+                  >
+                  Modify this config
+                </Button>
+            }
+          >
+            {currentConfiguration.length > 0 &&
+              <Alert variant="light">
+                Current: {currentConfiguration}
+              </Alert>
+            }
+            {currentConfiguration === configName.current && currentConfiguration.length > 0 &&
+              <Alert variant="warning">
+                The configuration <strong>{currentConfiguration}</strong> will be overwritten with current configuration properties!
+              </Alert> 
+            }
+            <Form.Control
+              type="text"
+              value={configName.current}
+              onChange={(event) => setConfigName(event.target.value)}
+              style={{ margin:  "10px", width: "80%", }}
+            />
+          </ConfigDialog>
         </div>
         <div>
           <VisGraph data={displayData} configs={configs.current} displayedWeek={displayedWeek} compress={relativeTimescale.current} pulseRatio={pulseRatio.current} />
