@@ -31,4 +31,4 @@ export const modifyConfig = (configName, config) => {
         config: config,
     };
     return axios.put(baseUrl, data).then(response => response.data);
-}
+};
