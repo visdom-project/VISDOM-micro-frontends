@@ -1,13 +1,13 @@
 import React from "react";
 import "./App.css";
-import StatusTab from "./components/StatusTab";
+import MultiStatusChartContainer from "./components/MultiStatusChartContainer"
 import { MessageProvider } from "./contexts/MessageContext";
 
 function App() {
   return (
     <div className="App">
       <MessageProvider>
-        <StatusTab />
+        <MultiStatusChartContainer />
       </MessageProvider>
     </div>
   );

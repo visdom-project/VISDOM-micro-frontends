@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
+import "../stylesheets/dialog.css"
 
 const ConfigDialog = ({ title, children, openDialog, setOpenDialog }) => {
   const [open, setOpen] = useState(false);
@@ -23,9 +24,9 @@ const ConfigDialog = ({ title, children, openDialog, setOpenDialog }) => {
         {title.button}
       </Button>
       <Modal
+        dialogClassName="student-info-dialog"
         show={open}
         onHide={handleClose}
-        size="lg"
         centered
       >
         <Modal.Header>
@@ -36,7 +37,7 @@ const ConfigDialog = ({ title, children, openDialog, setOpenDialog }) => {
 
         <Modal.Body>{children}</Modal.Body>
         <Modal.Footer>
-          <Button variant="outline-success" onClick={handleClose}>
+          <Button variant="outline-primary" onClick={handleClose}>
             {title.confirm}
           </Button>
         </Modal.Footer>

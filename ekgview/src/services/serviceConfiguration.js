@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 //TODO: change this
-const elasticsearchHost = __ELASTICSEARCH_HOST__;
+const elasticsearchHost = __ADAPTER_HOST__;
 const mqttHost = __MQTT_HOST__;
 const configurationHost = __CONFIGURATION_HOST__;
 

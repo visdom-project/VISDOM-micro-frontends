@@ -10,6 +10,7 @@ import {
   Cell,
   ReferenceLine,
   ResponsiveContainer,
+  Tooltip
 } from "recharts";
 import "../stylesheets/studentbar.css";
 import TresholdSelector from "./TresholdSelector";
@@ -29,6 +30,33 @@ const CustomLabel = (props) => {
     </text>
   );
 };
+
+const StudentTooltip = ({ active, payload, label, mode }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div style={{ backgroundColor: "#FFF", padding: "3px", border: "1px solid rgba(0, 0, 0, .5)" }}>
+        {label} <br/>
+        {
+          (mode === "submissions" || mode === "commit_counts") &&
+            <ul style={{ listStyle: "none" }}>
+              {
+                payload.reverse().map(data => {
+                  const index = parseInt(data.dataKey.split("-")[1]) - 1;
+                  return (
+                    <li key={`${mode}-${data.payload.username}-${data.dataKey}`}>
+                      {data.dataKey}: {mode === "submissions" ? data.payload.submissions[index] : data.payload.commit_counts[index]}
+                    </li>
+                  )
+                })
+              }
+            </ul>
+        }
+      </div>
+    );
+  }
+
+  return null;
+}
 
 /** Chooses a fitting color code for given exercise and student.
  *
@@ -170,6 +198,7 @@ const MultiChart = (props) => {
           >
             <XAxis
               dataKey="id"
+              tick={false}
               padding={{ left: 0, right: 0 }}
               label={{ value: axisNames[0], position: "bottom" }}
             />
@@ -185,14 +214,17 @@ const MultiChart = (props) => {
               ticks={submissionTicks}
             />
 
-            {submissionMapping.reverse().map((bar) => (
+            <Tooltip content={<StudentTooltip mode={key} />}/>
+
+            {submissionMapping.map((bar) => (
               <Bar
                 className={"hoverable-bar"}
                 key={bar.key}
                 dataKey={bar.key}
-                stackId={bar.stackId}
+                stackId="a"
                 fill="#c1ff9e69"
                 stroke="#00000045"
+                barSize={barWidth*2}
               >
                 {countData !== undefined
                   ? countData.map((entry, index) => {
@@ -206,7 +238,7 @@ const MultiChart = (props) => {
                             alphabets.indexOf(bar.stackId),
                             key
                           )}
-                        ></Cell>
+                        />
                       );
                     })
                   : ""}
@@ -322,7 +354,7 @@ const MultiChart = (props) => {
 
   return (
     <div className="intendedChart">
-      <ResponsiveContainer minWidth="300px" minHeight="500px">
+      <ResponsiveContainer minWidth="800px" minHeight="500px">
         <ComposedChart
           width={chartWidth}
           height={chartHeight}
@@ -331,6 +363,7 @@ const MultiChart = (props) => {
           barGap={-barWidth}
         >
           <XAxis
+            dataKey="username"
             dataKey="id"
             padding={{ left: 0, right: 0 }}
             label={{ value: axisNames[0], position: "bottom" }}
@@ -346,6 +379,8 @@ const MultiChart = (props) => {
             domain={["dataMin", "dataMax"]}
             ticks={ticks}
           />
+
+          <Tooltip content={<StudentTooltip />} />
 
           <Area
             type="monotone"

@@ -4,85 +4,132 @@ import React, { useState, useEffect } from "react";
 import dataService from "../services/statusData";
 import MultiChart from "./StatusChart";
 import DropdownMenu from "./DropdownMenu";
-import CheckBoxMenu from "./CheckBoxMenu";
+// import CheckBoxMenu from "./CheckBoxMenu";
 import StudentDetailView from "./StudentDetailView";
+import ControlAccordion from "./ControlAccordion";
+import ConfigDialog from "./ConfigDialog";
+// import { TwoThumbInputRange } from "react-two-thumb-input-range";
+
 import {
   useMessageState,
   useMessageDispatch,
 } from "../contexts/MessageContext";
 import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
-import ConfigDialog from "./ConfigDialog";
-const Controls = (props) => {
-  const {
-    handleModeClick,
-    modes,
-    selectedMode,
-    showableLines,
-    handleToggleRefLineVisibilityClick,
-    showAvg,
-    showExpected,
-    handleWeekClick,
-    weeks,
-    selectedWeek,
-  } = props;
+import helpers from "../services/helpers";
 
-  if (selectedMode === "submissions" || selectedMode === "commits") {
-    return (
-      <div className="fit-row">
-        <DropdownMenu
-          handleClick={handleModeClick}
-          options={modes}
-          selectedOption={selectedMode}
-          title={"Mode:"}
-        />
-        <DropdownMenu
-          handleClick={handleWeekClick}
-          options={weeks}
-          selectedOption={selectedWeek}
-          title={"Week:"}
-        />
-        <button
-          id={"showGradesButton"}
-          onClick={() => console.log("TODO: Show grades")}
-        >
-          Show grades
-        </button>
-      </div>
-    );
-  }
+// const Controls = (props) => {
+//   const {
+//     handleModeClick,
+//     modes,
+//     selectedMode,
+//     showableLines,
+//     handleToggleRefLineVisibilityClick,
+//     showAvg,
+//     showExpected,
+//     handleWeekClick,
+//     weeks,
+//     selectedWeek,
+//   } = props;
+
+//   if (selectedMode === "submissions" || selectedMode === "commits") {
+//     return (
+//       <div className="fit-row">
+//         <DropdownMenu
+//           handleClick={handleModeClick}
+//           options={modes}
+//           selectedOption={selectedMode}
+//           title={"Mode:"}
+//         />
+//         <DropdownMenu
+//           handleClick={handleWeekClick}
+//           options={weeks}
+//           selectedOption={selectedWeek}
+//           title={"Week:"}
+//         />
+//         <button
+//           id={"showGradesButton"}
+//           onClick={() => console.log("TODO: Show grades")}
+//         >
+//           Show grades
+//         </button>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="fit-row">
+//       <CheckBoxMenu
+//         options={showableLines}
+//         handleClick={handleToggleRefLineVisibilityClick}
+//         showAvg={showAvg}
+//         showExpected={showExpected}
+//       />
+//       <DropdownMenu
+//         handleClick={handleModeClick}
+//         options={modes}
+//         selectedOption={selectedMode}
+//         title={"Mode:"}
+//       />
+//       <DropdownMenu
+//         handleClick={handleWeekClick}
+//         options={weeks}
+//         selectedOption={selectedWeek}
+//         title={"Week:"}
+//       />
+//       <button
+//         id={"showGradesButton"}
+//         onClick={() => console.log("TODO: Show grades")}
+//       >
+//         Show grades
+//       </button>
+//     </div>
+//   );
+// };
+
+const InputRange = ({ values, maxlength, setStudentRange }) => {
+  if (maxlength === 0) return null;
 
   return (
-    <div className="fit-row">
-      <CheckBoxMenu
-        options={showableLines}
-        handleClick={handleToggleRefLineVisibilityClick}
-        showAvg={showAvg}
-        showExpected={showExpected}
-      />
-      <DropdownMenu
-        handleClick={handleModeClick}
-        options={modes}
-        selectedOption={selectedMode}
-        title={"Mode:"}
-      />
-      <DropdownMenu
-        handleClick={handleWeekClick}
-        options={weeks}
-        selectedOption={selectedWeek}
-        title={"Week:"}
-      />
-      <button
-        id={"showGradesButton"}
-        onClick={() => console.log("TODO: Show grades")}
+    <>
+      {/* <div className="student-range-slider">
+        <p>Student range:</p>
+        <TwoThumbInputRange
+          values={values}
+          min={1}
+          trackColor="#caf0f8"
+          max={maxlength}
+          onChange={newValue => setStudentRange(newValue.sort((a, b) => a-b))}
+          style={{ marginBottom: "20px" }}
+        />
+      </div> */}
+      <div 
+        className="student-range-selector"
+        style={{ paddingLeft: "43%" }}
       >
-        Show grades
-      </button>
-    </div>
-  );
-};
+        <input 
+          type="number" 
+          min="1"
+          max={values[1]}
+          value={values[0]}
+          onChange={e => setStudentRange(values.map((v, i) => i === 0 ? e.target.value : v))}
+          required
+        />
+        <span> - </span>
+        <input
+          type="number"
+          min={values[0]}
+          max={maxlength}
+          value={values[1]}
+          onChange={e => setStudentRange(values.map((v, i) => i === 1 ? e.target.value : v))}
+          required
+        />
+      </div>
+    </>
+  )
+}
 
 // eslint-disable-next-line max-lines-per-function
-const StatusTab = () => {
+const StatusTab = ({ graphIndex, sortProps, setSortProps, sameSortProps }) => {
   const state = useMessageState();
   const dispatch = useMessageDispatch();
   const [client, setClient] = useState(null);
@@ -107,6 +154,11 @@ const StatusTab = () => {
   const [openStatusDialog, setOpenStatusDialog] = useState(false);
   const [treshold, setTreshold] = useState(0.4);
   const [studentsBelowTreshold, setStudentsBelowTreshold] = useState(-99);
+
+  const [sortConfig, setSortConfig] = useState(sortProps);
+  const [studentRange, setStudentRange] = useState([1,0]);
+  const [maxlength, setMaxlength] = useState(0);
+  const [courseID, setCourseID] = useState(parseInt(DEFAULT_COURSE_ID) || 90)
 
   const allKeys = {
     points: {
@@ -178,7 +230,6 @@ const StatusTab = () => {
 
   const handleModeSwitchClick = (newMode) => {
     setSelectedMode(newMode);
-    setdisplayedModes(modes.filter((name) => name !== newMode));
 
     const newKeys = allKeys[newMode];
     setDataKeys(newKeys);
@@ -239,9 +290,9 @@ const StatusTab = () => {
 
     let newCountData = undefined;
 
-    if (mode === "submissions") {
-      if (submissions !== undefined) {
-        newCountData = submissions[newWeek - 1]["data"];
+    if (mode === "submissions" ) {
+      if (submissions !== undefined && submissions[newWeek - 1] !== undefined) {
+        newCountData = submissions[newWeek - 1].data;
         setSelectedCountData(newCountData);
       }
     } else {
@@ -253,16 +304,15 @@ const StatusTab = () => {
             : weekStr !== "14"
             ? weekStr
             : "01-14";
-        newCountData =
-          commitData[commitData.findIndex((module) => module.week === key)][
-            "data"
-          ];
+        newCountData = commitData.find(module => module.week === key) !== undefined
+          ? commitData.find(module => module.week === key).data
+          : []
         setSelectedCountData(newCountData);
       }
     }
 
-    if (newCountData !== undefined) {
-      updateTreshold(treshold, data[newWeek - 1]["data"], newCountData);
+    if (newCountData !== undefined && data[newWeek - 1] !== undefined) {
+      updateTreshold(treshold, data[newWeek - 1].data, newCountData);
     }
   };
 
@@ -308,7 +358,7 @@ const StatusTab = () => {
   };
 
   useEffect(() => {
-    dataService.getData().then((response) => {
+    dataService.getData(courseID).then((response) => {
       const [pData, commons, submissions] = response;
 
       // Fetch needed data:
@@ -321,7 +371,7 @@ const StatusTab = () => {
       handleWeekSwitch(1, pData, commons, undefined, submissions);
     });
 
-    dataService.getCommitData().then((response) => {
+    dataService.getCommitData(courseID).then((response) => {
       const commits = response;
 
       setCommitData(commits);
@@ -329,15 +379,18 @@ const StatusTab = () => {
       // Select count data from correct week:
       const selected =
         commits !== undefined && commits.length > 0
-          ? commits[
-              commits.findIndex(
-                (module) => parseInt(module.week) === parseInt(selectedWeek)
-              )
-            ]["data"]
+          ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)) !== undefined
+            ? commits.find(module => parseInt(module.week) === parseInt(selectedWeek)).data
+            : []
           : [];
       setSelectedCountData(selected);
 
       updateTreshold(treshold, undefined, commits);
+
+      if (commits !== undefined && commits.length > 0 && commits[0].data) {
+        setStudentRange([1, commits[0].data.length]);
+        setMaxlength(commits[0].data.length);
+      }
     });
   }, []);
 
@@ -347,38 +400,92 @@ const StatusTab = () => {
   }, []);
 
   useEffect(() => {
-    let _mode = determineMode(state);
-    if (selectedMode !== _mode) {
-      handleModeSwitchClick(_mode);
+    if (graphIndex === 0) {
+      const _mode = determineMode(state);
+      if (selectedMode !== _mode) {
+        handleModeSwitchClick(_mode);
+      }
     }
   }, [state.mode]);
 
   useEffect(() => {
     // if empty array then render nothing, if more than one intance(s), render first one;
-    const currentIntance = state.instances[0] || "";
-    setSelectedStudent(currentIntance);
-    console.log(currentIntance);
+    if (graphIndex === 0) {
+      const currentIntance = state.instances[0] || "";
+      setSelectedStudent(currentIntance);
+    }
   }, [state.instances]);
+
+  useEffect(() => {
+    if (sameSortProps) {
+      setSortProps(sortConfig)
+    }
+    if (progressData && submissionData && commitData){
+      if (progressData.length && submissionData.length && commitData.length) {
+        const result = helpers.dataSorting(progressData, commitData, submissionData, sortConfig)
+        setProgressData(result.sortedProgress);
+        setCommitData(result.sortedCommit);
+        setSubmissionData(result.sortedSubmission);
+
+        const key = selectedMode === "commits"
+          ? selectedWeek.toString().length < 2
+            ? `0${selectedWeek}`
+            : selectedWeek.toString()
+          : selectedWeek.toString();
+
+        if (selectedMode === "commits") {
+          const selected = result.sortedCommit !== undefined && result.sortedCommit.length > 0
+              ? result.sortedCommit.find(module => module.week === key).data
+              : [];
+          setSelectedCountData(selected);
+        } else if (selectedMode === "submissions") {
+          const selected = result.sortedSubmission !== undefined && result.sortedSubmission.length > 0
+            ? result.sortedSubmission.find(module => module.week === key).data
+            : [];
+          setSelectedCountData(selected);
+        } else {
+          const selected = result.sortedProgress !== undefined && result.sortedProgress.length > 0
+            ? result.sortedProgress.find(module => module.week === key).data
+            : [];
+          setSelectedWeekData(selected)
+        }
+      }
+    }
+  }, [sortConfig, courseID]) //eslint-disable-line
+
+  useEffect(() => {
+    if (JSON.stringify(sortConfig) !== JSON.stringify(sortProps)) {
+      setSortConfig(sortProps);
+    }
+  }, [sortProps, sameSortProps])
 
   return (
     <>
-      <div className="fit-row">
-        <h2>{"Current Student Statuses"}</h2>
-        <Controls
-          handleModeClick={handleModeSwitchClick}
-          modes={displayedModes}
-          selectedMode={selectedMode}
-          showableLines={showableLines}
-          handleToggleRefLineVisibilityClick={
-            handleToggleRefLineVisibilityClick
-          }
-          showAvg={showAvg}
-          showExpected={showExpected}
-          handleWeekClick={handleWeekSwitch}
-          weeks={weeks}
-          selectedWeek={selectedWeek}
-        ></Controls>
-      </div>
+      <DropdownMenu
+        handleClick={option => setCourseID(option)}
+        options={[40, 90, 117]}
+        selectedOption={courseID}
+        title="Course ID: "
+      />
+      <ControlAccordion
+        handleModeClick={handleModeSwitchClick}
+        selectedMode={selectedMode}
+        showableLines={showableLines}
+        handleToggleRefLineVisibilityClick={
+          handleToggleRefLineVisibilityClick
+        }
+        showAvg={showAvg}
+        showExpected={showExpected}
+        handleWeekClick={handleWeekSwitch}
+        weeks={weeks}
+        selectedWeek={selectedWeek}
+        sortConfig={sortConfig}
+        setSortConfig={setSortConfig}
+        modes={modes}
+        sortProps={sortProps}
+        setSortProps={setSortProps}
+        sameSortProps={sameSortProps}
+      />
 
       <MultiChart
         chartWidth={chartWidth}
@@ -395,7 +502,8 @@ const StatusTab = () => {
         studentsBelowTreshold={studentsBelowTreshold}
         updateTreshold={updateTreshold}
         treshold={treshold}
-      ></MultiChart>
+      />
+      <InputRange values={studentRange} maxlength={maxlength} setStudentRange={setStudentRange} />
       <button
         onClick={() => {
           if (client) {
@@ -414,14 +522,16 @@ const StatusTab = () => {
         title={{
           button: "Show student detail",
           dialog: "Commit details",
-          confirm: null,
+          confirm: "Close",
         }}
         openDialog={openStatusDialog}
         setOpenDialog={ openState => setOpenStatusDialog(openState) }
       >
         <StudentDetailView
           selectedStudentID={selectedStudent}
-        ></StudentDetailView>
+          selectedWeek={selectedWeek}
+          courseID={courseID}
+        />
       </ConfigDialog>
     </>
   );
