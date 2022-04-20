@@ -25,6 +25,9 @@ module.exports = (webpackConfigEnv, argv) => {
         __CONFIGURATION_HOST__: !process.env.CONFIGURATION_HOST ? "" : JSON.stringify(process.env.CONFIGURATION_HOST),
       }),
       new webpack.DefinePlugin({
+        __ELASTICSEARCH_HOST__: JSON.stringify(process.env.ELASTICSEARCH_HOST),
+      }),
+      new webpack.DefinePlugin({
         MICROFRONTEND_KEY: JSON.stringify(process.env.MICROFRONTEND_KEY) || "ekgview",
       }),
       new webpack.DefinePlugin({

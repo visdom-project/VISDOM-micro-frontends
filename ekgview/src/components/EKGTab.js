@@ -10,7 +10,8 @@ import {
 import { TwoThumbInputRange } from "react-two-thumb-input-range";
 import VisGraph from "./VisGraph";
 
-import { getAllStudentsData, fetchStudentData } from "../services/studentData";
+import { getCourseIDs } from "../services/courseData";
+import { getAllStudentsIDs, getStudentData } from "../services/studentData";
 import { getConfigurationsList, getConfiguration, createConfig, modifyConfig } from "../services/configurationStoring";
 import { updateLocalState, useMessageDispatch, useMessageState } from "../contexts/MessageContext";
 import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
@@ -71,7 +72,8 @@ const EKGTab = () => {
   // little hard code
   const maxlength = 98;
 
-  const [courseID, setCourseID] = useState(parseInt(DEFAULT_COURSE_ID) || 90)
+  const [courseIDs, setCourseIDs] = useState([]);
+  const [courseID, setCourseID] = useState(null);
 
   useEffect(() => {
     // eslint-disable-next-line no-shadow
@@ -97,10 +99,19 @@ const EKGTab = () => {
       }
     }).catch(displayError);
   }, [currentConfiguration]);
+
   useEffect(() => {
-    getAllStudentsData(courseID).then(list => setStudentList(list));
-    getConfigurationsList().then(list => setConfigurationList(list)).catch(displayError);
-  }, []);
+    getCourseIDs().then(data => setCourseIDs(data));
+  }, [])
+
+  useEffect(() => {
+    if (courseIDs.length > 0 && courseID !== null) {
+      getAllStudentsIDs(courseID).then(data => setStudentList(data));
+      // getAllStudentsData(courseID).then(list => setStudentList(list));
+      getConfigurationsList().then(list => setConfigurationList(list)).catch(displayError);
+    }
+  }, [courseIDs, courseID]);
+
   useEffect(() => {
     updateLocalState(dispatch, {
       timescale: {
@@ -110,22 +121,33 @@ const EKGTab = () => {
       instances: [],
     });
   }, []);
+
   useEffect(() => {
     if (!state.instances.length) {
       return;
     }
-    fetchStudentData(state.instances[0], courseID, expectedGrade)
+    getStudentData(state.instances[0], courseID, expectedGrade)
     .then(data => {
       setDisplayData(data);
       setNumberOfweeks(data.length);
       setDisplayedWeek([Math.floor(state.timescale.start / 7) + 1, Math.ceil(state.timescale.end / 7) + 1]);
     });
+
+    // fetchStudentData(state.instances[0], courseID, expectedGrade)
+    // .then(data => {
+    //   setDisplayData(data);
+    //   setNumberOfweeks(data.length);
+    //   setDisplayedWeek([Math.floor(state.timescale.start / 7) + 1, Math.ceil(state.timescale.end / 7) + 1]);
+    // });
   }, [state.instances, expectedGrade]);
+
+  console.log(configurationList)
   return (
     <div className="container-body">
+      {<>
         <DropdownMenu
           handleClick={setCourseID}
-          options={[40, 90, 117]}
+          options={courseIDs}
           selectedOption={courseID}
           title="Course ID: "
         />
@@ -138,7 +160,7 @@ const EKGTab = () => {
           title="Student ID:"
           selectAllOption={false}
         />
-
+      </>}
         <div className="config-board">
           <DropdownMenu
             options={configurationList}
