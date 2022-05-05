@@ -1,9 +1,9 @@
 # Build the application
-FROM node as build-stage
+FROM node:14 as build-stage
 ENV PATH /app/node_modules/.bin:$PATH
 WORKDIR /app
 COPY package*.json /app/
-RUN npm install
+RUN npm clean-install
 COPY ./ /app/
 RUN npm run build
 
