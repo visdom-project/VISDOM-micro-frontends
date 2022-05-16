@@ -1,2 +1,5 @@
 .DS_STORE
 dataservice/backup/
+
+# VS Code settings
+.vscode
