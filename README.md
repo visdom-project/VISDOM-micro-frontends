@@ -50,10 +50,8 @@ For visualizing [VISDOM Roadmapper](https://github.com/Vincit/VISDOM-Roadmapper)
 
 ### Available visualizations for Roadmapper data
 
-TODO: add descriptions for the visualizations
-
-- [roadmapper-heatmap](./roadmapper-heatmap/)
-- [roadmapper-planner](./roadmapper-planner/)
+- [roadmapper-heatmap](./roadmapper-heatmap/): The Roadmapper tool's heatmap visualization.
+- [roadmapper-planner](./roadmapper-planner/): The Roadmapper tool's planner visualization.
 
 ### Deployment instructions
 
