@@ -1,11 +1,14 @@
-import React from 'react';
-import './App.css';
-import ProgressTab from './components/ProgressTab'
+import React from "react";
+import "./App.css";
+import ProgressTab from "./components/ProgressTab";
+import { MessageProvider } from "./contexts/MessageContext";
 
 function App() {
   return (
     <div className="App">
-      <ProgressTab />
+      <MessageProvider>
+        <ProgressTab />
+      </MessageProvider>
     </div>
   );
 }

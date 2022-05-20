@@ -1,6 +1,8 @@
-const { merge } = require("webpack-merge");
+const webpackMerge = require("webpack-merge");
+const singleSpaDefaults = require("webpack-config-single-spa");
 const webpack = require("webpack");
-const singleSpaDefaults = require("webpack-config-single-spa-react");
+
+require("dotenv").config();
 
 module.exports = (webpackConfigEnv, argv) => {
   const defaultConfig = singleSpaDefaults({
@@ -10,11 +12,14 @@ module.exports = (webpackConfigEnv, argv) => {
     argv,
   });
 
-  return merge(defaultConfig, {
+  return webpackMerge.smart(defaultConfig, {
     // modify the webpack config however you'd like to by adding to this object
     plugins: [
       new webpack.DefinePlugin({
         __ELASTICSEARCH_HOST__: JSON.stringify(process.env.ELASTICSEARCH_HOST),
+      }),
+      new webpack.DefinePlugin({
+        __MQTT_HOST__: JSON.stringify(process.env.MQTT_HOST),
       }),
     ],
     module: {
@@ -26,9 +31,6 @@ module.exports = (webpackConfigEnv, argv) => {
           use: "url-loader?name=[name].[ext]",
         },
       ],
-    },
-    devServer: {
-      https: true,
     },
   });
 };

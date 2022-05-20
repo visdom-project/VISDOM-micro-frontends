@@ -1,342 +1,535 @@
-import React, { useState, useEffect } from 'react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Brush } from 'recharts';
-import DropdownMenu from './DropdownMenu'
-import CheckBoxMenu from './CheckBoxMenu'
-import StudentSelector from './StudentSelector'
-import dataService from '../services/progressData'
-import GroupDisplay from './GroupDisplay.js';
+/* eslint-disable no-console */
+/* eslint-disable react/prop-types */
+import React, { useState, useEffect } from "react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Brush,
+  ResponsiveContainer,
+} from "recharts";
+import DropdownMenu from "./DropdownMenu";
+import CheckBoxMenu from "./CheckBoxMenu";
+import ConfigDialog from "./ConfigDialog";
+import dataService from "../services/progressData";
+import GroupDisplay from "./GroupDisplay.js";
+import { MQTTConnect, publishMessage } from "../services/MQTTAdapter";
+import {
+  useMessageState,
+  useMessageDispatch,
+} from "../contexts/MessageContext";
 
 const Controls = (props) => {
-  const {handleClick, modes, selectedMode, showableLines,
-         handleToggleRefLineVisibilityClick, showAvg, showExpected} = props
+  const {
+    handleClick,
+    modes,
+    selectedMode,
+    showableLines,
+    handleToggleRefLineVisibilityClick,
+    showAvg,
+    showExpected,
+  } = props;
 
   return (
-    <div className="fit-row">
-      <CheckBoxMenu options={showableLines}
-                    handleClick={handleToggleRefLineVisibilityClick}
-                    showAvg={showAvg}
-                    showExpected={showExpected}/>
-      <DropdownMenu handleClick={handleClick}
-                    options={modes}
-                    selectedOption={selectedMode}
-                    title={'Visualization mode:'}/>
-      <button id={"showGradesButton"} onClick={() => console.log("TODO: Show grades")}>Show grades</button>
+    <div className="fit-row" style={{ display: "flex" }}>
+      <CheckBoxMenu
+        options={showableLines}
+        handleClick={handleToggleRefLineVisibilityClick}
+        showAvg={showAvg}
+        showExpected={showExpected}
+      />
+      <DropdownMenu
+        handleClick={handleClick}
+        options={modes}
+        selectedOption={selectedMode}
+        title={"Visualization mode:"}
+      />
+      <button
+        id={"showGradesButton"}
+        onClick={() => console.log("TODO: Show grades")}
+      >
+        Show grades
+      </button>
     </div>
   );
-}
+};
 
-const ExpectedLabel = ({index, x, y, strokeColor, grade, display}) => {
+const ExpectedLabel = ({ index, x, y, strokeColor, grade, display }) => {
   if (display && index % 2 === 1) {
     return (
-      <text x={x+4} y={y} dy={4} fill={strokeColor} fontSize={12} textAnchor="start">{grade}</text>
+      <text
+        x={x + 4}
+        y={y}
+        dy={4}
+        fill={strokeColor}
+        fontSize={12}
+        textAnchor="start"
+      >
+        {grade}
+      </text>
     );
   }
-  return (<></>);
-}
+  return <></>;
+};
 
+// eslint-disable-next-line max-lines-per-function
 const ProgressTab = () => {
+  const state = useMessageState();
+  const dispatch = useMessageDispatch();
 
-  const [ studentIds, setStudentIds ] = useState([]);
-  const [ weeklyPoints, setWeeklyPoints ] = useState([]);
-  const [ cumulativePoints, setCumulativePoints ] = useState([{name: "init"}]);
-  const [ weeklyExercises, setWeeklyExercises ] = useState([]);
-  const [ cumulativeExercises, setCumulativeExercises ] = useState([{name: "init"}]);
-  const [ weeklyCommits, setWeeklyCommits ] = useState([]);
-  const [ cumulativeCommits, setCumulativeCommits ] = useState([{name: "init"}]);
-  const [ weeklySubmissions, setWeeklySubmissions ] = useState([]);
-  const [ cumulativeSubmissions, setCumulativeSubmissions ] = useState([{name: "init"}]);
+  const [client, setClient] = useState(null);
+  const [lineChartShouldUpdate, setLineChartShouldUpdate] = useState(0);
+
+  const [studentIds, setStudentIds] = useState([]);
+  const [weeklyPoints, setWeeklyPoints] = useState([]);
+  const [cumulativePoints, setCumulativePoints] = useState([{ name: "init" }]);
+  const [weeklyExercises, setWeeklyExercises] = useState([]);
+  const [cumulativeExercises, setCumulativeExercises] = useState([
+    { name: "init" },
+  ]);
+  const [weeklyCommits, setWeeklyCommits] = useState([]);
+  const [cumulativeCommits, setCumulativeCommits] = useState([
+    { name: "init" },
+  ]);
+  const [weeklySubmissions, setWeeklySubmissions] = useState([]);
+  const [cumulativeSubmissions, setCumulativeSubmissions] = useState([
+    { name: "init" },
+  ]);
 
   const modes = ["points", "exercises", "commits", "submissions"];
-  const [ selectedMode, setSelectedMode ] = useState(modes[0]);
-  const [ displayedModes, setdisplayedModes ] = useState(modes.filter(mode => mode !== selectedMode));
+
+  const initialSelectedGroup = Array(8).fill(true);
+  const [group, setGroup] = useState(initialSelectedGroup);
+
+  const [selectedMode, setSelectedMode] = useState(modes[0]);
+  const [displayedModes, setdisplayedModes] = useState(
+    modes.filter((mode) => mode !== selectedMode)
+  );
 
   const showableLines = ["Average", "Expected"];
-  const [ showAvg, setShowAvg ] = useState(true);
-  const [ showExpected, setShowExpected ] = useState(true);
+  const [showAvg, setShowAvg] = useState(true);
+  const [showExpected, setShowExpected] = useState(true);
 
-  const [ displayedStudents, setDisplayedStudents ] = useState([]);
-  const [ displayedData, setDisplayedData ] = useState([]);
-  const [ displayedCumulativeData, setDisplayedCumulativeData ] = useState([{name: "init"}]);
+  const [displayedStudents, setDisplayedStudents] = useState([]);
+  const [displayedData, setDisplayedData] = useState([]);
+  const [displayedCumulativeData, setDisplayedCumulativeData] = useState([
+    { name: "init" },
+  ]);
 
-  const axisNames = ['Week', 'Points'];
-  const syncKey = 'syncKey';
-  const avgDataKey = 'weeklyAvgs';
-  const dataKey = 'name';
+  // hard coding const without metadata
+  const maxlength = 98;
+  const [timescale, setTimescale] = useState({
+    start: 0,
+    end: maxlength,
+  });
 
-  const boundingDiv = document.getElementsByClassName('card')[0];
-  const chartWidth = boundingDiv === undefined ? 1000 : boundingDiv.getBoundingClientRect().width * 0.955;
-  const chartHeight = document.documentElement.clientHeight * 0.4;
-  
-  const selectorHeight = 40;
+  const axisNames = ["Week", "Points"];
+  const syncKey = "syncKey";
+  const avgDataKey = "weeklyAvgs";
+  const dataKey = "name";
+
   const avgStrokeWidth = 3;
   const studentStrokeWidth = 2;
-  const studentStrokeColor = '#8884d861';
-  const expectedStrokeColor = '#46ddae82';
-  const avgStrokeColor = '#b1b1b1';
+  const studentStrokeColor = "#8884d861";
+  const expectedStrokeColor = "#46ddae82";
+  const avgStrokeColor = "#b1b1b1";
 
   const grades = ["0", "1", "2", "3", "4", "5"];
   const margins = { top: 10, right: 10, left: 20, bottom: 25 };
 
-  useEffect(
-    () => {
-      dataService
-      .getData()
-      .then(response => {
-        const [ weeklyPts, cumulativePts, weeklyExers, cumulativeExers,
-                weeklyComms, cumulativeComms, weeklySubs, cumulativeSubs ]
-          = response;
+  const determineMode = (s) => {
+    if (s && s.mode) {
+      return s.mode;
+    }
+    return modes[0];
+  };
 
-        setWeeklyPoints(weeklyPts);
-        setCumulativePoints(cumulativePts);
-        setWeeklyExercises(weeklyExers);
-        setCumulativeExercises(cumulativeExers);
+  useEffect(() => {
+    dataService.getData().then((response) => {
+      const [
+        weeklyPts,
+        cumulativePts,
+        weeklyExers,
+        cumulativeExers,
+        weeklyComms,
+        cumulativeComms,
+        weeklySubs,
+        cumulativeSubs,
+      ] = response;
 
-        const ids = dataService.getStudentIds(weeklyPts);
-        setStudentIds(ids);
-        setDisplayedStudents(ids);
+      setWeeklyPoints(weeklyPts);
+      setCumulativePoints(cumulativePts);
+      setWeeklyExercises(weeklyExers);
+      setCumulativeExercises(cumulativeExers);
 
-        setDisplayedData(weeklyPts);
-        setDisplayedCumulativeData(cumulativePts);
+      const ids = dataService.getStudentIds(weeklyPts);
+      setStudentIds(ids);
+      setDisplayedStudents(ids);
 
-        setWeeklyCommits(weeklyComms);
-        setCumulativeCommits(cumulativeComms);
-        setWeeklySubmissions(weeklySubs);
-        setCumulativeSubmissions(cumulativeSubs);
-      });
-    }, []
-  );
+      setDisplayedData(weeklyPts);
+      setDisplayedCumulativeData(cumulativePts);
+      setWeeklyCommits(weeklyComms);
+      setCumulativeCommits(cumulativeComms);
+      setWeeklySubmissions(weeklySubs);
+      setCumulativeSubmissions(cumulativeSubs);
+    });
+  }, []);
 
-  // Toggle selection of a student that is clicked in the student list:
-  const handleListClick = (id) => {
-    const targetNode = document.querySelector(`#li-${id}`);
+  useEffect(() => {
+    const newClient = MQTTConnect(dispatch).then((newClient) => {
+      setClient(newClient);
+      return newClient;
+    });
+    return () => newClient.end();
+  }, []);
 
-    if (targetNode === null) {
-      console.log(`Node with id: ${id} was null!`);
+  useEffect(() => {
+    let _mode = determineMode(state);
+    if (selectedMode !== _mode) {
+      setSelectedMode(_mode);
+      setdisplayedModes(modes.filter((name) => name !== _mode));
+      if (_mode === "points") {
+        setDisplayedData(weeklyPoints);
+        setDisplayedCumulativeData(cumulativePoints);
+      } else if (_mode === "exercises") {
+        setDisplayedData(weeklyExercises);
+        setDisplayedCumulativeData(cumulativeExercises);
+      } else if (_mode === "commits") {
+        setDisplayedData(weeklyCommits);
+        setDisplayedCumulativeData(cumulativeCommits);
+      } else if (_mode === "submissions") {
+        setDisplayedData(weeklySubmissions);
+        setDisplayedCumulativeData(cumulativeSubmissions);
+      } else {
+        console.log("Selected unimplemented mode:", _mode);
+      }
+    }
+  }, [state.mode]);
+
+  useEffect(() => {
+    if (!state.instances || !state.instances[0]) {
+      setDisplayedStudents(studentIds);
       return;
     }
+    setDisplayedStudents(state.instances);
+  }, [state.instances]);
 
-    if (targetNode.style.color === "grey") {
-      setDisplayedStudents(displayedStudents.concat(targetNode.textContent));
-      targetNode.style.color = "black";
+  useEffect(() => {
+    if (!state.timescale) {
+      return;
     }
-    else {
-      handleStudentLineClick(id);
+    if (
+      state.timescale.start !== timescale.start ||
+      state.timescale.end !== timescale.end
+    ) {
+      setTimescale(state.timescale);
+      setLineChartShouldUpdate(lineChartShouldUpdate + 1);
     }
-  };
+  }, [state.timescale]);
+
+  // Toggle selection of a student that is clicked in the student list:
+  // const handleListClick = (id) => {
+  //   const targetNode = document.querySelector(`#li-${id}`);
+
+  //   if (targetNode === null) {
+  //     console.log(`Node with id: ${id} was null!`);
+  //     return;
+  //   }
+
+  //   if (targetNode.style.color === "grey") {
+  //     setDisplayedStudents(displayedStudents.concat(targetNode.textContent));
+  //     targetNode.style.color = "black";
+  //   } else {
+  //     handleStudentLineClick(id);
+  //   }
+  // };
 
   // Hide student that was clicked from the chart:
   const handleStudentLineClick = (id) => {
-    setDisplayedStudents(displayedStudents.filter(student => !student.includes(id)));
+    setDisplayedStudents(
+      displayedStudents.filter((student) => !student.includes(id))
+    );
     document.querySelector(`#li-${id}`).style.color = "grey";
   };
 
   const handleModeClick = (newMode) => {
-    if (selectedMode === newMode) { return; }
-    
+    if (selectedMode === newMode) {
+      return;
+    }
+
     setSelectedMode(newMode);
-    setdisplayedModes(modes.filter(name => name !== newMode));
-    
+    setdisplayedModes(modes.filter((name) => name !== newMode));
+
     if (newMode === "points") {
       setDisplayedData(weeklyPoints);
       setDisplayedCumulativeData(cumulativePoints);
-    }
-    else if (newMode === "exercises") {
+    } else if (newMode === "exercises") {
       setDisplayedData(weeklyExercises);
       setDisplayedCumulativeData(cumulativeExercises);
-    }
-    else if (newMode === "commits") {
+    } else if (newMode === "commits") {
       setDisplayedData(weeklyCommits);
       setDisplayedCumulativeData(cumulativeCommits);
-    }
-    else if (newMode === "submissions") {
+    } else if (newMode === "submissions") {
       setDisplayedData(weeklySubmissions);
       setDisplayedCumulativeData(cumulativeSubmissions);
-    }
-    else {
+    } else {
       console.log("Selected unimplemented mode:", newMode);
     }
   };
 
   const handleToggleRefLineVisibilityClick = (targetLine) => {
-    
-    const lines = document.querySelectorAll("g.recharts-layer.recharts-line>path.recharts-curve.recharts-line-curve")
-    
+    const lines = document.querySelectorAll(
+      "g.recharts-layer.recharts-line>path.recharts-curve.recharts-line-curve"
+    );
+
     // Toggle the visibility of drawn reference lines:
     if (targetLine === "Expected") {
-      lines.forEach(node => {
+      lines.forEach((node) => {
         if (node.outerHTML.includes(`stroke="${expectedStrokeColor}"`)) {
           node.style.display = showExpected ? "none" : "";
         }
-      })
-      document.querySelectorAll(".recharts-layer .recharts-label-list")
-        .forEach(node => node.style.display = showExpected ? "none" : "");
+      });
+      document
+        .querySelectorAll(".recharts-layer .recharts-label-list")
+        .forEach((node) => (node.style.display = showExpected ? "none" : ""));
       setShowExpected(!showExpected);
-    }
-    else {
-      lines.forEach(node => {
+    } else {
+      lines.forEach((node) => {
         if (node.outerHTML.includes(`stroke="${avgStrokeColor}"`)) {
           node.style.display = showAvg ? "none" : "";
         }
-      })
+      });
       setShowAvg(!showAvg);
     }
   };
-
   const handleToggleStudentGroupClick = (groupIdentifier) => {
-    const showGroup = document.getElementById(`input-${groupIdentifier}`).checked;
+    const showGroup = document.getElementById(`input-${groupIdentifier}`)
+      .checked;
     const gradeSwitches = document.querySelectorAll(".gradeswitch");
-    const color = showGroup ? "black" : "grey";
-    
+    // const color = showGroup ? "black" : "grey";
     if (groupIdentifier === "all") {
       setDisplayedStudents(showGroup ? studentIds : []);
-      gradeSwitches.forEach(node => node.checked = showGroup);
-      studentIds.forEach(studentId => document.querySelector(`#li-${studentId}`).style.color = color);
-    }
-    else {
-      const targetData = displayedCumulativeData[displayedCumulativeData.length-1];
+      gradeSwitches.forEach((node) => (node.checked = showGroup));
+      // studentIds.forEach(
+      //   (studentId) =>
+      //     (document.querySelector(`#li-${studentId}`).style.color = color)
+      // );
+      setGroup(new Array(8).fill(showGroup));
+    } else {
+      const newGroup = [...group];
+      newGroup[groupIdentifier] = !newGroup[groupIdentifier];
+
+      if (newGroup[groupIdentifier] === false) {
+        newGroup[newGroup.length - 1] = false;
+      }
+      if (!newGroup.slice(0, newGroup.length - 1).some((e) => e === false)) {
+        newGroup[newGroup.length - 1] = true;
+      }
+      setGroup(newGroup);
+      const targetData =
+        displayedCumulativeData[displayedCumulativeData.length - 1];
       const targetGrade = parseInt(groupIdentifier);
-      
+
       // Calculate point range of target students:
-      const pointMinimum = targetGrade < 1 ? 0 : targetData[`avg_cum_${selectedMode}_grade_${targetGrade-1}`];
-      const pointMaximum = targetGrade < 6 ? targetData[`avg_cum_${selectedMode}_grade_${targetGrade}`] : 2000;
+      const pointMinimum =
+        targetGrade < 1
+          ? 0
+          : targetData[`avg_cum_${selectedMode}_grade_${targetGrade - 1}`];
+      const pointMaximum =
+        targetGrade < 6
+          ? targetData[`avg_cum_${selectedMode}_grade_${targetGrade}`]
+          : 2000;
 
       // Select students that belong to given point range:
-      const targetStudents = Object.keys(targetData).filter(studentId => 
-          pointMinimum <= targetData[studentId] && pointMaximum >= targetData[studentId]);
-      
+      const targetStudents = Object.keys(targetData).filter(
+        (studentId) =>
+          pointMinimum <= targetData[studentId] &&
+          pointMaximum >= targetData[studentId]
+      );
+
       // Toggle the "visibility" of the selected students in the student listing:
-      targetStudents
-        .filter(student => !['week', 'weeklyAvgs'].includes(student) && !student.startsWith("avg_"))
-        .forEach(studentId => document.querySelector(`#li-${studentId}`).style.color = color);
+      // targetStudents
+      //   .filter(
+      //     (student) =>
+      //       !["week", "weeklyAvgs"].includes(student) &&
+      //       !student.startsWith("avg_")
+      //   )
+      //   .forEach(
+      //     (studentId) =>
+      //       (document.querySelector(`#li-${studentId}`).style.color = color)
+      //   );
 
       // Toggle the visibility of students by selecting correct group of students to be displayed:
-      const disp = showGroup ?
-        displayedStudents.concat(targetStudents.filter(student => !student.startsWith("avg_"))) :
-        displayedStudents.filter(student => !targetStudents.includes(student) && !student.startsWith("avg_"));
-      
+      const disp = showGroup
+        ? displayedStudents.concat(
+            targetStudents.filter((student) => !student.startsWith("avg_"))
+          )
+        : displayedStudents.filter(
+            (student) =>
+              !targetStudents.includes(student) && !student.startsWith("avg_")
+          );
+
       setDisplayedStudents(disp);
 
       if (showGroup) {
         // Figure out if all grade groups are selected:
         let allChecked = true;
-        gradeSwitches.forEach(node => {
-          if (!node.checked) { allChecked = false; }
-        })
+        gradeSwitches.forEach((node) => {
+          if (!node.checked) {
+            allChecked = false;
+          }
+        });
 
         if (allChecked) {
           // Activate "all students selected" switch:
-          const allSwitch = document.getElementById('input-all');
-          if (!allSwitch.checked) { allSwitch.checked = true; }
+          const allSwitch = document.getElementById("input-all");
+          if (!allSwitch.checked) {
+            allSwitch.checked = true;
+          }
         }
-      }
-      else {  // Hiding student groups
+      } else {
+        // Hiding student groups
         // Make sure "all students selected" button is inactive:
-        const allSwitch = document.getElementById('input-all');
-        if (allSwitch.checked) { allSwitch.checked = false; }
+        const allSwitch = document.getElementById("input-all");
+        if (allSwitch.checked) {
+          allSwitch.checked = false;
+        }
       }
     }
   };
 
   return (
-    <>
-      <div className="fit-row">
-        <GroupDisplay grades={grades} handleClick={handleToggleStudentGroupClick}/>
-        <StudentSelector students={studentIds} handleClick={handleListClick} />
-      </div>
+    <div className="chart" style={{ paddingTop: "30px" }}>
+      <ConfigDialog
+        title={{
+          button: "Show view configuration",
+          dialog: "Select Student Group",
+          confirm: "OK",
+        }}
+      >
+        <div className="fit-row">
+          <GroupDisplay
+            grades={grades}
+            handleClick={handleToggleStudentGroupClick}
+            groupSelected={group}
+          />
+          {/* <StudentSelector students={studentIds} handleClick={handleListClick} /> */}
+        </div>
 
-      <div className="fit-row">
-        <h2>{`Weekly ${selectedMode}`}</h2>
-        <Controls handleClick={handleModeClick}
-                  modes={displayedModes} selectedMode={selectedMode}
-                  showableLines={showableLines}
-                  handleToggleRefLineVisibilityClick={handleToggleRefLineVisibilityClick}
-                  showAvg={showAvg} showExpected={showExpected}>
-        </Controls>
-      </div>
+        <div className="fit-row">
+          <Controls
+            handleClick={handleModeClick}
+            modes={displayedModes}
+            selectedMode={selectedMode}
+            showableLines={showableLines}
+            handleToggleRefLineVisibilityClick={
+              handleToggleRefLineVisibilityClick
+            }
+            showAvg={showAvg}
+            showExpected={showExpected}
+          ></Controls>
+        </div>
+      </ConfigDialog>
+      <h2>{`Weekly ${selectedMode}`}</h2>
+      <ResponsiveContainer
+        minWidth="300px"
+        minHeight="700px"
+        key={lineChartShouldUpdate}
+      >
+        <LineChart
+          className="intendedChart"
+          data={displayedData}
+          syncId={syncKey}
+          margin={margins}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis
+            dataKey={dataKey}
+            label={{ value: axisNames[0], position: "bottom" }}
+          />
+          <YAxis
+            label={{
+              value: `${selectedMode}`,
+              angle: -90,
+              position: "left",
+              offset: -10,
+            }}
+          />
 
-      <LineChart className="intendedChart"
-                 width={chartWidth} height={chartHeight}
-                 data={displayedData} syncId={syncKey}
-                 margin={margins}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey={dataKey} label={{ value: axisNames[0], position: 'bottom' }} />
-        <YAxis label={{ value: `${selectedMode}`, angle: -90, position: 'left', offset: -10 }}/>
-        
-        {// Draw average point lines for each grade from history data:
-        grades.map(index =>
-          <Line key={`avg_${selectedMode}_grade_${index}`}
-                type="linear" dot={false}
-                label={<ExpectedLabel grade={index}
-                                      strokeColor={"#78b5a2"}
-                                      display={showExpected}/>}
+          {
+            // Draw average point lines for each grade from history data:
+            grades.map((index) => (
+              <Line
+                key={`avg_${selectedMode}_grade_${index}`}
+                type="linear"
+                dot={false}
+                label={
+                  <ExpectedLabel
+                    grade={index}
+                    strokeColor={"#78b5a2"}
+                    display={showExpected}
+                  />
+                }
                 dataKey={`avg_${selectedMode}_grade_${index}`}
                 stroke={expectedStrokeColor}
                 strokeWidth={avgStrokeWidth}
-                style={{display: showExpected ? "" : "none"}}>
-          </Line>
-        )}
+                style={{ display: showExpected ? "" : "none" }}
+              ></Line>
+            ))
+          }
 
-        {displayedStudents.map(student => 
-          <Line key={student}
-                onClick={() => handleStudentLineClick(student)}
-                className="hoverable" 
-                type="linear" dot={false}
-                dataKey={student}
-                stroke={studentStrokeColor}
-                strokeWidth={studentStrokeWidth}>
-          </Line>
-        )}
-        
-        <Line id={avgDataKey} type="linear" dataKey={avgDataKey} dot={false}
-              stroke={avgStrokeColor} strokeWidth={avgStrokeWidth}
-              style={{display: showAvg ? "" : "none"}}/>
+          {displayedStudents.map((student) => (
+            <Line
+              key={student}
+              onClick={() => handleStudentLineClick(student)}
+              className="hoverable"
+              type="linear"
+              dot={false}
+              dataKey={student}
+              stroke={studentStrokeColor}
+              strokeWidth={studentStrokeWidth}
+            ></Line>
+          ))}
 
-      </LineChart>
-
-      <h2>{`Cumulative weekly ${selectedMode}`}</h2>
-      
-      <LineChart className="intendedChart"
-                 width={chartWidth} height={chartHeight+selectorHeight}
-                 data={displayedCumulativeData} syncId={syncKey}
-                 margin={{ top: 10, right: 10, left: 20, bottom: selectorHeight }}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey={dataKey} label={{ value: axisNames[0], position: 'bottom' }} />
-        <YAxis label={{ value: `cumulative ${selectedMode}`, angle: -90, position: 'left', offset: -10 }}/>
-
-        {// Draw average point lines for each grade from history data:
-        grades.map(index =>
-          <Line key={`avg_cum_${selectedMode}_grade_${index}`}
-                label={<ExpectedLabel grade={index}
-                                      strokeColor={"#78b5a2"}
-                                      display={showExpected}/>}
-                type="linear" dot={false}
-                dataKey={`avg_cum_${selectedMode}_grade_${index}`}
-                stroke={expectedStrokeColor}
-                strokeWidth={avgStrokeWidth}
-                style={{display: showExpected ? "" : "none"}}>
-          </Line>
-        )}
-
-        {// Draw student lines:
-        displayedStudents.map(key =>
-          <Line key={key}
-                onClick={() => handleStudentLineClick(key)}
-                className="hoverable"
-                type="linear" dot={false}
-                dataKey={key}
-                stroke={studentStrokeColor}
-                strokeWidth={studentStrokeWidth}>
-          </Line>
-        )}
-
-        <Line id={avgDataKey} type="linear" dataKey={avgDataKey} dot={false}
-              stroke={avgStrokeColor} strokeWidth={avgStrokeWidth}
-              style={{display: showAvg ? "" : "none"}}/>
-        
-        <Brush y={chartHeight-5} tickFormatter={(tick) => tick + 1}></Brush>
-      </LineChart>
-    </>
+          <Line
+            id={avgDataKey}
+            type="linear"
+            dataKey={avgDataKey}
+            dot={false}
+            stroke={avgStrokeColor}
+            strokeWidth={avgStrokeWidth}
+            style={{ display: showAvg ? "" : "none" }}
+          />
+          <Brush
+            startIndex={Math.floor(timescale.start / 7)}
+            endIndex={Math.ceil(timescale.end / 7)}
+            tickFormatter={(tick) => tick + 1}
+            onChange={(e) => {
+              setTimescale({
+                start: e.startIndex * 7,
+                end: e.endIndex * 7 - 1,
+              });
+            }}
+          ></Brush>
+        </LineChart>
+      </ResponsiveContainer>
+      <button
+        onClick={() => {
+          if (client) {
+            publishMessage(client, {
+              mode: selectedMode,
+              timescale: timescale,
+              instances: displayedStudents,
+            });
+          }
+        }}
+      >
+        Sync
+      </button>
+    </div>
   );
-}
+};
 
-export default ProgressTab
+export default ProgressTab;

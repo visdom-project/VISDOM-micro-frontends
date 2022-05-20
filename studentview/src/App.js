@@ -1,12 +1,13 @@
 import React from "react";
 import "./App.css";
-
+import { MessageProvider } from "./contexts/MessageContext";
 import StudentTab from "./components/StudentTab";
+
 function App() {
   return (
-    <div className="App">
-      <StudentTab />
-    </div>
+      <MessageProvider>
+        <StudentTab />
+      </MessageProvider>
   );
 }
 

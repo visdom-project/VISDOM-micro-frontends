@@ -1,5 +1,6 @@
 .App {
   text-align: left;
+  width: inherit;
 }
 
 .basic-line {
@@ -43,6 +44,7 @@ h3 {
   display: flex;
   margin: auto;
   margin-right: 0;
+  flex-wrap: wrap;
 }
 
 #showGradesButton {

@@ -1,7 +1,13 @@
-import axios from "axios";
-import { SERVER_URL } from "./constants.js";
+/* eslint-disable no-console */
+/* eslint-disable camelcase */
 
-const baseUrl = `${SERVER_URL}/gitlab-course-40-commit-data-anonymized/_search`;
+import axios from "axios";
+import { ElasticSearchConfiguration } from "./serviceConfiguration";
+
+// TODO: fix this
+const baseUrl = ElasticSearchConfiguration.createUrl(
+  "gitlab-course-40-commit-data-anonymized/_search"
+);
 
 const getAllStudentData = () => {
   const request = axios
@@ -132,5 +138,4 @@ const getData = (studentId) => {
   return request;
 };
 
-/* eslint import/no-anonymous-default-export: [2, {"allowObject": true}] */
 export default { getData, getAllStudentData };

@@ -1,19 +1,23 @@
-import React from 'react'
-import '../stylesheets/dropdown.css'
+/* eslint-disable react/prop-types */
+import React from "react";
+import "../stylesheets/dropdown.css";
 
-const DropdownMenu = ({handleClick, options, selectedOption, title}) => {
+const DropdownMenu = ({ handleClick, options, selectedOption, title }) => {
   return (
     <div className="dropdown-menu">
-      <label style={{margin: "auto 1em", height: "1.2em"}} >{title}</label>
+      <label style={{ margin: "auto 1em", height: "1.2em" }}>{title}</label>
       <div className="dropdown">
         <button className="dropdown-title-button">{selectedOption}</button>
         <div className="dropdown-options">
-          {options.map(option => 
-            <button key={option} onClick={() => handleClick(option)} >{option}</button>)}
+          {options.map((option) => (
+            <button key={option} onClick={() => handleClick(option)}>
+              {option}
+            </button>
+          ))}
         </div>
       </div>
-    </div> 
-  )
-}
+    </div>
+  );
+};
 
-export default DropdownMenu
+export default DropdownMenu;
