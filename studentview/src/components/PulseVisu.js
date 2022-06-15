@@ -27,7 +27,6 @@ import moment from "moment";
 export const StudentList = ({ setStudentID, studentID }) => {
   const [studentData, setStudentData] = useState([]);
   const student = studentData.find((item) => item.student_id === studentID);
-
   useEffect(() => {
     pulseData
       .getAllStudentData()
