@@ -15,7 +15,7 @@
     "moment": "^2.29.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "recharts": "^1.8.5",
+    "recharts": "^2.4.3",
     "single-spa-react": "^3.0.1"
   },
   "scripts": {
